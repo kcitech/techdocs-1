@@ -1,0 +1,8 @@
+linux mem 용량 체크
+
+cat /proc/meminfo | grep MemTotal
+
+cat /proc/mtrr
+
+dmesg physical memory
+

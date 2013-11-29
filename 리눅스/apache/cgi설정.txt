@@ -1,0 +1,21 @@
+
+1. cgi 및 virtualhost 정리
+/etc/httpd/httpd.conf
+=========================================
+
+ServerName TESTDOMAIN.kr
+ServerAlias www.TESTDOMAIN.kr
+DocumentRoot /home/USER/public_html
+
+AllowOverride None
+Options ExecCGI
+Order allow,deny
+Allow from all
+
+
+3. cgi권한 수정
+/home/USER/public_html 하위디렉터리에서
+cgi를 통해 파일을 쓰기가 가능해야 한다고
+하셨습니다.
+public_html 하위디렉터리의 권한중에
+other부분에서 쓰기 권한을 추가했습니다.

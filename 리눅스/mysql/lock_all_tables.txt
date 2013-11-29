@@ -1,0 +1,8 @@
+
+# mysqldump -uroot -p암호 -A > /backup/db_backup/mysql_all_databases.sql
+ 
+mysqldump: Got error: 1105: File './bbs_main_TEST.MYD' not found (Errcode: 24) when using LOCK TABLES
+(덤프 중간에 에러메시지 발생-테이블락)
+ 
+옵션추가후 덤프(--lock-all-tables)
+# mysqldump -uroot -p암호  --lock-all-tables -A > /backup/db_backup/mysql_all_databases.sql

@@ -1,0 +1,30 @@
+    1  sudo apt-get -y update && sudo apt-get -y upgrade
+    2  ls -l
+    3  chmod 700 bitnami-redmine-2.1.4-0-*
+    4  ls -l
+    5  ./bitnami-redmine-2.1.4-0-linux-x64-installer.run 
+    
+    
+   10  cd /home/localadmin/redmine-2.1.4-0/
+   11  ls -l
+   12  cd apache2/
+   13  ls -l
+   14  cd htdocs/
+   15  ls -l
+   16  view index.html 
+   17  mv index.html index.html.nouse
+   18  cd ..
+   19  ls -l
+   20  cd conf
+   21  ls -l
+   22  view httpd.conf 
+   23  ps aux
+   24  cd ..
+   25  view conf/httpd.conf 
+   26  cd ..
+   27  ls -l
+   28  which apachectl
+   29  /home/localadmin/redmine-2.1.4-0/apache2/bin/apachectl configtest
+   30  /home/localadmin/redmine-2.1.4-0/apache2/bin/apachectl restart
+   
+   sudo -u localadmin /home/localadmin/redmine-2.1.4-0/ctlscript.sh restart

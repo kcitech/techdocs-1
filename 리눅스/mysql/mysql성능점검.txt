@@ -1,0 +1,46 @@
+
+
+오후에 계속 지켜보면서 process상황도 살펴봤지만,
+말씀하신 평상시 수치에서 벗어나지 않는 수준입니다.
+
+error로그가 기록되는 /var/log/mysqld.log를 보면
+오전에 mysql이 작동하지 않았을때의 로그가 잡혀 있습니다.
+===================================================
+080107 11:45
+080107 11:46:27 [ERROR] Out of memory;
+mysqld got signal 11;
+===================================================
+
+오후에도 접속이 많았는지 cpu가 100% 차지하면서 접속이 되지않아 mysql restart를 했었습니다.
+
+오전과 오후 발생했던 메모리 문제는 설정을 너무 크게 잡은 것이
+원인이 아닌가 생각됩니다.
+
+key_buffer_size + (read_buffer_size +
+sort_buffer_size)*max_connections
+1677721600 + (2093056+2093056)*1500 =7956889600 (약 8G)
+
+(read_buffer_size + sort_buffer_size)*max_connections부분만
+6G정도 됩니다.
+
+다음의 설정으로 하향조정해보시기 바랍니다.
+(현재도 물리메모리보다 큽니다.)
+
+key_buffer_size=1024M
+max_connections=1000
+sort_buffer_size=1M
+read_buffer_size=1M
+
+이 값으로 계산해보면 대략 3G정도 됩니다.
+메모리가 6G이므로 max_connections또는 sort, read buffer를
+조금씩 크게 해도 되겠으나 되도록 물리적 메모리보다 작도록
+설정을 해보시기 바랍니다.
+
+wait_timeout은 my.cnf에 설정된 것으로 설정된 것이 맞으며,
+sql> show global variables like 'wait%'; 로 확인하실 수 있습니다.
+
+부하가 가끔 50이상씩 치솟는 부분에 대해서는 뭐라고 말씀드리기는
+힘들것 같습니다.
+전적으로 sql문에 의한 부하일 경우가 크기때문에 그러한 부하 발생시
+mysql에 접속해서 show processlist를 해보셔서 확인하셔야
+할 것 같습니다.

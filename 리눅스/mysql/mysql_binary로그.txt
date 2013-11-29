@@ -1,0 +1,20 @@
+
+확인해 보니 mysql 설정파일에 쿼리 로그가 쌓이도록
+설정되어 있습니다.
+
+# cat /etc/my.cny
+log-bin=mysql-bin
+
+로그파일 위치는 /home/mysql-data 하위에
+mysql-bin.000001 ~ mysql-bin.0000014 저장되어 있습니다.
+
+로그는 바이너리 파일로 확인할때는 텍스트파일로 변경후
+확인 하셔야 합니다.
+
+# mysqlbinlog 로그파일 > 저장파일명
+예)
+#mysqlbinlog mysql-bin.000001 > test.sql
+
+# mysqlbinlog -d db명 로그파일 > 파일명
+예)
+#mysqlbinlog -d dbname mysql-bin.000001 > test_db.sql

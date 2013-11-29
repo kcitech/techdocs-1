@@ -1,0 +1,68 @@
+
+
+터미널 세션 정리에 대한 내용을 정리해 보내 드리오니
+참고 하셔서 활용 하시기 바랍니다.
+
+1) windows 2000 , 2003 등 NT 서버군 공통
+
+1 ) 원격 서버로의 접근
+c:>net use \\192.168.2.100
+
+ID 입력 :
+패스워드 입력 :
+명령을 잘 실행 했습니다. <- 원격 연결 OK
+
+2) 원격 서버상의 터미널 상태 확인
+
+c:>query session /server:192.168.2.100
+현재 접속된 session 이 출력
+아이피 미 입력시 현재 명령을 내린 서버의 터미널 상태가 출력 됩니다.
+
+아래는 예시 입니다.
+
+C:\Users\윤원진>query session /server:192.168.2.100
+세션 이름 사용자 이름 ID 상태 종류 장치
+console Administrator 0 활성 wdcon
+rdp-tcp 65536 수신 대기
+rdpwd
+rdp-tcp#3 Administrator 1 활성 rdpwd
+
+c:> logoff 3 /server:192.168.2.100 /v
+c:> reset session 3 /server:192.168.2.100
+c:> tsdiscon 3 /server:192.168.2.100 -> 이 명령은 2000에서 잘안먹는 경우가 있습니다.
+
+위의 셋 중 아무것이나 편하신대로 선택해 명령을 실행 하면 3번
+원격 접속 세션이 종료 됩니다.
+
+그 밖에 활용 할만한 명령으로는 다음과 같습니다.
+
+tsshutdn 0 /delay:0 /v /server:192.168.2.100 /reboot 바로 리부팅 합니다.
+
+2) 아래는 2003 및 XP 이상 에서만 가능 합니다.
+
+실행창 -> cmd
+
+mstsc /consol /v:192.168.2.100 --> 192.168.2.100번 서버의 콘솔로 연결합니다.
+
+아래는 2008 및 vista 혹은 2003 , XP 의 데스크탑을 추가 업데이트 할 경우만 사용 가능합니다.(/consol 옵션이 2008부터 없어짐)
+
+mstsc /admin /v:192.168.2.100 --> 192.168.2.100번 서버의 관리자 모드로 연결을 시도 합니다. (consol과 동일 효과)
+
+=========
+case 2
+=========
+
+XP 같이 사용하시려면
+
+xp sp2 일 경우 : 시작 -> 실행 -> mstsc /console
+xp sp3 일 경우 : 시작 -> 실행 -> mstsc /admin
+
+으로 접속하시면 콘솔모드로 접속이 가능합니다.(xp와 흡사)
+
+==============
+case 3
+==============
+net use \\192.168.2.100 /user:administrator
+query session /server:192.168.2.100
+tsdiscon 1 /server:192.168.2.100
+reset session 세션ID /server:xxx.xxx.xxx.xxx

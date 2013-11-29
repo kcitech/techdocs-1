@@ -1,0 +1,46 @@
+
+
+   private Element createAmazonXMLDoc(int itemPage,
+                                       String category,
+                                       String keywords){
+
+   /* XML format (keywords are space delimited):
+   <array>
+       <Operation>ItemSearchRequest</Operation>
+       <ItemPage>1</ItemPage>
+       <SearchIndex>Baby</SearchIndex>
+       <ResponseGroup>Medium</ResponseGroup>
+       <Keywords>diaper</Keywords>
+   </array>
+   */
+
+        Document xmlDoc = XMLParser.createDocument();
+        Element root = xmlDoc.createElement("array");
+
+        Element operationElement = xmlDoc.createElement("Operation");
+        Text operationTxt = xmlDoc.createTextNode("ItemSearchRequest");
+        operationElement.appendChild(operationTxt);
+        root.appendChild(operationElement);
+
+        Element itemPageElement = xmlDoc.createElement("ItemPage");
+        Text itemPageTxt = xmlDoc.createTextNode("1");
+        itemPageElement.appendChild(itemPageTxt);
+        root.appendChild(itemPageElement);
+
+        Element searchElement = xmlDoc.createElement("SearchIndex");
+        Text searchTxt = xmlDoc.createTextNode("Baby");
+        searchElement.appendChild(searchTxt);
+        root.appendChild(searchElement);
+
+        Element responseGroupElement = xmlDoc.createElement("ResponseGroup");
+        Text responseGroupTxt = xmlDoc.createTextNode("Medium");
+        responseGroupElement.appendChild(responseGroupTxt);
+        root.appendChild(responseGroupElement);
+
+        Element keywordElement = xmlDoc.createElement("Keywords");
+        Text keywordText = xmlDoc.createTextNode("diaper");
+        keywordElement.appendChild(keywordText);
+        root.appendChild(keywordElement);
+        
+        return root;
+    }

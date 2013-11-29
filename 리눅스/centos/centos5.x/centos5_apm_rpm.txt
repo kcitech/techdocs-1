@@ -1,0 +1,71 @@
+[ centos 5.1 + apm rpm ]
+
+os install
+-. centos4_after_install.txt 참조
+
+1. apm 환경 알아보기
+   # yum list httpd* php* mysql*
+
+2. apm 패키지 install
+   # yum install httpd httpd-devel php php-devel php-bcmath php-cli php-common php-mcrypt php-domxml php-gd php-imap php-mbstring php-mysql php-xmlrpc php-pear mysql mysql-server mysql-devel "Image*"
+
+   wget, lynx 삭제
+   curl, curl-config 이름 변경 -> AAAA_curl, AAAA_curl-config
+     
+3. 설정
+   -. httpd
+      /etc/httpd/conf/httpd.conf
+      3.x대의 아파치에서 MaxClients의 수 증가를 위해 소스컴파일을 했지만
+      아래와 같이 ServerLimit,MaxClients 를 수정하면 됨.
+      (MaxClients의 수는 ServerLimit보다 클 수 없다.)
+      ====================================================
+      KeepAlive Off  -> 그대로
+      <IfModule prefork.c>  
+          ServerLimit      256  -> ServerLimit      1024
+          MaxClients       256  -> MaxClients       512          
+      </IfModule>
+
+      AddDefaultCharset UTF-8  -> AddDefaultCharset EUC-KR
+      ====================================================
+
+   -. php
+      /etc/php.ini
+      =====================================================
+      register_globals = Off     -> register_globals = On
+      allow_url_fopen = On       -> 일단 그대로.. => 보안적용 Off로
+      upload_max_filesize = 2M   -> 일단 그대로..
+      max_execution_time = 30    -> max_execution_time = 60
+      memory_limit = 8M          -> memory_limit = 20M 
+
+      register_long_arrays = Off -> On으로 수정
+      =====================================================
+   -. php.conf
+      /etc/httpd/conf.d/php.conf
+      ========================================================================= 
+      AddType application/x-httpd-php .php -> .inc .html .htm 등도 추가 
+      DirectoryIndex index.php -> DirectoryIndex index.php index.html index.htm
+      ========================================================================= 
+
+   -. mysql
+      /etc/my.cnf
+      =======================================================
+      [client]
+      default-character-set=euckr
+
+      [mysqld]
+      old_passwords=1
+      default-character-set=euckr
+      init_connect="set names euckr"
+      character-set-client-handshake = FALSE 
+       또는 skip-character-set-client-handshake
+      =======================================================
+
+      default-character-set=euckr : 소스컴파일시 --with-charset=euckr로 한것과 같다.
+      old_passwords=1 : 4.0대 이하에서 사용하던 password함수로 입력되어진
+                        data와 호환을 하려고 하는 것이다.
+      init_connect="set names euckr" : 4.0이하의 db를 dump해서 4.1로 restore한 후
+                                       웹에서 깨질경우에 설정하는 파라미터.
+
+      character-set-client-handshake = FALSE 
+        : mysql root로 연동하더라도 latin1이 아닌 euckr로 적용된다.
+          (character_set_client , character_set_connection 등)

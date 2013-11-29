@@ -1,0 +1,170 @@
+
+mysql> show variables like 'ch%';
++--------------------------+----------------------------+
+| Variable_name            | Value                      |
++--------------------------+----------------------------+
+| character_set_client     | euckr                      |
+| character_set_connection | euckr                      |
+| character_set_database   | euckr                      |
+| character_set_results    | euckr                      |
+| character_set_server     | euckr                      |
+| character_set_system     | utf8                       |
+| character_sets_dir       | /usr/share/mysql/charsets/ |
++--------------------------+----------------------------+
+
+mysql> show variables like 'co%';
++----------------------+-----------------+
+| Variable_name        | Value           |
++----------------------+-----------------+
+| collation_connection | euckr_korean_ci |
+| collation_database   | euckr_korean_ci |
+| collation_server     | euckr_korean_ci |
+| concurrent_insert    | ON              |
+| connect_timeout      | 5               |
++----------------------+-----------------+
+
+<웹에서 확인>
+<?
+ 
+$connect = mysql_connect(localhost,root);
+$isResult = mysql_select_db("mysql", $connect);
+ 
+# mysql_query("set session character_set_connection=euckr;");
+# mysql_query("set session character_set_results=euckr;");
+# mysql_query("set session character_set_client=euckr;");
+ 
+$sql = "show variables like '%character%'";
+$result = mysql_query($sql);
+ 
+while($row = mysql_fetch_array($result)) {
+echo $row[0] . " | " . $row[1] . "<br>\n";
+}
+ 
+echo ("<br><br>");
+ 
+$sql = "show variables like '%collation%'";
+ 
+$result = mysql_query($sql);
+ 
+while($row = mysql_fetch_array($result)) {
+echo $row[0] . " | " . $row[1] . "<br>\n";
+}
+ 
+?>
+
+결과1
+character_set_client | latin1
+character_set_connection | latin1
+character_set_database | euckr
+character_set_results | latin1
+character_set_server | euckr
+character_set_system | utf8
+character_sets_dir | /usr/share/mysql/charsets/
+
+collation_connection | latin1_swedish_ci
+collation_database | euckr_korean_ci
+collation_server | euckr_korean_ci
+
+결과2
+character_set_client | euckr
+character_set_connection | euckr
+character_set_database | euckr
+character_set_results | euckr
+character_set_server | euckr
+character_set_system | utf8
+character_sets_dir | /usr/share/mysql/charsets/
+
+
+collation_connection | euckr_korean_ci
+collation_database | euckr_korean_ci
+collation_server | euckr_korean_ci
+
+-------------------------------------------------------------------
+
+--------------------------------
+현상
+--------------------------------
+mysql 콘솔접속시 <결과1>과 같이 euckr로 나오나
+웹에서(char.php)보면 <결과2>과 같이 보임
+
+<결과1>
+show variables like 'ch*'
+show variables like 'co*'
+
+mysql> show variables like 'ch%';
++--------------------------+----------------------------+
+| Variable_name            | Value                      |
++--------------------------+----------------------------+
+| character_set_client     | euckr                      |
+| character_set_connection | euckr                      |
+| character_set_database   | euckr                      |
+| character_set_results    | euckr                      |
+| character_set_server     | euckr                      |
+| character_set_system     | utf8                       |
+| character_sets_dir       | /usr/share/mysql/charsets/ |
++--------------------------+----------------------------+
+
+mysql> show variables like 'co%';
++----------------------+-----------------+
+| Variable_name        | Value           |
++----------------------+-----------------+
+| collation_connection | euckr_korean_ci |
+| collation_database   | euckr_korean_ci |
+| collation_server     | euckr_korean_ci |
+| concurrent_insert    | ON              |
+| connect_timeout      | 5               |
++----------------------+-----------------+
+
+
+결과2
+character_set_client | latin1
+character_set_connection | latin1
+character_set_database | euckr
+character_set_results | latin1
+character_set_server | euckr
+character_set_system | utf8
+character_sets_dir | /usr/share/mysql/charsets/
+
+collation_connection | latin1_swedish_ci
+collation_database | euckr_korean_ci
+collation_server | euckr_korean_ci
+
+--------------------------------
+조치
+--------------------------------
+my.cnf에 아래 옵션 추가후 웹확인시 <결과1>과 같이 나옴
+[mysqld]
+....
+skip-character-set-client-handshake
+....
+
+--------------------------------
+참고 소스(웹에서 확인)char.php
+--------------------------------
+<?
+ 
+$connect = mysql_connect(localhost,root);
+$isResult = mysql_select_db("mysql", $connect);
+ 
+# mysql_query("set session character_set_connection=euckr;");
+# mysql_query("set session character_set_results=euckr;");
+# mysql_query("set session character_set_client=euckr;");
+ 
+$sql = "show variables like '%character%'";
+$result = mysql_query($sql);
+ 
+while($row = mysql_fetch_array($result)) {
+echo $row[0] . " | " . $row[1] . "<br>\n";
+}
+ 
+echo ("<br><br>");
+ 
+$sql = "show variables like '%collation%'";
+ 
+$result = mysql_query($sql);
+ 
+while($row = mysql_fetch_array($result)) {
+echo $row[0] . " | " . $row[1] . "<br>\n";
+}
+ 
+?>

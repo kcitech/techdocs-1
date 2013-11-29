@@ -1,0 +1,34 @@
+
+2. DoS방어 모듈 설정
+mod_dosevasive.so 컴파일
+========================================================
+# tar xvzf /usr/local/src/mod_dosevasive.1.8.tar.gz
+# cd /usr/local/src/mod_dosevasive
+# /usr/local/httpd-2.2.4/bin/apxs -iac mod_dosevasive.c
+========================================================
+
+mod_dosevasive 설정
+========================================================
+LoadModule dosevasive20_module modules/mod_dosevasive20.so
+-> 컴파일되면 자동으로 추가됨
+아래 부분 수동 추가
+< IfModule mod_dosevasive20.c>
+DOSHashTableSize 4096
+DOSPageCount 5
+DOSSiteCount 40
+DOSPageInterval 1
+DOSSiteInterval 1
+DOSBlockingPeriod 10
+< /IfModule>
+=========================================================
+1초에 5번 요청을 하면 위 설정에 위배되서
+403에러 페이지가 보이게 됩니다.
+만약, 정상적인 접속에 대해서도 403페이지가 보이면
+설정값을 늘이는 등의 수정이 필요합니다.
+
+이후 서버 리부팅하였습니다.
+
+현재 사이트는 정상적으로 보이고 있습니다만,
+mrtg는 평상시 보다 높습니다.
+
+위 설정으로 100% 방어를 할 수는 없습니다.

@@ -1,0 +1,154 @@
+
+===================================
+case1
+===================================
+ㅇ rpm으로 제작하여 사용함 
+oracle program은 oracle9204.tgz 로 압축하였으며 rpm으로 제작하여 한번에 사용자 추가, 프로그램설치를 할 수 있도록 하였음 
+
+ㅇ 오라클 설치 
+- oracle client -> custom 에서 아래 프로그램 설치함. 총설치용량은 348M. 
+Oracle Network Utilities 
+SQL*PLUS 
+Oracle JDBC/OCI Interfaces 
+Oracle Call Interfaces 
+Oracle Programmer 
+Oracle Universal Installer 
+
+ㅇ 세팅절차 
+- 계정설정 
+/usr/sbin/groupadd -g 5000 dba 
+/usr/sbin/useradd -d /www/program/oracle -g dba oracle 
+** 위에서 /www/program 디렉토리를 미리 만들어주지 않으면 rpm 설치시 디렉토리를 만들지 못함 
+
+- profile 설정 : oracle 계정의 .bash_profile 에 세팅 
+
+## Environment variables for Oracle 
+export ORACLE_SID=wwwDB 
+export ORACLE_BASE=/www/program/oracle/app/oracle 
+export ORACLE_HOME=$ORACLE_BASE/product/920 
+export ORA_NLS33=$ORACLE_HOME/ocommon/nls/admin/data 
+export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/usr/lib 
+export SHLIB_PATH=$LD_LIBRARY_PATH 
+export TNS_ADMIN=$ORACLE_HOME/network/admin 
+export NLS_LANG=American_America.KO16KSC5601 
+export PATH=$PATH:$ORACLE_HOME/bin:. 
+export ORACLE_OWNER=oracle 
+umask 022 
+
+alias oh='cd $ORACLE_HOME' 
+alias net='cd $ORACLE_HOME/network/admin' 
+
+
+ㅇ rpm 파일 제작 
+- oracle9204.tgz 에 클라이언트 프로그램을 묶어둠 
+
+RPM 파일을 만들기 위한 oracle.spec 파일 
+
+# cat /usr/src/redhat/SPEC/oracle.spec 
+
+%define ORACLEDIR /www/program/oracle 
+
+Summary: 9.2.0.4 client program 
+Name: oracleclient 
+Version: 9.2.0.4 
+Release: 1 
+Group: Applications/Databases 
+Source0: oracle9204.tgz 
+License: GPL/LGPL 
+BuildRoot: %{_tmppath}/%{name}-%{version}-root 
+URL: http://DOMAIN.SAMPLE 
+Requires: glibc 
+
+%description 
+9.2.0.4 client program spec file 
+
+%prep 
+%setup -c 
+
+#%build 
+
+%install 
+rm -rf $RPM_BUILD_ROOT 
+
+mkdir -p $RPM_BUILD_ROOT/www/program/oracle 
+mkdir -p $RPM_BUILD_ROOT/etc 
+mkdir -p $RPM_BUILD_ROOT/usr/local/bin 
+cp -arpv oracle/* $RPM_BUILD_ROOT/www/program/oracle 
+install -m 664 etc/oratab $RPM_BUILD_ROOT/etc/ 
+install -m 664 etc/oraInst.loc $RPM_BUILD_ROOT/etc/ 
+install -m 755 etc/bin/* $RPM_BUILD_ROOT/usr/local/bin 
+install -m 644 etc/bash_profile $RPM_BUILD_ROOT/www/program/oracle/.bash_profile 
+
+%clean 
+rm -rf $RPM_BUILD_ROOT 
+
+#%post 
+
+%pre 
+/usr/sbin/groupadd -g 5000 dba 
+/usr/sbin/useradd -d /www/program/oracle -g dba oracle 
+
+%postun 
+/usr/sbin/userdel oracle 
+/usr/sbin/groupdel dba 
+
+%files 
+%defattr(-,oracle,dba) 
+%dir /www/program/oracle 
+/www/program/oracle/* 
+/www/program/oracle/.bash_profile 
+/etc/oratab 
+/etc/oraInst.loc 
+/usr/local/bin/coraenv 
+/usr/local/bin/dbhome 
+/usr/local/bin/oraenv 
+
+%changelog 
+* Tue Aug 17 2004 taejun  <USER@DOMAIN.SAMPLE> 
+- first install 
+
+=========================================
+case2
+=========================================
+
+
+기존 php파일을 아래와 같이 백업후
+
+~]# cd /usr/local
+~]# cp php-5.0.4 php-5.0.4.20080623
+
+아래와 같이 오라클 클라이언트 rpm 설치 및
+php를 재 컴파일 하였습니다.
+컴파일 옵션은 기존의 옵션에 오라클 옵션만 추가하여 작업하였습
+니다.
+
+
+~]# cd /usr/local/src
+~]# rpm -Uvh oracle-instantclient-basic-10.2.0.4-1.i386.rpm
+~]# rpm -Uvh oracle-instantclient-devel-10.2.0.4-1.i386.rpm
+
+~]# tar xfz php-5.0.4.tar.tar
+~]# cd php-5.0.4
+~]# ./configure --prefix=/usr/local/php-5.0.4 
+--with-config-file-path=/usr/local/php-5.0.4/etc 
+--with-apxs2=/usr/local/httpd-2.0.55/bin/apxs 
+--with-mysql=/usr/local/mysql-5.0.19/ 
+--with-gd --with-freetype-dir --with-png-dir --with-jpeg-dir 
+--with-zlib-dir --enable-exif --enable-gd-native-ttf 
+--enable-track-vars --enable-sockets --with-iconv 
+--enable-sysvsem --enable-sysvshm --with-dom 
+--with-xml --with-expat-dir=/usr --enable-magic-quotes 
+--enable-safe-mode --enable-ftp --enable-mbstring 
+--with-zlib --enable-force-cgi-redirect --disable-debug
+ --enable-pic --disable-rpath --enable-inline-optimization
+  --with-bz2 --with-gettext --with-gmp --with-pcre-regex 
+  --enable-bcmath --enable-discard-path --enable-yp 
+  --enable-wddx --enable-dbx --enable-dio --enable-mcal 
+  --enable-calendar --with-oci8-instant-client
+  
+~]# make && make install
+
+설치후 아파치 stop, start 후
+
+홈페이지가 잘뜨는것을 확인하였으며 아래의 URL로
+오라클 클라이언트가 잘 설치된 것을 확인하였습니다.

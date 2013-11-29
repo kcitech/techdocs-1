@@ -1,0 +1,557 @@
+
+sudo apt-get install build-essential
+
+
+url : http://web.dicnote.com/bbs/board.php?bo_table=web_tip&wr_id=251
+
+
+/etc/apt/source.list º¯°æ
+
+http://ftp.daum.net/ubuntu
+
+
+
+1. Ubuntu 7.1 Server ¼³Ä¡
+
+# sudo apt-get update
+# sudo apt-get dist-update
+
+
+2. Locale º¯°æ
+#  sudo locale-gen ko_KR.EUC-KR
+#  /etc/environment ÀÇ LANG¸¦ ko_KR.EUC-KR·Î ¼öÁ¤
+
+
+3. Webmin ¼³Ä¡
+
+# Webmin ´Ù¿î·Îµå :  webmin_1.400_all.deb
+# dpkg --install webmin_1.400_all.deb
+# apt-get install perl libnet-ssleay-perl openssl libauthen-pam-perl libpam-runtime libio-pty-perl libmd5-perl
+
+
+4. apache2 È¯°æ¼³Á¤
+
+# sudo a2enmod rewrite : mod_rewriteÃß°¡
+# /etc/apache2/sites-available/default ¿¡ AllowOverride all·Î º¯°æ
+# /etc/apache2/Apache2.conf¿¡ ´ÙÀ½ÀÇ ¼³Á¤À» Ãß°¡/È®ÀÎ
+<IfModule mod_rewrite.c>
+   RewriteEngine On
+</IfModule> 
+
+
+5. proFTPD È¯°æ¼³Á¤
+
+# sudo apt-get install proftpd
+# /etc/proftpd/proftpd.conf¿¡ ´ÙÀ½ÀÇ ³»¿ëÀ» Ãß°¡
+<Global>
+RootLogin off              # root ·Î±×ÀÎ ¹æÁö
+AllowForeignAddress on     # ¿ÜºÎ Á¢¼Ó Çã¿ë/±ÝÁö
+AllowRetrieveRestart on    # ÀÌ¾î¹Þ±â Çã¿ë/±ÝÁö
+AllowStoreRestart on       # ÀÌ¾î¾²±â Çã¿ë/±ÝÁö
+DeferWelcome on            
+ServerIdent on
+LoginPasswordPrompt on     # »ç¿ëÀÚ ¾ÏÈ£ ¹¯±â
+AllowOverwrite on          # °ãÃÄ¾²±â Çã¿ë
+AuthAliasOnly on           # ÀÎÁõµÈ alias »ç¿ëÀÚ¸¸ »ç¿ë
+UserAlias #### #### (ftp user, shell user : ÇÊ¿äÇÑ »ç¿ëÀÚ ÀÌ¸§À¸·Î ÁöÁ¤)
+UseFtpUsers on             # Ftp¿ë »ç¿ëÀÚ¸¦ »ç¿ë
+RequireValidShell off      # shell·Î ·Î±×ÀÎµÈ »ç¿ëÀÚ¸¸ »ç¿ë
+HiddenStor on              # hidden¼Ó¼º ÀúÀå
+</Global>
+
+
+6. Samba È¯°æ¼³Á¤
+
+# sudo smbpasswd -a <userid> : Samba »ç¿ëÀÚ Ãß°¡
+# /etc/samba/smb.conf Global ¿É¼Ç Ãß°¡/È®ÀÎ
+[global]
+ encrypt passwords = true
+ netbios name = <server name>
+ server string = <server name>
+ writable = yes  
+ invalid users = root
+ workgroup = WORKGROUP
+ unix charset = euc-kr
+# /etc/samba/smb.conf ¿¡ °øÀ¯µð·ºÅä¸® Ãß°¡
+[test]
+ hide dot files = no
+ delete readonly = yes
+ path = /../../.. (°øÀ¯ÇÒ µð·ºÅä¸®)
+ sync always = yes
+# sudo /etc/init.d/samba restart 
+ 
+
+7. Java ¼³Ä¡
+
+# sudo apt-get install sun-java5-bin sun-java5-plugin
+# sudo update-alternatives --config java : Java Defualt¸¦ ¼³Á¤
+
+8. Tomcat & JDK ¼³Ä¡
+
+# sudo apt-get install tomcat5.5 sun-java6-jdk tomcat5.5-webapps tomcat5.5-admin
+# /etc/default/tomcat5.5 ¿¡ JAVA_HOME ¼³Á¤/È®ÀÎ
+JAVA_HOME=/usr/lib/jvm/java-6-sun
+# sudo update-alternatives --config java : Java Defualt¸¦ ¼³Á¤
+# sudo /etc/init.d/tomcat5.5 start : ÅèÄÏ ½ÃÀÛ
+# wget http://localhost:8180 : Á¢¼ÓÇÏ¿© È®ÀÎ
+
+9. SVN ¼³Ä¡
+
+# sudo apt-get install subversion libapache2-svn
+# svnadmin create --fs-type fsfs /../../.. : ¸®Æ÷ÁöÅä¸® µð·ºÅä¸® »ý¼º
+# svnserve -d -r /../../..  : ½ÃÀÛ ½ºÅ©¸³Æ®
+# killall svnserve          : Á¾·á ½ºÅ©¸³Æ®
+
+10. buildÈ¯°æ ±¸¼º
+# sudo apt-get install gcc
+# sudo apt-get install build-essential
+
+Æ¯ÀÌ»çÇ×
+# º¸¾È»ó ¹®Á¦°¡ ÀÖÀ»Áö¶óµµ WebminÀº »ó´çÈ÷ ÁÁÀº Åø ÀÌ´Ù. ÀÌ·±Àú·± ½ºÅ©¸³Æ®°¡ ³»ÀåµÇ¾î ´ëºÎºÐ gui¿¡¼­ ½ÇÇàÇÏ¸é ½ºÅ©¸³Æ®¿Í ¼³Á¤ÆÄÀÏÀ» ¾òÀ»¼ö°¡ ÀÖ´Ù
+
+# ¹®ÀÚ¼¼Æ®¸¦ euc-kr·Î ÅëÀÏ Ftp, Web, Samba, Local¿¡¼­ ¸¸µç ÇÑ±Û µð·ºÅä¸®¶Ç´Â ÆÄÀÏÀÌ¸§ÀÌ Àß Ãâ·ÂµÈ´Ù.
+
+http://jongsik.tistory.com/126
+
+À§ÀÇ »çÇ× Áß AllowOverride all Àº °í¹Î ÈÄ ¼³Á¤ ¹Ù¶÷.
+ 
+ 
+
+   
+ 
+Å¸½ºÄÉ 09-08-01 17:41  202.¢½.197.183    Ã³À½ ºÎÆÃ ÈÄ root(·çÆ®) ÆÐ½º¿öµå ÁöÁ¤ÁöÁ¤ 
+
+$sudo passwd root 
+Password:              <- ÇöÀç ·Î±×ÀÎÇÑ À¯ÀúÀÇ ºñ¹Ð¹øÈ£ ÀÔ·Â 
+New Password:          <- rootÀÇ »õ·Î¿î password 
+Re-Enter Password:  <- rootÀÇ »õ·Î¿î passwordpassword ÀçÀÔ·Â 
+
+ÀÌÈÄ ÀÏ¹Ý À¯Àú¿¡¼­ root·Î °¡·Á¸é 
+$su - 
+Password: 
+
+---------------------------------------------------------------------------- 
+³»ºÎ IP¸¦ µû·Î »ç¿ëÇØ¾ß ÇÒ °æ¿ì 
+
+/etc/networking/interfacesÀÇ ³»¿ëÁß commentºÎºÐÀ» ¾Æ·¡Ã³·³ Ä¡È¯ 
+
+# iface eth1 inet dhcpdhcp 
+iface eth1 inet static 
+        address 192.168.32.132192.168.32.132 
+        netmask 255.255.255.0 
+        networknetwork 192.168.32.0 
+        broadcast 192.168.32.255 
+        gateway 192.168.32.2 
+
+ÀÌÈÄ networking µ¥¸ó restart. 
+
+$sudo /etc/init.d/networking restartrestart 
+
+----------------------------------------------------------------------------- 
+isoÀÌ¹ÌÁö¸¦ ¸¶¿îÆ®ÇÏ±â 
+
+*°¡²û ÆÐÅ°Áö ¼³Ä¡½Ã¿¡ ubuntu-serverubuntu-server CD¸¦ ¿ä±¸ÇÏ´Â °æ¿ì°¡ ÀÖÀ»¶§ À¯¿ëÇÏ´Ù 
+
+$sudo mount -t iso9660 -o-o loop myimage.iso /cdrom 
+
+---------------------------------------------------------------------------- 
+FTP Server ¼³Ä¡ 
+
+$sudo apt-get install vsftpd 
+ftp ¼³Á¤ÆÄÀÏ À§Ä¡ -> /etc/vsftpd.conf 
+
+º¸¾ÈÀ»º¸¾ÈÀ» À§ÇØ vsftpd.conf¸¦ ¼öÁ¤ 
+$sudo vi /etc/vsftpd.conf 
+
+::¼öÁ¤ÇÒ ºÎºÐ:: 
+anonymous_enable=NO //±âº»°ªÀÌ//±âº»°ªÀÌ YES ÀÌ¹Ç·Î NO·Î º¯°æ 
+local_enable=YES //ÁÖ¼® Á¦°Å 
+write_enable=YES //ÁÖ¼® Á¦°Å 
+
+vsftpµ¥¸ó Àç½ÃÀÛ 
+$sudo /etc/init.d/vsftpd restart 
+
+----------------------------------------------------------------------------- 
+APM ¼³Ä¡ 
+
+$sudo apt-get install mysql-common 
+$sudo apt-get install mysql-server 
+$sudo apt-getapt-get install apache2 
+$sudo apt-get install php5 
+$sudo apt-get install php5-mysql 
+
+Apache2 ¼³Á¤ÆÄÀÏ À§Ä¡ 
+/etc/apache2/apache2.conf <-±âº» ¼³Á¤ ÆÄÀÏ 
+/etc/apache2/ ÇÏÀ§¿¡ º¸¸é °¢Á¾°¢Á¾ ¼³Á¤ÆÄÀÏÀÌ ºÐ¸®µÇ¾î ÀÖ½À´Ï´Ù. 
+
+Apache2 µ¥¸ó Àç½ÃÀÛ ¸í·É¾î 
+$sudo apache2ctl restartrestart 
+
+----------------------------------------------------------------------------- 
+SSH(secure shell) ¼³Ä¡ 
+
+$sudo apt-get installinstall ssh 
+
+º¸¾ÈÀ» À§ÇØ /etc/ssh/sshd_config¿¡¼­ 
+PermitRootLogin Ç×¸ñÀ» yes(default)¿¡¼­ no·Î ¹Ù²ãÁØ´Ù 
+
+---------------------------------------------------------------------------- 
+webmin ¼³Ä¡ 
+
+webminÀº apt-get¿¡ Æ÷ÇÔµÇ¾î ÀÖÁö ¾ÊÀ¸¹Ç·Î¾ÊÀ¸¹Ç·Î µû·Î ¹Þ¾Æ ¼³Ä¡ÇÑ´Ù. 
+
+$wget http://belnet.dl.sourceforge.net/sourceforge/webadmin/webmin_1.290.deb 
+$sudo dpkg -i webmin_1.290.debwebmin_1.290.deb 
+
+http://servername:10000 
+
+%080317Ãß°¡ ¾ÈµÉ°æ¿ì È¨ÆäÀÌÁö Âü°í: http://www.webmin.com/deb.html 
+----------------------------------------------------------------------------- 
+¼³Ä¡ ÈÄ °ü¸® 
+
+$sudo apt-get upgrade //±âÁ¸//±âÁ¸ ÆÐÅ°Áö Upgrade 
+$sudo apt-get update //»õ·Î¿î ÆÐÅ°Áö Á¤º¸ Update 
+
+----------------------------------------------------------------------------- 
+ab : Apache HTTP Server Benchmarking tools 
+
+----------------------------------------------------------------------------- 
+¾ÆÆÄÄ¡ Æ÷Æ® º¯°æ 
+
+/etc/apache2/httpd.conf¿¡¼­ 
+Listen 80À» ¿øÇÏ´Â Æ÷Æ®·Î º¯°æº¯°æ 
+
+----------------------------------------------------------------------------- 
+
+¾ÆÆÄÄ¡ VirtualHost ¼³Á¤ 
+
+/etc/apache2/httpd.conf¿¡¼­ 
+
+<VirtualHost *>*> 
+ServerName my.domain.com 
+ServerAdmin me@my.domain.com 
+DocumentRoot /home/www/ 
+#Æ¯Á¤ directory¿¡¸¸ ¿É¼ÇÀ» ÁÙ ¶§.¶§. (textcube¸¦ À§ÇØ Ãß°¡ÇÑ Ç×¸ñ) 
+        <Directory "/home/www/tc"> 
+                Options FollowSymLinks 
+                AllowOverride FileInfo 
+        </Directory> 
+</VirtualHost> 
+
+----------------------------------------------------------------------------- 
+Putty¿¡¼­ ÇÑ±Û »ç¿ë 
+
+Window > Appearance > Font settings¿¡¼­ ±¼¸²Ã¼·Î º¯°æ 
+Window > TranslationTranslation > Character set translaton on received data¿¡¼­ UTF-8·Î º¯°æ 
+
+$export$export LANG=ko_KR.UTF-8 
+
+----------------------------------------------------------------------------- 
+»ö»óÀÌ ³ª¿ÀÁö ¾ÊÀ»¶§ ¹× alias °íÁ¤ ÁöÁ¤¹æ¹ýÁöÁ¤¹æ¹ý 
+
+È¨µð·ºÅä¸®ÀÇ .profileÀ» ¼öÁ¤ 
+
+# ~/.profile: executed by Bourne-compatibleBourne-compatible login shells. 
+
+if [ "$BASH" ]; then 
+    ifif [ -f ~/.bashrc ]; then 
+        . ~/.bashrc~/.bashrc 
+    fi 
+fi 
+
+mesg n 
+
+#alias ¸¦ °íÁ¤À¸·Î°íÁ¤À¸·Î ÁöÁ¤ÇÏ±â 
+alias ll="ls -l" 
+
+----------------------------------------------------------------------------- 
+midnight commander (mc)¼³Ä¡¹æ¹ý 
+
+ubuntu universe ÆÐÅ°Áö¿¡¸¸ Æ÷ÇÔµÇ¾î ÀÖÀ¸¹Ç·Î /etc/apt/source.list¸¦ ¼öÁ¤ÇÑ´Ù 
+
+³¡¿¡ universe¸¦universe¸¦ Ãß°¡ÇØ ÁØ´Ù. 
+
+deb http://kr.archive.ubuntu.com/ubuntu/ dapper main restricted universe 
+deb-srcdeb-src http://kr.archive.ubuntu.com/ubuntu/ dapper main restricted universe 
+
+ÆÐÅ°Áö¸®½ºÆ® ¾÷µ¥ÀÌÆ® ÈÄ ¼³Ä¡¼³Ä¡ 
+$sudo apt-get update; apt-get install mc 
+
+----------------------------------------------------------------------------- 
+¿øÇÏ´Â ÆÐÅ°Áö(²Ù·¯¹Ì)ÆÐÅ°Áö(²Ù·¯¹Ì) Ã£´Â ¹æ¹ý 
+
+$apt-cache search pkgname 
+
+----------------------------------------------------------------------------- 
+ACPI·Î °­Á¦ ¼³Á¤¹æ¹ý. (ÀÚµ¿ Àü¿ø²¨ÁüÀÌ µÇÁö ¾ÊÀ» ¶§) 
+
+/boot/grub/menu.lst Áß acpi=force¸¦ Ãß°¡ 
+
+title            Ubuntu, kernel 2.6.15-26-server 
+root            (hd0,0) 
+kernelkernel          /vmlinuz-2.6.15-26-server root=/dev/hda2 ro quiet splash acpi=forceacpi=force 
+initrd          /initrd.img-2.6.15-26-server 
+savedefault 
+boot 
+
+----------------------------------------------------------------------------- 
+Samba ¼³Ä¡ 
+
+$sudo apt-get install samba 
+
+----------------------------------------------------------------------------- 
+samba¿¡¼­ euc-krÀ» »ç¿ëÇÏ¿©¾ß ÇÒ ¶§ 
+
+/etc/samba/smb.conf¿¡¼­ ¾Æ·¡ Ç×¸ñÀ»Ç×¸ñÀ» Ãß°¡ÇÑ´Ù. 
+
+unix charset = euc-kr 
+
+----------------------------------------------------------------------------- 
+convmv·Î EUC-KREUC-KR ÆÄÀÏ¸íÀ» UTF-8·Î º¯È¯ÇÏ±â 
+
+apt-get install convmv 
+convmv --notest -f-f euc-kr -t utf-8 -r <directory> 
+
+
+
+http://1kko.com/2460502  Ã³À½ ºÎÆÃ ÈÄ root(·çÆ®) ÆÐ½º¿öµå ÁöÁ¤ÁöÁ¤
+
+$sudo passwd root
+Password:              <- ÇöÀç ·Î±×ÀÎÇÑ À¯ÀúÀÇ ºñ¹Ð¹øÈ£ ÀÔ·Â
+New Password:          <- rootÀÇ »õ·Î¿î password
+Re-Enter Password:   <- rootÀÇ »õ·Î¿î passwordpassword ÀçÀÔ·Â
+
+ÀÌÈÄ ÀÏ¹Ý À¯Àú¿¡¼­ root·Î °¡·Á¸é
+$su -
+Password:
+
+----------------------------------------------------------------------------
+³»ºÎ IP¸¦ µû·Î »ç¿ëÇØ¾ß ÇÒ °æ¿ì
+
+/etc/networking/interfacesÀÇ ³»¿ëÁß commentºÎºÐÀ» ¾Æ·¡Ã³·³ Ä¡È¯
+
+# iface eth1 inet dhcpdhcp
+iface eth1 inet static
+        address 192.168.32.132192.168.32.132
+        netmask 255.255.255.0
+        networknetwork 192.168.32.0
+        broadcast 192.168.32.255
+         gateway 192.168.32.2
+
+ÀÌÈÄ networking µ¥¸ó restart.
+
+$sudo /etc/init.d/networking restartrestart
+
+-----------------------------------------------------------------------------
+isoÀÌ¹ÌÁö¸¦ ¸¶¿îÆ®ÇÏ±â
+
+*°¡²û ÆÐÅ°Áö ¼³Ä¡½Ã¿¡ ubuntu-serverubuntu-server CD¸¦ ¿ä±¸ÇÏ´Â °æ¿ì°¡ ÀÖÀ»¶§ À¯¿ëÇÏ´Ù
+
+$sudo mount -t iso9660 -o-o loop myimage.iso /cdrom
+
+----------------------------------------------------------------------------
+FTP Server ¼³Ä¡
+
+$sudo apt-get install vsftpd
+ftp ¼³Á¤ÆÄÀÏ À§Ä¡ -> /etc/vsftpd.conf
+
+º¸¾ÈÀ»º¸¾ÈÀ» À§ÇØ vsftpd.conf¸¦ ¼öÁ¤
+$sudo vi /etc/vsftpd.conf
+
+::¼öÁ¤ÇÒ ºÎºÐ::
+anonymous_enable=NO //±âº»°ªÀÌ//±âº»°ªÀÌ YES ÀÌ¹Ç·Î NO·Î º¯°æ
+local_enable=YES //ÁÖ¼® Á¦°Å
+write_enable=YES //ÁÖ¼® Á¦°Å
+
+vsftpµ¥¸ó Àç½ÃÀÛ
+$sudo /etc/init.d/vsftpd restart
+
+-----------------------------------------------------------------------------
+APM ¼³Ä¡
+
+$sudo apt-get install mysql-common
+$sudo apt-get install mysql-server
+$sudo apt-getapt-get install apache2
+$sudo apt-get install php5
+$sudo apt-get install php5-mysql
+
+Apache2 ¼³Á¤ÆÄÀÏ À§Ä¡
+/etc/apache2/apache2.conf <-±âº» ¼³Á¤ ÆÄÀÏ
+/etc/apache2/ ÇÏÀ§¿¡ º¸¸é °¢Á¾°¢Á¾ ¼³Á¤ÆÄÀÏÀÌ ºÐ¸®µÇ¾î ÀÖ½À´Ï´Ù.
+
+Apache2 µ¥¸ó Àç½ÃÀÛ ¸í·É¾î
+$sudo apache2ctl restartrestart
+
+-----------------------------------------------------------------------------
+SSH(secure shell) ¼³Ä¡
+
+$sudo apt-get installinstall ssh
+
+º¸¾ÈÀ» À§ÇØ /etc/ssh/sshd_config¿¡¼­
+PermitRootLogin Ç×¸ñÀ» yes(default)¿¡¼­ no·Î ¹Ù²ãÁØ´Ù
+
+----------------------------------------------------------------------------
+webmin ¼³Ä¡
+
+webminÀº apt-get¿¡ Æ÷ÇÔµÇ¾î ÀÖÁö ¾ÊÀ¸¹Ç·Î¾ÊÀ¸¹Ç·Î µû·Î ¹Þ¾Æ ¼³Ä¡ÇÑ´Ù.
+
+$wget http://belnet.dl.sourceforge.net/sourceforge/webadmin/webmin_1.290.deb
+$sudo dpkg -i webmin_1.290.debwebmin_1.290.deb
+
+http://servername:10000
+
+%080317Ãß°¡ ¾ÈµÉ°æ¿ì È¨ÆäÀÌÁö Âü°í: http://www.webmin.com/deb.html
+-----------------------------------------------------------------------------
+¼³Ä¡ ÈÄ °ü¸®
+
+$sudo apt-get upgrade //±âÁ¸//±âÁ¸ ÆÐÅ°Áö Upgrade
+$sudo apt-get update //»õ·Î¿î ÆÐÅ°Áö Á¤º¸ Update
+
+-----------------------------------------------------------------------------
+ab : Apache HTTP Server Benchmarking tools
+
+-----------------------------------------------------------------------------
+¾ÆÆÄÄ¡ Æ÷Æ® º¯°æ
+
+/etc/apache2/httpd.conf¿¡¼­
+Listen 80À» ¿øÇÏ´Â Æ÷Æ®·Î º¯°æº¯°æ
+
+-----------------------------------------------------------------------------
+
+¾ÆÆÄÄ¡ VirtualHost ¼³Á¤
+
+/etc/apache2/httpd.conf¿¡¼­
+
+<VirtualHost *>*>
+ServerName my.domain.com
+ServerAdmin me@my.domain.com
+DocumentRoot /home/www/
+#Æ¯Á¤ directory¿¡¸¸ ¿É¼ÇÀ» ÁÙ ¶§.¶§. (textcube¸¦ À§ÇØ Ãß°¡ÇÑ Ç×¸ñ)
+        <Directory "/home/www/tc">
+                 Options FollowSymLinks
+                 AllowOverride FileInfo
+         </Directory>
+</VirtualHost>
+
+-----------------------------------------------------------------------------
+Putty¿¡¼­ ÇÑ±Û »ç¿ë
+
+Window > Appearance > Font settings¿¡¼­ ±¼¸²Ã¼·Î º¯°æ
+Window > TranslationTranslation > Character set translaton on received data¿¡¼­ UTF-8·Î º¯°æ
+
+$export$export LANG=ko_KR.UTF-8
+
+-----------------------------------------------------------------------------
+»ö»óÀÌ ³ª¿ÀÁö ¾ÊÀ»¶§ ¹× alias °íÁ¤ ÁöÁ¤¹æ¹ýÁöÁ¤¹æ¹ý
+
+È¨µð·ºÅä¸®ÀÇ .profileÀ» ¼öÁ¤
+
+# ~/.profile: executed by Bourne-compatibleBourne-compatible login shells.
+
+if [ "$BASH" ]; then
+    ifif [ -f ~/.bashrc ]; then
+        . ~/.bashrc~/.bashrc
+    fi
+fi
+
+mesg n
+
+#alias ¸¦ °íÁ¤À¸·Î°íÁ¤À¸·Î ÁöÁ¤ÇÏ±â
+alias ll="ls -l"
+
+-----------------------------------------------------------------------------
+midnight commander (mc)¼³Ä¡¹æ¹ý
+
+ubuntu universe ÆÐÅ°Áö¿¡¸¸ Æ÷ÇÔµÇ¾î ÀÖÀ¸¹Ç·Î /etc/apt/source.list¸¦ ¼öÁ¤ÇÑ´Ù
+
+³¡¿¡ universe¸¦universe¸¦ Ãß°¡ÇØ ÁØ´Ù.
+
+deb http://kr.archive.ubuntu.com/ubuntu/ dapper main restricted universe
+deb-srcdeb-src http://kr.archive.ubuntu.com/ubuntu/ dapper main restricted universe
+
+ÆÐÅ°Áö¸®½ºÆ® ¾÷µ¥ÀÌÆ® ÈÄ ¼³Ä¡¼³Ä¡
+$sudo apt-get update; apt-get install mc
+
+-----------------------------------------------------------------------------
+¿øÇÏ´Â ÆÐÅ°Áö(²Ù·¯¹Ì)ÆÐÅ°Áö(²Ù·¯¹Ì) Ã£´Â ¹æ¹ý
+
+$apt-cache search pkgname
+
+-----------------------------------------------------------------------------
+ACPI·Î °­Á¦ ¼³Á¤¹æ¹ý. (ÀÚµ¿ Àü¿ø²¨ÁüÀÌ µÇÁö ¾ÊÀ» ¶§)
+
+/boot/grub/menu.lst Áß acpi=force¸¦ Ãß°¡
+
+title            Ubuntu, kernel 2.6.15-26-server
+root            (hd0,0)
+kernelkernel          /vmlinuz-2.6.15-26-server root=/dev/hda2 ro quiet splash acpi=forceacpi=force
+initrd          /initrd.img-2.6.15-26-server
+savedefault
+boot
+
+-----------------------------------------------------------------------------
+Samba ¼³Ä¡
+
+$sudo apt-get install samba
+
+-----------------------------------------------------------------------------
+samba¿¡¼­ euc-krÀ» »ç¿ëÇÏ¿©¾ß ÇÒ ¶§
+
+/etc/samba/smb.conf¿¡¼­ ¾Æ·¡ Ç×¸ñÀ»Ç×¸ñÀ» Ãß°¡ÇÑ´Ù.
+
+unix charset = euc-kr
+
+-----------------------------------------------------------------------------
+convmv·Î EUC-KREUC-KR ÆÄÀÏ¸íÀ» UTF-8·Î º¯È¯ÇÏ±â
+
+apt-get install convmv
+convmv --notest -f-f euc-kr -t utf-8 -r <directory>
+
+
+
+http://1kko.com/2460502 
+ 
+ 
+   
+ 
+Å¸½ºÄÉ 09-08-01 22:44  202.¢½.197.183    ¿ìºÐÅõ¿¡¼­ apt-get webmin¼³Ä¡ 
+
+/etc/apt-get/source.list 
+deb http://download.webmin.com/download/repository sarge contrib  
+ 
+ 
+=========================================
+network
+=========================================
+
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet manual
+
+auto br0
+iface br0 inet static
+ address 192.168.0.9
+ netmask 255.255.255.0
+ gateway 192.168.0.1
+ dns-nameservers 168.126.63.1 210.94.0.7
+ bridge_ports eth0
+ bridge_fd 0
+ bridge_hello 2
+ bridge_maxage 12
+ bridge_stp off
+
+auto eth1
+iface eth1 inet manual
+
+auto br1
+iface br1 inet static
+ address 10.10.0.9
+ netmask 255.255.255.0
+ bridge_ports eth1
+ bridge_fd 0
+ bridge_hello 2
+ bridge_maxage 12
+ bridge_stp off
+

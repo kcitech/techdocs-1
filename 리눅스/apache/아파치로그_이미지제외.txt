@@ -1,0 +1,115 @@
+
+
+로그용량이 급격히 증가 하는 부분을 확인 한 결과
+이야기 드린대로 gif등의 로그등이 access_log에
+굉장한 속도로 차고 있었습니다.
+
+httpd.conf에서 다음과 같이 추가 한 뒤 재시작을 하였습니다.
+
+SetEnvIf Request_URI .jpg image-request
+SetEnvIf Request_URI .gif image-request
+SetEnvIf Request_URI .jpeg image-request
+SetEnvIf Request_URI .swf image-request
+SetEnvIf Request_URI .png image-request
+SetEnvIf Request_URI .ico image-request
+
+CustomLog logs/access_log combined env=!image-request
+
+이후 다음과 같이 로그들을 모니터링 한 결과 이미지 파일들의
+체크가 되지 않았습니다.
+
+#tail -f /var/log/httpd/access_log | grep gif
+...
+
+다른 virtualhost의 access_log엔 따로 구성 하지 않았으며
+(로그 용량이 크지 않음)
+해당 access_log만 이미지 파일 내용이 로그에 쌓이지
+않도록 구성 되어 있습니다.
+
+========================================================
+case2
+========================================================
+
+SetEnvIfNoCase Request_URI (gif|png|jpg|css|js|bmp|jpeg|swf)$ IMAGE=1
+CustomLog /usr/local/apache/logs/access_log common env=!IMAGE
+
+
+<Directory "/usr/local/apache/manual">
+    Options Indexes
+    AllowOverride None
+    Order allow,deny
+    Allow from all
+
+    <Files *.html>
+        SetHandler type-map
+    </Files>
+
+    SetEnvIf Request_URI ^/manual/(de|en|es|fr|ja|ko|ru)/ prefer-language=$1
+    RedirectMatch 301 ^/manual(?:/(de|en|es|fr|ja|ko|ru)){2,}(/.*)?$ /manual/$1$2
+</Directory>
+
+-------------
+LogFormat "%h %l %u %t "%r" %>s %b "%{Referer}i" "%{User-Agent}i"" combined
+LogFormat "%h %l %u %t "%r" %>s %b" common
+LogFormat "%{Referer}i -> %U" referer
+LogFormat "%{User-agent}i" agent
+
+SetEnvIf  Request_URI \.jpg$ image
+SetEnvIf  Request_URI \.JPG$ image
+SetEnvIf  Request_URI \.gif$ image
+SetEnvIf  Request_URI \.GIF$ image
+SetEnvIf  Request_URI \.swf$ image
+SetEnvIf  Request_URI \.css$ image
+SetEnvIf  Request_URI \.js$ image
+
+
+<VirtualHost 192.168.65.34:443>
+    ServerName   www.TESTDOMAIN.com
+    ServerAlias  TESTDOMAIN3.com TESTDOMAIN.co.kr TESTDOMAIN.com www.TESTDOMAIN.co.kr www.TESTDOMAIN3.com www.TESTDOMAIN2.co.kr TESTDOMAIN2.co.kr TESTDOMAIN.net www.TESTDOMAIN.net TESTDOMAIN.org www.TESTDOMAIN.org
+    ServerAdmin  support@TESTDOMAIN.com
+    DocumentRoot /home/TESTDOMAIN/www
+    ErrorLog     /var/log/apache/TESTDOMAIN.com-error.log
+    CustomLog    /var/log/apache/TESTDOMAIN.com-access.log combined env=!image
+
+    <IfModule mod_ssl.c>
+        SSLEngine on
+        SSLCertificateFile    /usr/local/apache/conf/ssl.crt/192.168.65.34_1.crt
+        SSLCertificateKeyFile /usr/local/apache/conf/ssl.key/192.168.65.34_1.key
+        SetEnvIf User-Agent   ".*MSIE.*" nokeepalive ssl-unclean-shutdown
+        CustomLog /var/log/apache/TEST_ssl_request.log "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x "%r" %b"
+    </IfModule>
+</VirtualHost>
+
+
+-----------------------------------------
+<IfModule log_config_module>
+    #
+    # The following directives define some format nicknames for use with
+    # a CustomLog directive (see below).
+    #
+    LogFormat "%h %l %u %t "%r" %>s %b "%{Referer}i" "%{User-Agent}i"" combined
+    LogFormat "%h %l %u %t "%r" %>s %b" common
+
+    SetEnvIfNoCase Request_URI (gif|png|jpg|css|js|bmp|jpeg|swf)$ IMAGE=1
+
+    <IfModule logio_module>
+      # You need to enable mod_logio.c to use %I and %O
+      LogFormat "%h %l %u %t "%r" %>s %b "%{Referer}i" "%{User-Agent}i" %I %O" combinedio
+    </IfModule>
+
+    #
+    # The location and format of the access logfile (Common Logfile Format).
+    # If you do not define any access logfiles within a <VirtualHost>
+    # container, they will be logged here.  Contrariwise, if you *do*
+    # define per-<VirtualHost> access logfiles, transactions will be
+    # logged therein and *not* in this file.
+    #
+    CustomLog logs/access_log common env=!IMAGE
+
+    #
+    # If you prefer a logfile with access, agent, and referer information
+    # (Combined Logfile Format) you can use the following directive.
+    #
+    #CustomLog logs/access_log combined
+</IfModule>
+

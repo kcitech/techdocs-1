@@ -1,0 +1,15 @@
+
+시스템 계정에 sysadmin 롤을 다시 부여할수 있는 방법입니다.
+ 
+1. "SQL Server 2005 Configuration" 메뉴에서 Configuration Manager tool  실행
+2. 복구를 원하는 SQL Instance 정지
+3. Advance tab 에서 매개변수에 ";-m"을 라인 끝에 입력 (빈칸이 없어야 합니다)
+4. SQL Server Instance 재시작
+5. 코맨드 창에서 sqlcmd 입력 (시스템 계정으로 로그인 됩니다.)
+6. 1> exec sp_addsrvrolemember '도메인\계정', 'sysadmin';
+    2> go
+ 
+ 
+ http://blogs.msdn.com/raulga/archive/2007/07/12/disaster-recovery-what-to-do-when-the-sa-account-password-is-lost-in-sql-server-2005.aspx 
+ 
+원문입니다.

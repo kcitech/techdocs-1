@@ -1,0 +1,28 @@
+==================
+ping_check.vbs
+==================
+
+' make by y
+' Language - VBScript 
+' ※사용법 
+' 1. ip.txt에 ping테스트할 아이피를 쭉 입력 한다.
+' 2. ping_check.vbs를 실행하면 해당 입력된 IP들로 핑테스트 커맨드가 나타난다
+' ※ 용도에 따라 마음껏 변경 하셔도 됩니다.
+
+Option Explicit
+Dim Shell : Set Shell = WScript.CreateObject("WScript.Shell")
+Dim FSO : Set FSO = WScript.CreateObject("Scripting.FileSystemObject")
+Dim f1,ts,str1,i
+f1 = "ip.txt"
+If (FSO.FileExists(f1)) Then
+	Set ts = FSO.OpenTextFile(f1,1)
+	Do Until ts.atendofstream = TRUE
+	Shell.Run "ping -t "+ts.readline , 1
+	'WScript.Sleep 100
+	loop
+	ts.Close
+else msgbox(f1+" 파일이 존재 하지 않습니다.")
+End if
+set Shell = nothing
+set FSO = nothing
+WScript.Quit

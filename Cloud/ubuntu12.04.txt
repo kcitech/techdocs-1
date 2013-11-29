@@ -1,0 +1,18 @@
+--- reference ---
+http://www.youtube.com/watch?v=4yyM4iWbs1Y
+
+Tutorial on how to play DVD's in Ubuntu 10.04, 11.04, 11.10, 12.04 and above.
+
+Ubuntu 10.04, 10.10, 11.04:
+sudo apt-get install ubuntu-restricted-extras libdvdread4
+sudo /usr/share/doc/libdvdread4/install-css.sh
+
+Ubuntu 11.10 and above:
+sudo apt-get install ubuntu-restricted-extras
+sudo /usr/share/doc/libdvdread4/install-css.sh
+
+Open the DVD with VLC, Totem, MPlayer, or Kaffeine
+You can also open a DVD ISO file by dragging and dropping into your favourite media player
+
+Aspect Ration Correction for Totem and VLC
+View Menu - Aspect Ratio. Select 16:9 (widescreen)

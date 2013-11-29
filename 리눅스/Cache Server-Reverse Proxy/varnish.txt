@@ -1,0 +1,124 @@
+http://varnish.projects.linpro.no/
+
+#rpm -Uvh varnish-1.1.2-5el4.i386.rpm
+#rpm -Uvh varnish-libs-1.1.2-5el4.i386.rpm
+#rpm -Uvh varnish-libs-devel-1.1.2-5el4.i386.rpm
+
+예제)
+ w2k3std : 192.168.2.91
+ centos4.6+varnish : 192.168.2.92
+ 확인 : http://192.168.2.92방문시 => 192.168.2.91웹페이지 접속됨.
+ 
+-------------------------
+/etc/varnish/default.vcl
+-------------------------
+
+backend default {
+        set backend.host = "192.168.2.91";
+        set backend.port = "80";
+}
+sub vcl_discard {
+    discard;
+}
+sub vcl_recv {
+       if (req.request != "GET" && req.request != "HEAD") {
+               pipe;
+       }
+       if (req.http.Expect) {
+               pipe;
+       }
+       if (req.http.Authenticate || req.http.Cookie) {
+               pass;
+       }
+       lookup;
+}
+
+-------------------------
+/etc/sysconfig/varnish
+-------------------------
+
+DAEMON_OPTS="-a :80 \
+             -T localhost:6082 \
+             -f /etc/varnish/default.vcl \
+             -u varnish -g varnish \
+             -s file,/var/lib/varnish/varnish_storage.bin,1G"
+             
+             
+-------------------------
+ex
+-------------------------
+
+Rewriting and redirecting URLs in Varnish¶
+Rewriting an URL¶
+You can easily rewrite the URL using the regsub() function in VCL. This takes place in vcl_recv. 
+
+if (req.http.host ~ "^(www\.)?example\.com" && req.url~ "^/images/") {
+  set req.http.host = "images.example.com";
+  set req.url = regsub(req.url, "^/images/", "/");
+} 
+This examples rewrites access to  http://www.example.com/images/foo.jpg to  http://images.example.com/foo.jpg. This is not visible to the user, but affects how the request to the backend(s) look. This does not affect which backend is used, so images.example.com is not actually resolved. 
+
+This is useful to avoid double caching of items available from different URIs. For example, to cache www.example.com and example.com identically, one could use: 
+
+set req.http.host = regsub(req.http.host, "^www\.example\.com$","example.com");
+Requests to www.example.com and example.com will all go to the backend as "example.com" and end up cached by that string. 
+
+By the way, regsub() can rewrite any header, really. 
+
+Redirection¶
+Varnish does not have any built in support for HTTP redirections so redirection in Varnish can only be accomplished using something of a dirty hack. You trigger an specified error and then pick this error code up in the vcl_error subroutine. See this example for details. 
+
+
+-------------------------
+install
+-------------------------
+x86_64
+
+http://varnish-cache.org
+
+Install 
+http://varnish-cache.org/docs/installation/install/#centos-redhat
+http://sourceforge.net/projects/varnish/files/
+
+mkpasswd 필요함 <- yum install expect
+
+
+------------------------
+2012.04.05
+------------------------
+192.168.2.1 ---> www.google.co.kr
+
+#rpm --nosignature -i http://repo.varnish-cache.org/redhat/varnish-3.0/el5/noarch/varnish-release-3.0-1.noarch.rpm
+
+#rpm -Uvh http://dl.fedoraproject.org/pub/epel/5/i386/epel-release-5-4.noarch.rpm
+
+#yum install varnish
+
+#view /etc/varnish/default.vcl
+
+backend default {
+  .host = "www.google.co.kr";
+  .port = "80";
+}
+
+#view /etc/sysconfig/varnish
+
+DAEMON_OPTS="-a :80 \
+             -T localhost:6082 \
+             -f /etc/varnish/default.vcl \
+             -u varnish -g varnish \
+             -S /etc/varnish/secret \
+             -s file,/var/lib/varnish/varnish_storage.bin,1G"
+
+
+#/etc/init.d/varnish restart
+
+-------------------------------------------
+references
+-------------------------------------------
+http://paprikalab.springnote.com/pages/9685794
+
+-------------------------------------------
+proxy type ( ssh proxy)
+-------------------------------------------
+http://www.joinc.co.kr/modules/moniwiki/wiki.php/Site/System_management/Proxy

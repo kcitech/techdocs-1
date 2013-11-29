@@ -1,0 +1,1033 @@
+---------------------------------------------------------------------------------------------------
+ reference
+---------------------------------------------------------------------------------------------------
+
+http://www.hastexo.com/resources/docs/installing-openstack-essex-4-ubuntu-1204-precise-pangolin/step-7-openstack-dashboard
+
+http://hi.baidu.com/chenshake/blog/item/4551cc5812a1b39e810a1876.html
+
+http://docs.openstack.org/trunk/openstack-compute/install/content/keystone-conf-file.html
+
+http://docs.openstack.org/trunk/openstack-compute/admin/content/booting-a-test-image.html
+
+http://lowlevellife.com/docs/essex-4/install/novnc.html
+
+http://nova.openstack.org/runnova/vncconsole.html
+
+http://hi.baidu.com/chenshake/blog/item/3083282aac011a185243c135.html
+
+http://kanaka.github.com/noVNC/screenshots.html
+
+http://cssoss.wordpress.com/2011/11/28/bundling-centos-image-for-openstack/
+
+http://cssoss.files.wordpress.com/2011/11/openstackbookv2-0_csscorp.pdf
+
+<openstack + virt-manager>
+http://saiweb.co.uk/openstack/rhel-6-openstack-via-epel-nova-and-glance-on-kvm/
+
+<11.10 --> 12.04>
+https://wiki.ubuntu.com/PrecisePangolin/TechnicalOverview/Beta2
+
+<vsftpd>
+http://blog.foxb.kr/209
+
+<rsnapshot>
+http://how-to.linuxcareer.com/guide-to-rsnapshot-and-incremental-backups-on-linux
+http://linuxmoz.com/rsnapshot-ubuntu-install/
+
+<slieshow for openstack>
+http://www.slideshare.net/group/openstackcloud/slideshows/2
+
+<jp openstack install > 
+http://kuma-uni.blogspot.jp/2012/04/install-openstack-essex.html
+http://www.guanxiaohua2k6.com/
+
+<Understanding ephemeral storage >
+http://www.ibm.com/developerworks/cloud/library/cl-ephemeralstorage/index.html?ca=drs
+
+<swift installation>
+http://swift.openstack.org/howto_installmultinode.html
+
+<SAIO - swift all in one installation>
+http://swift.openstack.org/development_saio.html
+
+<screencast installation>
+http://uksysadmin.wordpress.com/
+
+<redhat/centos openstack essex packate>
+http://www.griddynamics.com/openstack/setup_single.html
+
+<How to create windows image(KVM) supports virtio>
+http://www-01.ibm.com/support/docview.wss?uid=swg21587905
+
+Power on the virtual machine. Windows will find the new hardware (disk), please follow the wizard and select proper driver. 
+The below is the content description of virtio-win-0.1-22.iso:
+wxp: disk driver for Windows XP
+wnet: disk driver for Windows 2003 
+wlh: disk driver for Windows 2008 
+xp: network driver for Windows XP/2003 
+vista: network driver for Windows Vista/7/2008 
+
+<windows 이미지 등록하기>
+http://wiki.openstack.or.kr/index.php/Glance_%EC%84%A4%EC%B9%98_%EB%B0%8F_%EC%8B%A4%ED%96%89
+
+* libvirt_type으로 KVM을 사용한다면 machine 이미지만 등록해도 동작하는데 문제가 없다.
+
+<Rackspace Cloud: Private Edition Reference Architecture>
+http://www.referencearchitecture.org/
+
+<LVM>
+http://hi.baidu.com/chenshake/blog/item/6fd327f35595eb4e342acc60.html
+
+---------------------------------------------------------------------------------------------------
+
+for desktop
+#update-manager -d
+
+for server
+#apt-get install update-manager-core
+#do-release-upgrade -d
+
+** instance 생성후 flavor을 변경하거나 지우면 안됨. 
+
+<window image>
+http://docs.redhat.com/docs/en-US/Red_Hat_Enterprise_Linux/6/html-single/Virtualization_Host_Configuration_and_Guest_Installation_Guide/#sect-Virtualization_Host_Configuration_and_Guest_Installation_Guide-Para_virtualized_drivers-Installing_the_KVM_Windows_para_virtualized_drivers
+
+---------------------------------------------------------------------------------------------------
+command
+---------------------------------------------------------------------------------------------------
+private ip
+#nova-manage network create private --fixed_range_v4=192.168.22.32/27 --num_networks=1 --bridge=br100 --bridge_interface=eth1 --network_size=32
+
+nova-manage network create private --multi_host=T --fixed_range_v4=192.168.100.0/24 --bridge_interface=br100 --num_networks=1 --network_size=256
+sudo nova-manage network delete --fixed_range=192.168.100.0/24
+
+static ip
+#nova-manage floating create --ip_range=10.42.0.32/27
+#nova-manage floating create --ip_range=10.42.0.2
+
+#nova-manage floating delete --ip_range=10.42.0.32/27
+#nova-manage floating delete --ip_range=10.42.0.2
+#nova floating-ip-delete 68.99.26.170
+
+#nova-manage floating list
+
+ip 할당 
+$ nova floating-ip-create
+
++-----------------+-------------+----------+------+
+|        Ip       | Instance Id | Fixed Ip | Pool |
++-----------------+-------------+----------+------+
+|    68.99.26.170 | None        | None     |      |
++-----------------+-------------+----------+------+
+
+ip instance에 할당
+$ nova add-floating-ip instance-id 68.99.26.170
+
+instance에서 ip해제 
+$ nova remove-floating-ip 12 68.99.26.170
+  (dashboard에서는 반영되는 시간이 1-2분 소요됨)
+        
+** ip 해제,할당 했는데 ping, ssh 접속이 안 될떄
+ If you still cannot ping or SSH your instances after issuing the nova secgroup-add-rule commands, look at the number of dnsmasq processes that are running. 
+ If you have a running instance, check to see that TWO dnsmasq processes are running. If not, perform the following as root:
+ (http://docs.openstack.org/trunk/openstack-compute/admin/content/enabling-ping-and-ssh-on-vms.html)
+ 
+ # killall dnsmasq
+ # service nova-network restart
+ 
+** 특정 ip 자동할당 안되게 
+mysql -uroot -p nova
+mysql> update floating_ips set auto_assigned=1 where deleted=0 and address='xxx.xxx.xxx.1';
+ 
+#nova-manage instance_type list 
+
+** quotas
+#nova-manage project quota --project=admin
+#nova-manage project quota --project=admin --key=instances --value=100
+
+http://www.grid5000.fr/mediawiki/index.php/OpenStack_deployment
+
+** /var/lib/nova/instance/_base 정리
+$ cd /var/lib/nova/instances
+$ find -name "disk*" | xargs -n1 qemu-img info | grep backing | \
+  sed -e's/.*file: //' -e 's/ .*//' | sort | uniq > /tmp/inuse
+  
+cat /tmp/inuse <-- in use   
+
+http://www.stillhq.com/commentform.cgi?post=/openstack/000001
+
+* server2 host의 nova-compute disable 시킴
+* disable 시키지 않고, service nova-compute stop 시키면 의도와 다르게 server2에 할당하다 ing 상태가 될수도 있음. 
+nova-manage service disable --host=server2 --service=nova-compute
+
+#nova-manage service describe_resource server1
+
+<nova secgroup- >
+# nova secgroup-list
+# nova secgroup-list-rules proxy_sec
+# nova secgroup-add-rule proxy_sec tcp 21 21 0.0.0.0/0
+
+<nova >
+#nova keypair-list
+#nova keypair-delete
+
+#nova list
+#nova delete 10d1bc19-b2c4-4eee-a5c8-b256bda3f343
+
+
+
+---------------------------------------------------------------------------------------------------
+ upload centos images -- ( 커맨드로 성공하였음. ) 2012.04.14
+---------------------------------------------------------------------------------------------------
+  
+http://cssoss.wordpress.com/2011/11/28/bundling-centos-image-for-openstack/
+
+#source /root/openrc
+
+-- /root/openrc ---
+export OS_TENANT_NAME=admin
+export OS_USERNAME=admin
+export OS_PASSWORD=e...9
+export OS_AUTH_URL="http://localhost:5000/v2.0/"
+
+#source /root/euca2oolsrc
+
+-- /root/euca2oolsrc --
+export EC2_URL=$(keystone catalog --service ec2 | awk '/ publicURL / { print $4 }')
+export CREDS=$(keystone ec2-credentials-create)
+export EC2_ACCESS_KEY=$(echo "$CREDS" | awk '/ access / { print $4 }')
+export EC2_SECRET_KEY=$(echo "$CREDS" | awk '/ secret / { print $4 }')
+
+#kvm-img create -f qcow2 centos-5.8-x64.img 40G
+
+#kvm -m 1024 -cdrom /home/localadmin/iso/CentOS-5.8-x86_64-bin-DVD-1of2.iso -drive file=centos-5.8-x64.img,if=virtio,index=0 -boot d -net nic -net user -nographic -vnc :3
+
+#vncviewer 10.10.10.1 :3 ( vnc client로 접속 ) 
+
+#os install 
+
+view /etc/rc.local ( add following line, before exit 0 ) 
+
+mkdir -p /root/.ssh
+echo >> /root/.ssh/authorized_keys
+curl -m 10 -s http://169.254.169.254/latest/meta-data/public-keys/0/openssh-key | grep 'ssh-rsa' >> /root/.ssh/authorized_keys
+echo "AUTHORIZED_KEYS:"
+echo "************************"
+cat /root/.ssh/authorized_keys
+echo "************************"
+
+rm -rf /etc/udev/rules.d/70-persistent-net.rules
+
+/etc/sysconfig/network-script/ifcfg-eth0 
+rm HWADDR 
+
+#shutdown vm
+
+#kvm -m 1024 -drive file=centos-5.8-x64.img,if=virtio,index=0,boot=on -boot c -net nic -net user -nographic -vnc :3
+
+ex) append drive(if=virtio) , nic(model=virtio)
+#kvm -m 1024 -drive file=w2k3.img,if=virtio,index=0 -drive file=w2k3_data.img,if=virtio,index=1 -boot c -net nic,model=virtio -net user -nographic -vnc :2
+
+ex) windows booting disk 
+
+Ramdisk 이미지 만들기
+1) Boot 이미지로 쓸 플로피 디스크 파일을 하나 만든다.
+  # ddb s=512 count=2880 if=/dev/zero of=win-boot.img
+2) Windows 설치 이미지를 시디롬에 설정해 주고 위에서 만든 플로피 디스크를 플로피 드라이브에 설정해 Windows를 부팅한다.
+  # kvm –m 1024 –cdrom windows.iso –drive file=windows.img, boot=on –fda win-boot.img
+3) 부팅 후, 플로피디스크를 포맷하고 CD-ROM\i386\ 아래의 ntldr, ntdetect.com 파일을 플로피디스크로 복사한다. 4) C:\windows\system32\drivers 아래의 sym_hi.sys 파일을 플로피디스크로 복사하고 이름을 Ntbootdd.sys로 변경한다. 5) 플로피디스크로 부팅해 보고 정상적으로 부팅이 되면 성공이다.
+  # kvm –m 1024 –boot a –cdrom windows.iso –drive file=windows.img,boot-on –fda win-boot.img
+
+
+#glance add name="centos 5.8 x86_64" is_public=true container_format=ovf disk_format=qcow2 < centos-5.8-x64.img
+
+#key는 dashboard에서 생성해도 됨. 
+ (이 키를 사용하면 ssh 접속시 암호 없이 접속이 가능함. )
+
+#ssh-keygen
+
+#nova keypair-add --pub_key .ssh/id_rsa.pub key1
+
+root@server1:~# nova keypair-list
++--------+-------------------------------------------------+
+|  Name  |                   Fingerprint                   |
++--------+-------------------------------------------------+
+| id_rsa | ae:e2:30:17:70:cc:e4:ef:07:8c:d3:ce:13:a6:28:14 |
+| key1   | 0b:20:7e:d5:d2:ea:c8:78:b7:18:dd:b9:3f:d2:32:7c |
+| sshkey | ed:97:22:2e:d1:9f:c8:8d:28:a9:0d:3d:ee:83:a1:04 |
++--------+-------------------------------------------------+
+
+root@server1:~# nova image-list
++--------------------------------------+-----------------------------+--------+--------------------------------------+
+|                  ID                  |             Name            | Status |                Server                |
++--------------------------------------+-----------------------------+--------+--------------------------------------+
+| 2deff77e-2731-4fa6-acbf-f4c4526d4486 | Ubuntu 11.10 cloudimg amd64 | ACTIVE |                                      |
+| 7d8d61a4-178f-4b69-9390-3a3ca339fe27 | user01_vm_shot_01           | ACTIVE | fc02c6e0-899c-4f1d-9c45-c69318d96455 |
+| ae908e8f-a91b-460b-9ee4-fee824fe29f7 | centos 5.8 x86_64           | ACTIVE |                                      |
++--------------------------------------+-----------------------------+--------+--------------------------------------+
+
+#nova flavor-list
+root@server1:~# nova flavor-list
++----+-----------+-----------+------+-----------+------+-------+-------------+
+| ID |    Name   | Memory_MB | Disk | Ephemeral | Swap | VCPUs | RXTX_Factor |
++----+-----------+-----------+------+-----------+------+-------+-------------+
+| 1  | m1.tiny   | 512       | 0    | 0         |      | 1     | 1.0         |
+| 2  | m1.small  | 2048      | 10   | 20        |      | 1     | 1.0         |
+| 3  | m1.medium | 4096      | 10   | 40        |      | 2     | 1.0         |
+| 4  | m1.large  | 8192      | 10   | 80        |      | 4     | 1.0         |
+| 5  | m1.xlarge | 16384     | 10   | 160       |      | 8     | 1.0         |
+| 6  | std       | 1024      | 20   | 20        |      | 1     | 1.0         |
++----+-----------+-----------+------+-----------+------+-------+-------------+
+
+#nova boot --flavor 6 --image ae908e8f-a91b-460b-9ee4-fee824fe29f7 --key_name key1 centos
+
+#nova show centos
+
+root@server1:~/images# nova show centos
++-------------------------------------+----------------------------------------------------------+
+|               Property              |                          Value                           |
++-------------------------------------+----------------------------------------------------------+
+| OS-DCF:diskConfig                   | MANUAL                                                   |
+| OS-EXT-SRV-ATTR:host                | server1                                                  |
+| OS-EXT-SRV-ATTR:hypervisor_hostname | None                                                     |
+| OS-EXT-SRV-ATTR:instance_name       | instance-0000000c                                        |
+| OS-EXT-STS:power_state              | 1                                                        |
+| OS-EXT-STS:task_state               | None                                                     |
+| OS-EXT-STS:vm_state                 | active                                                   |
+| accessIPv4                          |                                                          |
+| accessIPv6                          |                                                          |
+| config_drive                        |                                                          |
+| created                             | 2012-04-14T09:00:31Z                                     |
+| flavor                              | std                                                      |
+| hostId                              | f19c54648ca017719f7f66fa7583d21ca1e7e3964d9ba21d0e5d5324 |
+| id                                  | 50ecf7f4-c617-48f0-8903-3cca6dcf0707                     |
+| image                               | centos 5.8 x86_64                                        |
+| key_name                            | key1                                                     |
+| metadata                            | {}                                                       |
+| name                                | centos                                                   |
+| private network                     | 192.168.22.36, 203.x.x.x                            |
+| progress                            | 0                                                        |
+| status                              | ACTIVE                                                   |
+| tenant_id                           | af0a035fa2d14dcea2f1711430920a92                         |
+| updated                             | 2012-04-14T09:00:42Z                                     |
+| user_id                             | 721314b9862d46cf95d7020283270c89                         |
++-------------------------------------+----------------------------------------------------------+
+
+#ssh -i .ssh/id_rsa root@192.168.22.36
+
+---------------------------------------------------------------------------------------------------
+ understanding ephemeral and persistant volumes
+---------------------------------------------------------------------------------------------------
+https://lists.launchpad.net/openstack/msg08095.html
+
+On 28 February 2012 18:03, George Mihaiescu <George.Mihaiescu@xxxxxx> wrote:
+
+When you ask Nova to boot a VM, nova-compute will connect to Glance and "GET" the image file from Glance and save it on the its local filesystem in "/var/lib/nova/instances/_base".
+
+If Glance is set to use Swift as its backend storage, then Glance will get that file from Swift (through the Proxy). If not, then it will stream the file from Glance's filesystem (check the variable "filesystem_store_datadir" in the file "glance-api.conf" to see what Glance is set to use as backend store).
+
+So by default the disk of an instance is basically stored on the local filesystem of the server where the instance is running (in "/var/lib/nova/instances/instance-0000000X/disk"), and it's called ephemeral because when you terminate the instance the entire directory "/var/lib/nova/instances/instance-0000000X" gets deleted and the virtual disk is gone, but the base image in the "_base" directory is not touched.
+
+If the virtual disk is using qcow2 then only the changes that occur from the baseline are captured in the virtual disk, so the disk grows as the instance is changed more. The benefit is that you can have five instances using the same base template without using five times the space on the local filesystem (read http://people.gnome.org/~markmc/qcow-image-format.html for more info about qcow2).
+
+Persistent volumes are virtual disks that you attach to a running instance using the nova-volume service. These virtual disks are actually LVM volumes exported over iSCSI by the nova-volume server. They are called persistent because they are not affected by an instance being terminated, or by a nova-compute server crashing. You could just start a new instance and re-attach that volume and get your data back. The nova-volume is using LVM + iSCSI but there are drivers/plugins for Nexenta (and Netapp will release its own soon), so there are enterprise grade options available.
+
+I hope this helps you understand this topic (and I hope I'm right in my explanation).
+
+George
+
+* swap 잡기 
+root disk 38G 
+ephemel disk 2G
+
+fdisk /dev/vdb
+/dev/vdb1
+mkswap /dev/vdb1
+swapon /dev/vdb1
+
+view /etc/fstab
+/dev/vdb1               none                    swap    sw              0 0
+
+* volume 추가
+#nova volume-list
++----+--------+--------------+------+-------------+--------------------------------------+
+| ID | Status | Display Name | Size | Volume Type |             Attached to              |
++----+--------+--------------+------+-------------+--------------------------------------+
+| 1  |        | vmtest01_vol | 20   | None        | d6c775b1-0d01-41b7-a18f-10e85a46d3a7 |
++----+--------+--------------+------+-------------+--------------------------------------+
+
+#nova volume-attach vmtest01 1 /dev/vdc <== 1은 volume-list 결과의 id 
+
+volume을 instance에 추가한후, instance를 rebooting해야 디스크가 보임( ex: /dev/vdc )
+
+
+#vgdisplay
+nova volume-create --display_name "volume1" 5
+nova volume-list
+euca-describe-volumes
+euca-delete-volume vol-00000001
+nova volume-attach superfrobnicator 1 /dev/vdb
+
+---------------------------------------------------------------------------------------------------
+ general
+---------------------------------------------------------------------------------------------------
+
+sudo apt-get install -y ntp
+
+sudo sed -i 's/server ntp.ubuntu.com/server ntp.ubuntu.com\nserver 127.127.1.0\nfudge 127.127.1.0 stratum 10/g' /etc/ntp.conf  
+
+sudo service ntp restart
+
+(on compute node)
+ntpdate 'controllernode ip'
+hwclock -w
+
+---------------------------------------------------------------------------------------------------
+ keystone
+---------------------------------------------------------------------------------------------------
+sudo apt-get install keystone
+
+sudo rm /var/lib/keystone/keystone.db
+
+sudo apt-get install python-mysqldb mysql-server
+
+sudo sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mysql/my.cnf
+
+sudo service mysql restart
+
+mysql -u root -p
+
+mysql> CREATE DATABASE keystone;
+
+mysql> GRANT ALL ON keystone.* TO 'keystone'@'%' IDENTIFIED BY 'yourpassword';
+
+mysql> quit
+
+---------------------------------------------------------------------------------------------------
+hastexo
+---------------------------------------------------------------------------------------------------
+sudo apt-get update 
+sudo apt-get upgrade
+
+apt-get install ntp
+
+view /etc/ntp.conf
+server ntp.ubuntu.com iburst
+server 127.127.1.0
+fudge 127.127.1.0 stratum 10
+
+service ntp restart
+
+apt-get install tgt
+
+service tgt start
+
+apt-get install open-iscsi open-iscsi-utils
+
+view /etc/network/interface
+
+auto lo
+iface lo inet loopback
+
+auto eth0 
+iface eth0 inet static
+ address 10.42.0.6
+ network 10.42.0.0
+ netmask 255.255.255.0
+ broadcast 10.42.0.255
+ gateway 10.42.0.1
+
+auto eth1
+iface eth1 inet static
+ address 192.168.22.1
+ network 192.168.22.0
+ netmask 255.255.255.0
+ broadcast 192.168.22.255
+ 
+* This machine's IP address in the public network is 10.42.0.6 
+and we'll be using this IP in configuration files later on 
+(except for when connecting to MySQL, which we'll by connecting to 127.0.0.1). 
+
+apt-get install bridge-utils
+
+/etc/init.d/networking restart
+
+apt-get install rabbitmq-server memcached python-memcache
+
+apt-get install kvm libvirt-bin
+
+sudo apt-get install lvm2
+
+sudo pvcreate /dev/sda3
+sudo vgcreate nova-volumes /dev/sda3
+
+vgextend nova-volumes /dev/sdc1
+vgdisplay 
+vgextend nova-volumes /dev/sdb1
+vgdisplay 
+vgreduce nova-volumes /dev/sdb1
+
+apt-get install -y mysql-server python-mysqldb
+
+view /etc/mysql/my.cnf
+bind-address = 127.0.0.1 ==> bind-address = 0.0.0.0
+
+service mysql restart
+
+mysql -uroot -p 
+
+create database nova;
+grant all privileges on nova.* to 'novadbadmin'@'%' identified by 'PASSWORD';
+grant all privileges on nova.* to 'novadbadmin'@localhost identified by 'PASSWORD';
+grant all privileges on nova.* to 'novadbadmin'@serveru1 identified by 'PASSWORD';
+
+create database glance;
+grant all privileges on glance.* to 'glancedbadmin'@'%' identified by 'PASSWORD';
+grant all privileges on glance.* to 'glancedbadmin'@localhost identified by 'PASSWORD';
+grant all privileges on glance.* to 'glancedbadmin'@serveru1 identified by 'PASSWORD';
+
+create database keystone;
+grant all privileges on keystone.* to 'keystonedbadmin'@'%' identified by 'PASSWORD';
+grant all privileges on keystone.* to 'keystonedbadmin'@localhost identified by 'PASSWORD';
+grant all privileges on keystone.* to 'keystonedbadmin'@serveru1 identified by 'PASSWORD';
+
+flush privileges;
+quit;
+
+apt-get install keystone python-keystone python-keystoneclient
+
+view /etc/keystone/keystone.conf
+
+...
+admin_token = hastexo
+
+[catalog]
+driver = keystone.catalog.backends.templated.TemplatedCatalog
+template_file = /etc/keystone/default_catalog.templates
+
+#connection = sqlite:////var/lib/keystone/keystone.db
+connection = mysql://keystonedbadmin:PASSWORD@10.42.0.6/keystone   <-- 10.42.0.6 static ip 
+...
+
+sudo mv /var/lib/keystone/keystone.db /var/lib/keystone/keystone.db.orig
+
+service keystone restart
+
+sudo keystone-manage db_sync
+
+./keystone_data.sh
+
+...
+(
+ADMIN_PASSWORD=${ADMIN_PASSWORD:-hastexo}
+SERVICE_PASSWORD=${SERVICE_PASSWORD:-$ADMIN_PASSWORD}
+export SERVICE_TOKEN="hastexo"
+export SERVICE_ENDPOINT="http://localhost:35357/v2.0"
+)
+...
+
+
+apt-get install glance glance-api glance-client glance-common glance-registry python-glance
+
+view /etc/glance/glance-api-paste.ini
+
+...
+admin_tenant_name = admin
+admin_user = admin
+admin_password = PASSWORD
+...
+
+view /etc/glance/glance-registry-paste.ini 
+...
+admin_tenant_name = admin
+admin_user = admin
+admin_password = PASSWORD
+...
+
+view /etc/glance/glance-registry.conf
+...
+sql_connection = mysql://glancedbadmin:ohC3teiv@10.42.0.6/glance   <== 10.42.0.6 static ip
+...
+( It's important to use the machine's actual IP in this example and not 127.0.0.1! After this, scroll down until the end of the document and add these two lines: )
+
+[paste_deploy]
+flavor = keystone
+
+view /etc/glance/glance-api.conf 
+...
+[paste_deploy]
+flavor = keystone
+...
+
+glance-manage version_control 0
+glance-manage db_sync
+
+service glance-api restart && service glance-registry restart
+
+sudo su - root
+view /root/openrc
+
+export OS_TENANT_NAME=admin
+export OS_USERNAME=admin
+export OS_PASSWORD=hastexo
+export OS_AUTH_URL="http://localhost:5000/v2.0/"
+
+source /root/openrc
+
+glance index
+
+view /var/log/glance/registry.log
+ERROR [glance.registry.db.api] Error configuring registry database with supplied sql_connection 'mysql://glancedbadmin:PASSWORD@10.42.0.6/glance'. Got error:
+
+mysql -uroot -p mysql
+grant all privileges on glance.* to 'glancedbadmin'@server1 identified by 'PASSWORD';
+
+wget http://uec-images.ubuntu.com/releases/11.10/release/ubuntu-11.10-server-cloudimg-amd64-disk1.img
+
+glance add name="Ubuntu 11.10 cloudimg amd64" is_public=true container_format=ovf disk_format=qcow2 < ubuntu-11.10-server-cloudimg-amd64-disk1.img
+
+---------------------------------------------------------------------------------------------------
+ nova
+---------------------------------------------------------------------------------------------------
+
+apt-get install nova-api nova-cert nova-common nova-compute nova-compute-kvm nova-doc nova-network nova-objectstore nova-scheduler nova-vncproxy nova-volume python-nova python-novaclient
+
+view /etc/nova/nova.conf 
+
+--dhcpbridge_flagfile=/etc/nova/nova.conf
+--dhcpbridge=/usr/bin/nova-dhcpbridge
+--logdir=/var/log/nova
+--state_path=/var/lib/nova
+--lock_path=/var/lock/nova
+--allow_admin_api=true
+--use_deprecated_auth=false
+--auth_strategy=keystone
+--scheduler_driver=nova.scheduler.simple.SimpleScheduler
+--s3_host=10.42.0.6
+--ec2_host=10.42.0.6
+--rabbit_host=10.42.0.6
+--cc_host=10.42.0.6
+--nova_url=http://10.42.0.6:8774/v1.1/
+--routing_source_ip=10.42.0.6
+--glance_api_servers=10.42.0.6:9292
+--image_service=nova.image.glance.GlanceImageService
+--iscsi_ip_prefix=192.168.22
+--sql_connection=mysql://novadbadmin:dieD9Mie@10.42.0.6/nova
+--ec2_url=http://10.42.0.6:8773/services/Cloud
+--keystone_ec2_url=http://10.42.0.6:5000/v2.0/ec2tokens
+--api_paste_config=/etc/nova/api-paste.ini
+--libvirt_type=kvm
+--libvirt_use_virtio_for_bridges=true
+--start_guests_on_host_boot=true
+--resume_guests_state_on_host_boot=true
+--vnc_enabled=true
+--vncproxy_url=http://10.42.0.6:6080
+--vnc_console_proxy_url=http://10.42.0.6:6080
+# network specific settings
+--network_manager=nova.network.manager.FlatDHCPManager
+--public_interface=eth0
+--flat_interface=eth1
+--flat_network_bridge=br100
+--fixed_range=192.168.22.32/27
+--floating_range=10.42.0.32/27 
+--network_size=32
+--flat_network_dhcp_start=192.168.22.33
+--flat_injected=False
+--force_dhcp_release
+--iscsi_helper=tgtadm
+--connection_type=libvirt
+--root_helper=sudo nova-rootwrap
+--verbose
+
+**
+--fixed_range=192.168.22.32/27 ( vm private ip )
+--floating_range=10.42.0.32/27 ( vm static ip ) 
+
+view  /etc/nova/api-paste.ini
+...
+admin_tenant_name = admin
+admin_user = admin
+admin_password = hastexo
+...
+
+for a in libvirt-bin nova-network nova-compute nova-api nova-objectstore nova-scheduler nova-volume nova-vncproxy; do service "$a" stop; done
+
+for a in libvirt-bin nova-network nova-compute nova-api nova-objectstore nova-scheduler nova-volume nova-vncproxy; do service "$a" start; done
+
+>mysql -uroot -p mysql
+grant all privileges on nova.* to 'novadbadmin'@server1 identified by 'PASSWORD';
+
+nova-manage db sync
+
+nova-manage network create private --fixed_range_v4=192.168.22.32/27 --num_networks=1 --bridge=br100 --bridge_interface=eth1 --network_size=32 
+
+chown -R nova:nova /etc/nova
+
+for a in libvirt-bin nova-network nova-compute nova-api nova-objectstore nova-scheduler nova-volume nova-vncproxy; do service "$a" stop; done
+
+for a in libvirt-bin nova-network nova-compute nova-api nova-objectstore nova-scheduler nova-volume nova-vncproxy; do service "$a" start; done
+
+nova list
+
+nova image-list
+
+# ssh-keygen
+
+nova keypair-add --pub_key .ssh/id_rsa.pub key1
+
+nova image-list
+
+nova flavor-list
+
+nova boot --flavor 1 --image 2deff77e-2731-4fa6-acbf-f4c4526d4486 --key_name key1 superfrobnicator
+
+nova show superfrobnicator
+
+ssh -i .ssh/id_rsa ubuntu@192.168.22.34
+
+apt-get install libapache2-mod-wsgi openstack-dashboard
+
+view  /etc/openstack-dashboard/local_settings.py
+...
+CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
+...
+
+service apache2 restart
+
+http://staicip 
+
+view /root/euca2oolsrc
+
+....
+export EC2_URL=$(keystone catalog --service ec2 | awk '/ publicURL / { print $4 }')
+export CREDS=$(keystone ec2-credentials-create)
+export EC2_ACCESS_KEY=$(echo "$CREDS" | awk '/ access / { print $4 }')
+export EC2_SECRET_KEY=$(echo "$CREDS" | awk '/ secret / { print $4 }') 
+....
+
+apt-get install euca2ools
+
+euca-describe-images 
+
+euca-describe-instances
+
+nova volume-create --display_name "volume1" 1
+
+nova volume-attach superfrobnicator 1 /dev/vdb
+
+nova volume-list
+
+keypair를 만들어서 다운받음.
+
+pem인증서에 퍼미션 0600 을 준다.
+
+ssh -i xx.pem root@xxx.xxx.amazonaws.com
+
+scp -i xx.pem a.jpg root@xxx.xxx.amazonaws.com:/home/xxxx
+
+---------------------------------------------------------------------------------------------------
+ server2 ( nova-compute ) 
+---------------------------------------------------------------------------------------------------
+#apt-get install -y ntp
+
+#view /etc/ntp.conf and add the following line to sync to server1.
+
+server 10.10.10.2
+
+#/etc/init.d/ntp restart
+
+#apt-get install -y nova-common python-nova nova-compute vlan euca2ools unzip
+
+#/etc/nova/nova.conf 는 server1의 nova.conf 그대로 복사 
+
+---------------------------------------------------------------------------------------------------
+ configuration for live migration 
+---------------------------------------------------------------------------------------------------
+ reference
+ http://docs.openstack.org/cactus/openstack-compute/admin/content/configuring-live-migrations.html
+ 
+<on controller node : nfs server : 2x.xxx.xxx.4>
+#apt-get install nfs-kernel-server
+
+#view /etc/exports
+/var/lib/nova/instances 2x.xxx.xxx.5(rw,sync,fsid=0,no_root_squash)
+
+#/etc/init.d/portmap restart
+#/etc/init.d/nfs-kernel-server restart
+#/etc/init.d/idmapd restart
+
+<on compute node : nfs client : 2xx.xxx.xxx.5>
+#apt-get install nfs-common
+
+#view /etc/fstab
+2xx.xxx.xxx.4:/var/lib/nova/instances   /media/server1  nfs     defaults 0 0
+ 
+#mount -a -v
+
+or
+#mount -t nfs  2xx.xxx.xxx.4:/var/lib/nova/instances /media/server1
+
+
+---------------------------------------------------------------------------------------------------
+timezone modify
+---------------------------------------------------------------------------------------------------
+
+# mv /etc/localtime /etc/localtime.orig
+# ln -s /usr/share/zoneinfo/Asia/Seoul /etc/localtime
+
+---------------------------------------------------------------------------------------------------
+nagios
+---------------------------------------------------------------------------------------------------
+on centos5.8 
+http://nagios.sourceforge.net/docs/3_0/quickstart-fedora.html
+
+#useradd -m nagios
+
+#passwd nagios
+
+#groupadd nagcmd
+
+#usermod -a -G nagcmd nagios
+
+#usermod -a -G nagcmd apache
+
+cd /usr/local/src
+#http://prdownloads.sourceforge.net/sourceforge/nagios/nagios-3.3.1.tar.gz
+#http://prdownloads.sourceforge.net/sourceforge/nagiosplug/nagios-plugins-1.4.15.tar.gz
+
+>>>>>> update >>>>>>
+http://sourceforge.net/projects/nagios/files/ 에서 최신버전 확인 후 다운로드 
+http://sourceforge.net/projects/nagiosplug/files/ 에서 최신버전 확인 후 다운로드 
+<<<<<< update <<<<<<<
+
+
+#wget http://downloads.sourceforge.net/project/nagios/nagios-3.x/nagios-3.3.1/nagios-3.3.1.tar.gz?r=http%3A%2F%2F203.242.185.3%3A8080%2Fproject%2Fticket%2F5&ts=1336632447&use_mirror=cdnetworks-kr-2
+#wget http://downloads.sourceforge.net/project/nagiosplug/nagiosplug/1.4.15/nagios-plugins-1.4.15.tar.gz?r=http%3A%2F%2F203.242.185.3%3A8080%2Fproject%2Fticket%2F5&ts=1336632478&use_mirror=cdnetworks-kr-1
+
+
+#tar xvfz nagios-3.3.1.tar.gz
+#cd nagios
+
+#./configure --with-command-group=nagcmd
+
+#sed -i 's:for file in includes/rss/\*;:for file in includes/rss/\*.\*;:g' ./html/Makefile
+#sed -i 's:for file in includes/rss/extlib/\*;:for file in includes/rss/extlib/\*.\*;:g' ./html/Makefile
+
+#make all
+#make install
+#make install-init
+#make install-config
+#make install-commandmode
+
+#view /usr/local/nagios/etc/objects/contacts.cfg 
+
+#make install-webconf  <-- /etc/httpd/conf.d/nagios.conf
+
+#htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
+
+#service httpd restart
+
+ Compile and Install the Nagios Plugins
+
+
+cd ~/downloads
+
+tar xzf nagios-plugins-1.4.11.tar.gz
+
+cd nagios-plugins-1.4.11
+
+Compile and install the plugins.
+
+./configure --with-nagios-user=nagios --with-nagios-group=nagios
+
+make
+
+make install
+
+chkconfig --add nagios
+
+chkconfig nagios on
+
+/usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg
+
+service nagios start
+
+------------------------
+size
+-----------------------
+
+/var/lib/glance/images   <--- image upload
+
+/var/lib/nova/instances  <--- instance upload
+
+volume
+
+root@server1:/var/lib/nova/instances# vgdisplay 
+  --- Volume group ---
+  VG Name               nova-volumes
+  System ID             
+  Format                lvm2
+  Metadata Areas        1
+  Metadata Sequence No  4
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                1
+  Open LV               1
+  Max PV                0
+  Cur PV                1
+  Act PV                1
+  VG Size               63.39 GiB
+  PE Size               4.00 MiB
+  Total PE              16229
+  Alloc PE / Size       2560 / 10.00 GiB                       <--- volume use  size
+  Free  PE / Size       13669 / 53.39 GiB                      <--- volume free size 
+  VG UUID               f2Ifw1-WvJ0-WiEN-fwM3-bIlO-A0OG-f4aN7r
+
+
+------------------------
+/etc/resolv.conf
+-----------------------
+reference 
+http://blog.daum.net/mygunsan/61
+ 
+이 문제를 해결하기 위해서 /sbin/dhclient-script 가 /etc/resolv.conf 를 수정하지 못하도록 파일 속성을 불변으로 바꾼다.
+chattr +i /etc/resolv.conf
+
+------------------------
+2012.05.02 kT openstack 커뮤니티
+-----------------------
+<keyword>
+- quantum
+- service open : rackspace, HP
+- hybrid cloud
+- trystack.org (일본,중국)
+- openstack AP 
+
+nicira NVP
+
+trystack.org
+
+HA
+
+----------         --------------
+nova-api           nova-api
+nova-scheduler     nova-scheduler
+keystone           keystone
+dashboard          dashboard
+----------         --------------
+
+19대 
+----------        
+nova-compute
+nova-network
+----------        
+
+----------         --------------
+mysql              mysql
+rabbit             rabbit
+----------         --------------
+
+----------         --------------
+glance
+----------         --------------
+
+AP
+- 중국 : 신화닷컴(구글묘사)
+- 일본 : NTT
+- 한국 : 삼성SDS3명, 연구소3명, 연대교수1
+- 타이완 : ITRI
+
+<leard>
+- 오픈소스 social coding
+- Quantum network
+- Folsom 상용화버전
+- 소스분석필요(아는만큼 보임), 용어
+- people
+- English & openstack
+
+* etherpad 이용(대화내용 참조)
+http://wiki.openstack.org/FolsomSummitEtherpads
+
+* prezi.com
+
+* Xen Cloud Platform
+* xcp
+* openflow
+* OVS
+
+------------------------
+swift
+-----------------------
+
+System Requirements
+
+Object Storage object servers : dual quad core / 8~12GRAM / 4U 2G*24ea 
+Object Storage container/account servers : dual quad core / 8~12GRAM / 
+Object Storage proxy servers : dual quad core 
+
+Networking Planning
+Public Network : 8 IPs ( CIDDR/29 )
+Storage Network : (not publicly routable ) : 255 IPs ( CIDR/24 )
+
+one proxy node
+five storage nodes
+ - swift-account-server
+ - swift-container-server
+ - swift-object-server
+
+
+swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing stat
+
+  131  swift -V 2.0 -A http://127.0.0.1:5000/v2.0 -U test:tester -K testing stat
+  134  swift -A http://127.0.0.1:5000/v2.0 -U test:tester -K testing upload startrest myfiles bigfiles1.tgz
+  135  swift -A http://127.0.0.1:5000/v2.0 -U test:tester -K testing upload startrest  bigfiles1.tgz
+  136  swift -A http://127.0.0.1:5000/v2.0 -U test:tester -K testing --help
+  137  swift -A http://127.0.0.1:5000/v2.0 -U test:tester -K testing list
+  142  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing stat
+  143  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing upload startmain bigfile1.tgz
+  144  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing upload startmain 
+  145  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing list
+  147  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing download startmain
+  153  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing upload --help
+  154  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing upload /root/bin/startmain bigfile1.tgz
+  155  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing upload myfiles startmain 
+  156  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing list
+  157  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing --help
+  158  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing list
+  159  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing delete myfiles
+  160  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing delete startmain
+  161  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing delete list
+  162  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing --help
+  176  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing upload mycontainer ubuntu-12.04-server-amd64.iso 
+  183  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing list
+  184  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing list mycontainer
+  186  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing download mycontainer/ubuntu-12.04-server-amd64.iso
+  187  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing download mycontainer
+  195  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing list
+  196  swift -A http://127.0.0.1:8080/auth/v1.0 -U test:tester -K testing download mycontainer
+
+----------------------
+ubuntu dhcp 
+----------------------
+
+ubuntu@ubuntu:~$ cat /etc/network/interfaces 
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface
+auto eth0
+iface eth0 inet static
+	address x.x.x.x
+	netmask 255.255.255.224
+	network x.x.x.y
+	gateway x.x.x.z
+	dns-nameservers 8.8.8.8 8.8.4.4
+
+> reference
+http://askubuntu.com/questions/127498/resolv-conf-doesnt-get-set-on-reboot-when-networking-is-configured-for-static-i

@@ -1,0 +1,176 @@
+open ipmi 를 이용한 서버관리
+
+http://www.linux.co.kr/home2/board/subbs/board.php?bo_table=lecture&wr_id=1678
+
+open ipmi 를 이용한 서버관리
+
+0. 소개 
+
+    IPMI(Intelligent Platform Management Interface)란 지능형 플랫폼관리 인터페이스이다 
+    이는 플랫폼에 대한 관리 인터페이스로 OS이전 창치들에 대한 관려 인터페이스를 나타는것이다 .
+    
+    여기서 소개하고자하는 open ipmi의 경우 
+    로컬뿐아니라 원격지의 장비에 대해서도 상태확인 및  원격지의 장비에 대해서도 가능하나 
+    여기서는 로칼에서 사용하는 부분에 대해 설명하도록 하겠다 .
+    
+
+1. 설치 방법 
+    설치전 확인 사항
+        -  IPMI version 1.5이상을 지원하는 메인보드
+        - OpenIPMI
+        - IPMI드라이버를 제공하는 커널
+
+    open ipmi를 사용하기 위해 패키지를 설치한다.
+    ＃ yum install OpenIPMI-tools
+
+    open ipmi를 사용하기 필요한 커널 모듈을 로드시킨다.
+    # modprobe ipmi_devintf 
+    # modprobe ipmi_si
+    # modprobe ipmi_msghandler
+
+    정상적으로 모듈이 로드되었는지 확인한다 .
+    ＃ lsmod | grep ipmi
+    ipmi_si                36713  0 
+    ipmi_devintf           13129  0 
+    ipmi_msghandler        31785  2 ipmi_si,ipmi_devintf
+
+
+2. 명령어 사용법 
+
+    수많은 옵션과 명령어가 있지민 자주사용하고 
+    활용도가 높은 몇가지만 설명하도록 하겠다, 
+
+    사용법 
+        # ipmitool [options...] <command>
+
+    옵션
+        -h        : 도움말 정보를 출력한다 
+        -v        : 버전 정보를 추력한다 
+        -I intferface : 사용할 인터페이스를 선택한다 
+
+    인터페이스
+        open          Linux OpenIPMI Interface 로 인터페이스를  명시하지않을시 
+                     기본적으로 선택된다.
+        imb            Intel IMB Interface 를 나타낸다
+        lan             IPMI v1.5 LAN Interface  를 나타낸다
+        lanplus       IPMI v2.0 RMCP+ LAN Interfac 를 나타낸다
+
+    명령어 
+        chassis    세시의 상태와 전원관리에 대한 명령어
+        power    세세의 명령어중 전원관리에 대한 단축 명령
+        sel        메인보드의 이벤트로그에 대한 명령
+        sdr        센서의 응답 개체에 대한 명령
+        sensor    센서정보에 대한 명령
+
+
+3. 사용예제
+
+    전원관리 
+        전원 상태 확인방법
+        # ipmitool -I open chassis status
+        System Power         : on
+        Power Overload       : false
+        Power Interlock      : inactive
+        Main Power Fault     : false
+        Power Control Fault  : false
+        Power Restore Policy : always-off
+        Last Power Event     : ac-failed 
+        Chassis Intrusion    : inactive
+        Front-Panel Lockout  : inactive
+        Drive Fault          : false
+        Cooling/Fan Fault    : false
+
+        전원 컨트롤
+        //전원상태 확인 
+        # ipmitool -I open power status
+        Chassis Power is on            
+    
+        서버의 전원을 내릴경우 => 세세의 파워버튼을 누른 것과 같다
+        # ipmitool -I open power off
+
+        서버의 전원을 리셋 할 경우 => 세세의 reset 버튼을 누른 것과  같다.
+        # ipmitool -I open power reset
+
+    메인보드 로그 
+        
+        사용량이나 마지막로그 발생시정 확인
+        # ipmitool -I open sel info
+        SEL Information
+        Version          : 1.5 (v1.5, v2 compliant)
+        Entries          : 108
+        Free Space       : 63372 bytes 
+        Percent Used     : 2%
+        Last Add Time    : 03/25/2008 16:13:15
+        Last Del Time    : 10/29/2007 09:02:48
+        Overflow         : false
+        Supported Cmds   : 'Delete' 'Partial Add' 'Reserve' 'Get Alloc Info' 
+        # of Alloc Units : 3276
+        Alloc Unit Size  : 20
+        # Free Units     : 3168
+        Largest Free Blk : 3168
+        Max Record Size  : 12
+    
+        메인보드 이벤트로그보기
+        #  ipmitool -I open sel list
+           4 | 10/29/2007 | 09:02:48 | Event Logging Disabled #0x09 | Log area reset/cleared | Asserted
+          18 | 10/29/2007 | 09:03:01 | System Event #0x83 | Timestamp Clock Sync | Asserted
+          2c | 10/29/2007 | 09:03:01 | System ACPI Power State #0x82 | S5/G2: soft-off | Asserted
+          40 | 10/29/2007 | 09:03:01 | System Event #0x83 | Timestamp Clock Sync | Asserted
+          54 | 10/29/2007 | 09:03:01 | Power Unit #0x01 | Power off/down | Asserted
+          68 | 12/27/2007 | 19:12:02 | Processor #0x90 | Presence detected | Asserted
+          7c | 10/29/2007 | 09:03:53 | Power Unit #0x01 | AC lost | Asserted
+          90 | 12/27/2007 | 19:12:03 | Power Unit #0x01 | AC lost | Deasserted
+          a4 | 12/27/2007 | 19:12:27 | Button #0x84 | Power Button pressed | Asserted
+          b8 | 12/27/2007 | 19:12:59 | System Event #0x83 | Timestamp Clock Sync | Asserted
+          cc | 12/27/2007 | 19:10:11 | System Event #0x83 | Timestamp Clock Sync | Asserted
+          e0 | 12/27/2007 | 19:10:15 | Slot/Connector #0xe0 | Device Installed | Asserted
+          f4 | 12/27/2007 | 19:10:15 | Slot/Connector #0xe4 | Device Installed | Asserted
+         108 | 12/27/2007 | 19:17:40 | System Event #0x83 | Timestamp Clock Sync | Asserted
+         11c | 12/27/2007 | 20:17:39 | System Event #0x83 | Timestamp Clock Sync | Asserted
+         130 | 12/27/2007 | 20:18:00 | System Event #0x01 | OEM System boot event | Asserted
+
+        메인보드 이벤트로그 비우기
+        # ipmitool -I open sel clear
+
+    센서 모니터링
+        
+        센서의 모니터링 
+        # ipmitool sdr
+        BB +1.2V Vtt     | 1.20 Volts        | ok
+        BB +1.5V AUX     | 1.48 Volts        | ok
+        BB +1.5V         | 1.47 Volts        | ok
+        BB +1.8V         | 1.80 Volts        | ok
+        BB +3.3V         | 3.35 Volts        | ok
+        BB +3.3V STB     | 3.32 Volts        | ok
+        BB +1.5V ESB     | 1.49 Volts        | ok
+        BB +5V           | 5.10 Volts        | ok
+        BB +12V AUX      | 12.21 Volts       | ok
+        BB 0.9V          | 0.89 Volts        | ok
+        Baseboard Temp   | 35 degrees C      | ok
+            .. 이하 생략
+
+        센서의 모니터링및 각 센서의 정보 확인
+        # ipmitool sensor
+        BB +1.2V Vtt     | 1.197      | Volts      | ok    | na        | 1.096     | 1.134     | 1.285     | 1.323     | na        
+        BB +1.5V AUX     | 1.482      | Volts      | ok    | na        | 1.334     | 1.373     | 1.622     | 1.669     | na        
+        BB +1.5V         | 1.469      | Volts      | ok    | na        | 1.326     | 1.365     | 1.625     | 1.677     | na        
+        BB +1.8V         | 1.802      | Volts      | ok    | na        | 1.638     | 1.689     | 1.926     | 1.988     | na        
+        BB +3.3V         | 3.354      | Volts      | ok    | na        | 2.941     | 3.027     | 3.578     | 3.681     | na        
+        BB +3.3V STB     | 3.320      | Volts      | ok    | na        | 3.027     | 3.113     | 3.509     | 3.612     | na        
+        BB +1.5V ESB     | 1.490      | Volts      | ok    | na        | 1.357     | 1.404     | 1.591     | 1.638     | na        
+        BB +5V           | 5.096      | Volts      | ok    | na        | 4.446     | 4.576     | 5.408     | 5.564     | na        
+        BB +12V AUX      | 12.214     | Volts      | ok    | na        | 10.416    | 10.726    | 13.144    | 13.578    | na        
+        BB 0.9V          | 0.898      | Volts      | ok    | na        | 0.811     | 0.835     | 0.950     | 0.979     | na        
+        Baseboard Temp   | 34.000     | degrees C  | ok    | na        | 5.000     | 10.000    | 66.000    | 72.000    | na   
+            .. 이하 생략
+
+
+4. 마무리
+
+    ipmitool에 대한 이용방법에 대해 알아보았다 
+    이를 이용하면 장치상에서 발생하는에러 OS에서 확인이 불가능한 부분의 문제점들도 잡아낼수 있음으로 
+    보다 효과적으로  관리가 가능해진다 .
+
+    장비에 대한 전원관리가 가능하여 IDC센터에 가지않고서도 장비에 대한 전원관리가 가능하다 
+
+     이는 많은 서버를 관리학시에 보다 효과적으로 관리가 가능해진다 .

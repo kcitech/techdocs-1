@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="euc-kr"?>
+
+<project name="comiclang" default="all" basedir=".">
+        <property name="src.dir"  value="/home/comiclang/WEB-INF/src" />
+        <property name="dest.dir" value="/home/comiclang/WEB-INF/classes" />
+        <property name="lib.dir"  value="/home/comiclang/WEB-INF/lib" />
+        <property name="serverlib.dir" value="/usr/local/tomcat/lib" />
+
+        <path id="classpath">
+                <fileset dir="${lib.dir}">
+                        <include name="*.jar"/>
+                </fileset>
+                <fileset dir="${serverlib.dir}">
+                        <include name="*.jar"/>
+                </fileset>
+        </path>
+
+        <target name="prepare">
+                <mkdir dir="${dest.dir}"/>
+        </target>
+
+        <target name="compile" depends="prepare">
+                <javac srcdir="${src.dir}" destdir="${dest.dir}" includeantruntime="false">
+                  <classpath refid="classpath"/>
+                </javac>
+        </target>
+
+        <target name="config" depends="prepare">
+                <copy todir="${dest.dir}">
+                        <fileset dir="${src.dir}">
+                                <include name="*.properties"/>
+                        </fileset>
+                </copy>
+        </target>
+
+        <target name="all" depends="compile,config">
+        </target>
+
+</project>

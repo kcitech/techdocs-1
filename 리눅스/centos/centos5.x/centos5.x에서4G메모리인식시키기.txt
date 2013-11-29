@@ -1,0 +1,24 @@
+
+RHEL/CentOS에서 4기가 이상 대용량 메모리 사용하기
+
+Centos 4.x 대에서는 아무 문제 없이 메모리 4G가 인식 되었는데 Centos 5 에서는 인식이 안되는 거였다.
+
+Centos 5로 오면서 기본 커널에서는 메모리 4기가 이상을 지원을 안하는 거였다.
+
+    cat /proc/meminfo
+    MemTotal:      3365020 kB
+
+
+
+4G 이상 대용량 메모리를 사용하기 위해서는 커널을 kernel-PAE로 업그레이드 해야 된다. 단 CPU에서 PAE 기능을 지원해야 된다.
+
+cat /proc/cpuinfo |grep -i pae 해서 내용이 나오면 cpu에서 지원되는 거다. PAE 커널은 최대 메모리 64G까지 지원된다.
+
+#yum install kernel-PAE
+
+커널 설치하고 grub.conf에서 default로 부팅하는게 PAE 커널로 돼있는지 확인하고 리부팅하면 된다.
+
+참고 링크
+
+http://www.cyberciti.biz/tips/redhat-enterprise-linux-4gb-plus-ram-support.html
+http://www.centos.org/product.html#seven

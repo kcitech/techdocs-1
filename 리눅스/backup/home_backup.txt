@@ -1,0 +1,15 @@
+#!/bin/sh
+DIR=/home/backup/home
+head=14
+tail=15
+
+while [ $head -ge 1 ]
+do
+        /bin/mv $DIR/home.tar.gz.$head $DIR/home.tar.gz.$tail
+        head=`expr $head - 1`
+        tail=`expr $tail - 1`
+done
+
+/bin/tar cvfz $DIR/home.tar.gz /home --exclude=/home/mysql-data --exclude=/home/backup
+/bin/mv -f $DIR/home.tar.gz $DIR/home.tar.gz.1
+chmod 700 $DIR/*

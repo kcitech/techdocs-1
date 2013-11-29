@@ -1,0 +1,38 @@
+[ centos4 + sendmail + dovecot ]
+
+centos4에서는 3.x에서 사용했던 imapd가 없어지고,
+cyrus-imapd와 dovecot이 있다.
+
+3.x버전에서처럼 사용되는 pop3를 위한 패키지가 dovecot이다.
+
+os install시 선택 패키지
+-. centos4_after_install.txt 참조
+
+# yum list *sendmail* *dov*
+
+# yum install sendmail-cf sendmail-devel dovecot
+
+1. sendmail(25)
+   -. /etc/mail/local-host-names
+      도메인
+   -. /etc/mail/sendmail.mc
+      127.0.0.1 제거 
+	<==JW우
+	DAEMON_OPTIONS(`Port=smtp,Addr=127.0.0.1, Name=MTA')dnl
+	DAEMON_OPTIONS(`Port=smtp, Name=MTA')dnl
+
+      PLAIN방식 주석 제거
+      # m4 /etc/mail/sendmail.mc > /etc/mail/sendmail.cf
+
+2. dovecot(110,143)
+   /etc/dovecot.conf
+   ===================================================
+   protocols = imap pop3
+   ===================================================
+
+3. 서비스
+   /etc/init.d/sendmail start
+   /etc/init.d/dovecot start
+   /etc/init.d/saslauthd start
+
+/var/spool/mail에 보면 계정의 메일이 위치한다.

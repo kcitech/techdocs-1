@@ -1,0 +1,84 @@
+[ centos 4.2 + apm rpm ]
+
+os install
+-. centos4_after_install.txt 참조
+
+1. apm 환경 알아보기
+   # yum list httpd* php* mysql*
+
+2. apm 패키지 install
+   # yum install httpd httpd-devel php php-devel php-domxml php-gd php-imap php-mbstring php-mysql php-xmlrpc php-pear mysql mysql-server mysql-devel "Image*"
+
+   wget, lynx 삭제
+   curl, curl-config 이름 변경 -> AAAA_curl, AAAA_curl-config
+
+2.1 centos4, php5, mysql5 rpm 설치시
+    -. /etc/yum.repos.d/CentOS-Base.repo
+       [centosplus]
+       enabled=0 -> 1로 수정
+
+    -. # yum install httpd httpd-devel php php-devel php-gd php-imap php-mbstring php-mysql php-xml php-xmlrpc php-bcmath php-pear.noarch mysql mysql-server mysql-devel "Image*"
+
+    -. CentOS-Base.repo을 수정하지 않고 하는 방법
+       # yum --enablerepo=centosplus  install ....생략.. 
+     
+3. 설정
+   -. httpd
+      /etc/httpd/conf/httpd.conf
+      3.x대의 아파치에서 MaxClients의 수 증가를 위해 소스컴파일을 했지만
+      아래와 같이 ServerLimit,MaxClients 를 수정하면 됨.
+      (MaxClients의 수는 ServerLimit보다 클 수 없다.)
+      ====================================================
+      KeepAlive Off  -> 그대로
+      <IfModule prefork.c>  
+          ServerLimit      256  -> ServerLimit      1024
+          MaxClients       256  -> MaxClients       512          
+      </IfModule>
+
+      AddDefaultCharset UTF-8  -> AddDefaultCharset EUC-KR
+      ====================================================
+
+   -. php
+      /etc/php.ini
+      =====================================================
+      register_globals = Off   -> register_globals = On
+      allow_url_fopen = On     -> 일단 그대로..
+      upload_max_filesize = 2M -> 일단 그대로..
+      max_execution_time = 30  -> max_execution_time = 60
+      memory_limit = 8M        -> memory_limit = 20M 
+      default_charset = ks_c_5601-1987  --> db엔진이 한글이 디폴트인데
+                                       깨질겨우, 이 옵션을 활성화해본다.
+      =====================================================
+   -. php.conf
+      /etc/httpd/conf.d/php.conf
+      ========================================================================= 
+      AddType application/x-httpd-php .php -> .inc .html .htm 등도 추가 
+      DirectoryIndex index.php -> DirectoryIndex index.php index.html index.htm
+      ========================================================================= 
+
+      php5를 설치했으면 AddType대신  AddHandler라는 파라미터에 있다.
+
+   -. mysql
+      /etc/my.cnf
+      =======================================================
+      [client]
+      default-character-set=euckr
+
+      [mysqld]
+      old_passwords=1
+      default-character-set=euckr
+      init_connect="set names euckr"
+      =======================================================
+
+      datadir는 되도록 /home/mysql-data로 지정해준다.
+
+      default-character-set=euckr : 소스컴파일시 --with-charset=euckr로 한것과 같다.
+      old_passwords=1 : 4.0대 이하에서 사용하던 password함수로 입력되어진
+                        data와 호환을 하려고 하는 것이다.
+      init_connect="set names euckr" : 4.0이하의 db를 dump해서 4.1로 restore한 후
+                                       웹에서 깨질경우에 설정하는 파라미터.
+     
+4. 각 service stop / start
+   특히 mysql은 restart하지 말것.
+   버전에 따라 restart시 fail되는 버그 있을 수 있음.
+

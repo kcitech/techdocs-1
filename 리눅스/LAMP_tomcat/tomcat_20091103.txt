@@ -1,0 +1,38 @@
+
+---------------------------------------------
+관련 프로그램 다운로드 : /usr/local/src
+---------------------------------------------
+ jdk-6u11-linux-i586.bin
+ apache-tomcat-6.0.18.tar.gz
+ blazeds-bin-3.2.0.3978.zip
+ mysql-connector-java-5.1.7.tar.gz
+ tomcat-connectors-1.2.27-src.tar.gz
+
+---------------------------------------------
+1. JDK 설치
+---------------------------------------------
+ #yum remove "*gcj*" <== os설치된 java 패키지 삭제
+ 
+ /usr/local/jdk1.6.0_11에 설치
+ (ln -s /usr/local/jdk1.6.0_11 /usr/local/java)
+
+ /etc/profile 추가
+ export JAVA_HOME=/usr/local/java
+ export CATALINA_HOME=/usr/local/tomcat
+ export PATH=$PATH:$JAVA_HOME/bin:$CATALINA_HOME/bin
+
+ #source /etc/profile
+
+---------------------------------------------
+2. tomcat 설치
+---------------------------------------------
+ /usr/local/apache-tomcat-6.0.18에 설치
+ (ln -s /usr/local/apache-tomcat-6.0.18 /usr/local/tomcat)
+
+ 구동
+ /usr/local/tomcat/bin/startup.sh
+
+ 확인
+ http://ip:8080/ (examples jsp,servlet 확인)
+ 
+

@@ -1,0 +1,132 @@
+
+===========================
+퍼옴
+===========================
+
+1. 목표
+http://SAMPLE.DOMAIN/~ID 와 같은 사용자 계정의 홈페이지 주소를
+서브호스트명을 사용하여 http://ID.SAMPLE.DOMAIN 과 같이 사용하고자 한다.
+
+
+2. 네임서버
+네임서버의 zone 파일에 와일드카드를 사용하여 기준이될 도메인(SAMPLE.DOMAIN)의
+모든 서브호스트를 동일한 IP로 묶어준다.
+
+*.SAMPLE.DOMAIN.        IN A      x.x.x.x
+                                    IN MX 10  SAMPLE.DOMAIN.
+
+위와 같이 설정할 경우 abc.SAMPLE.DOMAIN 또는 xyz.SAMPLE.DOMAIN 등 SAMPLE.DOMAIN의
+모든 서브호스트는 211.123.100.1 이라는 IP로 매핑된다.
+
+-. 참고정보
+   http://SAMPLE.DOMAIN/way-board/way-board.php?db=LINUX&j=v&number=7
+   RFC1034(4.3.3. Wildcards)
+
+
+3. 웹서버
+
+3.1. 모듈 준비
+
+3.1.1. rpm 패키지
+최근에 배포된 아파치 버전은 대부분 아파치 rewrite 모듈이
+DSO(Dynamic Shared Object) 형태로 컴파일 되어 있다.
+/etc/httpd/conf/httpd.conf 파일을 열어 다음 두줄이 포함되어
+있는지 확인해보기 바란다.
+두줄이 나란히 위치하지는 않을 것이며, 경우에 따라 AddModule 라인이
+존재하지 않을 수도 있다.
+만약 주석처리되어 있다면 제거하여 활성화하기 바란다.
+
+LoadModule rewrite_module ......
+AddModule mod_rewrite.c
+
+3.1.2. 컴파일
+컴파일하여 설치된 경우도 위의 rpm 에서와 마찬가지 방법으로
+rewrite 모듈이 컴파일 되어 있는지 확인해보기 바란다.
+
+새로이 컴파일하여 설치하려면 다음과 같은 방법으로한다.
+물론 ./configure 옵션중 rewrite 이외의 부분은 원하는대로
+지정하기 바란다.  기본설치의 경우 아래 정도면 무방하리라 여겨진다.
+
+# cd apache-1.3.x
+# ./configure --prefix=/usr/local/apache \
+              --enable-shared=max \
+              --enable-module=rewrite \
+              --enable-shared=rewrite
+# make
+# make install
+
+
+3.2. 가상서버 설정
+이제 httpd.conf 파일을 편집한다.
+SAMPLE.DOMAIN의 서브호스트들을 모두 수용하기 위해 ServerAlias 지시자를
+사용해야 하고, ServerAlias 지시자는 VirtualHost 안에서만 사용되므로
+Name-basedvirtual host 형태를 취해야 한다.
+ServerAlias를 사용할때는 네임서버 설정시와 마찬가지로 와일드 카드를
+사용한다.
+
+NameVirtualHost x.x.x.x
+
+<VirtualHost x.x.x.x>
+   ServerAdmin    webmaster@SAMPLE.DOMAIN
+   DocumentRoot   /usr/local/apache/htdocs
+   ServerName     SAMPLE.DOMAIN
+   ServerAlias    SAMPLE.DOMAIN *.SAMPLE.DOMAIN
+   RewriteEngine on
+   RewriteCond   %{HTTP_HOST}             ^[^.]+\.SAMPLE\.DOMAIN$
+   RewriteRule   ^(.+)                     %{HTTP_HOST}$1         [C]
+   RewriteRule   ^([^.]+)\.SAMPLE\.DOMAIN(.*) /home/$1/public_html$2
+</VirtualHost>
+
+ServerAdmin, DocumentRoot 등의 지시자는 특별히 영향받지 않으므로
+원하는대로 지정해도 된다.
+Rewrite 부분에는 정규표현식이 주로 사용되며, SAMPLE.DOMAIN 등에
+사용되는 기호(마침표)는 \. 등과 같이 표현해야 한다.
+
+ㄱ. 기본 도메인 : linux.org
+ㄴ. 계정 웹문서 경로 구조 : /usr/home/ID/www
+ㄷ. IP 주소 : x.x.x.x
+
+만약 위와 같은 상황이라면 다음과 같이 설정하고 아파치를
+재기동하는 것으로서 원하는 결과를 얻을 수 있을 것이다.
+
+NameVirtualHost x.x.x.x
+
+<VirtualHost x.x.x.x>
+   ServerAdmin    webmaster@linux.org
+   DocumentRoot   /usr/local/apache/htdocs
+   ServerName     linux.org
+   ServerAlias    linux.org *.linux.org
+   RewriteEngine on
+   RewriteCond   %{HTTP_HOST}             ^[^.]+\.linux\.org$
+   RewriteRule   ^(.+)                     %{HTTP_HOST}$1         [C]
+   RewriteRule   ^([^.]+)\.linux\.org(.*) /usr/home/$1/www$2
+</VirtualHost>
+
+-. 참고정보
+   http://www.apache.org/docs/mod/mod_rewrite.html
+   http://www.engelschall.com/pw/apache/rewriteguide
+
+-. 참조(~ tild 없애기)
+   www.SAMPLE2.co.kr/~USER이 일반적이다.
+   www.SAMPLE2.co.kr/USER 으로 조회했을 때 
+   /home/USER/www/에서 서비스하고자 할 때
+
+   RewriteRule ^/(([a-z])[a-z0-9]+)(.*)$  /home/$1/www$3 
+
+   즉, 위의 서브도메인과는 다르다.
+   www.SAMPLE2.co.kr/USER71/index.html 이라고 조회하면
+   /home/USER71/www/index.html이 불려지게 한다.
+
+예)
+    www.SAMPLE3.co.kr
+
+    SetEnvIf Request_URI ".html$" htmlog
+    SetEnvIf Request_URI "/$" htmlog
+    CustomLog /var/log/httpd/news-access_log common env=htmlog
+    ErrorLog /var/log/httpd/news-error_log
+
+    RewriteEngine   On
+    RewriteCond %{HTTP_HOST}   !^www\.SAMPLE3\.co\.kr [NC]
+    RewriteCond %{HTTP_HOST}   !^$
+    RewriteRule ^/(.*)$        http://www.SAMPLE3.co.kr/$1 [L,R]
+

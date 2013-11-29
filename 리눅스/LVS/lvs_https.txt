@@ -1,0 +1,35 @@
+[ lvs https ]
+
+1. lvs.cf
+send, expect등은 삭제.
+
+생략..
+virtual pg {
+        active = 1
+        address = 192.168.4.48 eth0:1
+        vip_nmask = 255.255.255.255
+#       fwmark = 80
+        port = 443
+        timeout = 10
+        persistent = 60
+        reentry = 10
+        load_monitor = uptime
+        scheduler = wlc
+        protocol = tcp
+
+        server  pg03 {
+                address = 192.168.4.8
+                active = 1
+                weight = 1
+        }
+생략...
+
+2. apache서버
+   real server의 apache 설정에서 virtualhost등으로 443 port가 설정되어 있다면,
+   listen하고 있는 ip를 lvs의 VIP로 설정한다.
+   (realserver의 ip가 아님)
+
+   httpd.conf에서 
+   <VirtualHost 192.168.4.8:443> --> <VirtualHost 192.168.4.48:443>
+
+끝.

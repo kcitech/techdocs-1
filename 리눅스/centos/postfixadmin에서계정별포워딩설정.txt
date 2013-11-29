@@ -1,0 +1,26 @@
+
+
+postfixadmin환경에서 계정별 포워딩 설정은 다음과 같이 합니다.
+
+==================================================================
+11-1. 유저 계정을 다른 계정으로 포워딩
+      http://FQDN/postfixadmin/
+      로그인창이 뜸. 만약 setup관련 페이지 뜨면 setup.php 이름 변경.
+      일반 계정 로그인 클릭해서 로그인.
+      메뉴는 change your forward, change password, logout
+      포워딩 설정은 change your forward 클릭
+      To: 부분에 포워딩할 주소 기재한다.
+          예) USER@a.co.kr
+               USER2@a.co.kr
+
+      alias 테이블을 보면 자기주소,포워딩주소,포워딩주소 식으로 입력되어 있다.
+====================================================================
+
+http://FQDN/postfixadmin/admin에서는
+add alias 메뉴가 있는데, 이것은 없는 계정을 존재하는 계정으로의
+포워딩(sendmail의 virtusertable과 비슷) 설정입니다.
+
+즉, 계정별 포워딩 설정은 직접 유저계정으로 postfixadmin에 로그인후
+진행해야 합니다.
+
+물론, mysql  db에서 수동  insert해도 될것으로 생각됩니다.

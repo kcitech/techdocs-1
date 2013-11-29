@@ -1,0 +1,40 @@
+
+CentOS x64 버전에서 PHP 4.x 버전을 컴파일 할 경우 에러가 발생합니다.
+이것은 PHP 4.x 버전의 버그이며, 5.1 버전에서는 수정되었다고 합니다만,
+4.x 버전에서는 수정하지 않는다고 합니다. (4.4.7 버전에서도 동일하게 에러 발생)
+
+아래는 관련 내용입니다.
+
+-------------------------------------
+
+checking for T1lib support... no
+checking whether to enable truetype string function in GD... yes
+checking whether to enable JIS-mapped Japanese font support in GD... no
+checking for fabsf... yes
+checking for floorf... yes
+configure: error: libjpeg.(a|so) not found.
+
+
+
+Bug #33685 configure: error: libjpeg.(a|so) not found.
+
+
+I didn't notice the x86_64 there. This bug is fixed in PHP 5.1 (current
+CVS HEAD). It will not be fixed in PHP 4.
+
+Workaround:
+
+# ln -s /usr/include /opt/include
+# ln -s /usr/lib64 /opt/lib
+
+And use these options and values for them:
+--with-jpeg-dir=/opt
+--with-png-dir=/opt
+
+--------------------------------------
+
+위와 같이 2개의 심볼릭 링크를 생성한 후 configure 해주시면 됩니다.
+
+또한, 위와 별개로 expat 관련 에러도 발생하는데 expat-devel.i386 패키지를
+설치해주시면 에러가 없어집니다.
+

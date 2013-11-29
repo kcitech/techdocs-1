@@ -1,0 +1,143 @@
+
+아래 client 설정 내용중 추가 부분입니다.
+ 
+- server.ovpn 파일 수정
+ 
+;remote my-server-1 1194
+;remote my-server-2 1194
+==>
+remote 192.168.105.109 1194
+;remote my-server-2 1194
+ 
+ 
+---------------------------------------------------------------
+ 
+아래 내용으로 openvpn 서버-클라이언트 접속 테스트 완료하였습니다.
+ 
+아래 내용중 클라이언트 설정 부분만 진행해 주시면 되겠습니다.
+ 
+설정이 완료되면 ip가 10.8.0.* 할당받게 되면 정상적입니다.
+ 
+ 
+----------------------------
+1. 환경
+----------------------------
+    서버 : 192.168.105.109  (windows 2003)
+    클라이언트 :192.168.68.226 (windows xp)
+    openvpn 프로그램 다운로드
+        => http://openvpn.se/download.html 
+        => 파일 : Install package (openvpn-2.0.9-gui-1.0.3-install.exe)
+ 
+----------------------------
+2. openvpn 서버 설정
+----------------------------
+    - openvpn-2.0.9-gui-1.0.3-install.exe 실행->설치 (그냥 Next 클릭으로) 
+ 
+    - server.ovpn copy
+        copy c:\program files\openvpn\sample-config\server.ovpn
+                 c:\program files\openvpn\config\ server.ovpn
+ 
+    - server.ovpn 파일 수정(아래와 같이 dev tap 주석해제, dev tun 주석처리)
+            dev tap
+            ;dev tun
+           
+    - vars.bat , openssl.cnf 복사
+            copy c:\program files\openvpn\easy-rsa\vars.bat.sample
+                     c:\program files\openvpn\easy-rsa\vars.bat
+ 
+            copy c:\program files\openvpn\easy-rsa\openssl.cnf.sample
+                     c:\program files\openvpn\easy-rsa\openssl.cnf
+   
+    - vars.bat 파일 수정
+            set KEY_COUNTRY=KR
+            set KEY_PROVINCE=RO
+            set KEY_CITY=SEOUL
+            set KEY_ORG=LAB
+            set KEY_EMAIL=USER@DOMAIN.SAMPLE
+ 
+    - 명령어 실행
+            cd c:\program files\openvpn\easy-rsa
+            vars.bat [엔터]
+            clean-all.bat [엔터]   => 실행하면 keys폴더가 생성됨
+            build-ca.bat [엔터]    => 실행하면 keys폴더아래에 ca.crt  ca.key 파일 생성됨
+            build-dh.bat [엔터]    => 실행하면 keys폴더아래에 dh1024.pem 파일 생성됨
+            build-key.bat server [엔터]    => 실행하면 keys폴더아래에 server.crt server.csr server.key 생성됨
+ 
+                Country Name : KR
+                State of Province Name : RO
+                Locality Name : SEOUL
+                Organization Name : LAB
+                Organization Unit Name : LABINFO
+                Common Name : 192.168.105.109
+                Email : USER@DOMAIN.SAMPLE
+ 
+                A challenge password []:                  <== 그냥 엔터
+                An optional company name []:           <== 그냥 엔터
+ 
+           keys폴더아래 모든 파일을 config파일로 복사
+               => copy c:\program files\openvpn\easy-rsa\keys\* c:\program files\openvpn\config
+ 
+            *-* 주의 *-*
+                위와 같이 항목을 다 채워넣어야 됨
+                각 명령어 실행후 파일들이 제대로 생성되는지 반드시 확인할것(파일명, 파일사이즈 0 이상이어야 함)
+           
+    - opepvpn guil 실행
+            시작>프로그램>openvpn>openvpn gui 실행 => 실행후 오른쪽 tray에 아이콘이 보여야 함. 아이콘에서 connect 클릭
+ 
+----------------------------
+2. openvpn 클라이언트 설정
+----------------------------
+    - openvpn-2.0.9-gui-1.0.3-install.exe 실행->설치 (그냥 Next 클릭으로) 
+ 
+    - server.ovpn copy
+        copy c:\program files\openvpn\sample-config\client.ovpn
+                 c:\program files\openvpn\config\client.ovpn
+ 
+    - server.ovpn 파일 수정(아래와 같이 dev tap 주석해제, dev tun 주석처리)
+            dev tap
+            ;dev tun
+           
+    - vars.bat , openssl.cnf 복사
+            copy c:\program files\openvpn\easy-rsa\vars.bat.sample
+                     c:\program files\openvpn\easy-rsa\vars.bat
+ 
+            copy c:\program files\openvpn\easy-rsa\openssl.cnf.sample
+                     c:\program files\openvpn\easy-rsa\openssl.cnf
+   
+    - vars.bat 파일 수정
+            set KEY_COUNTRY=KR
+            set KEY_PROVINCE=RO
+            set KEY_CITY=SEOUL
+            set KEY_ORG=LAB
+            set KEY_EMAIL=USER@DOMAIN.SAMPLE
+ 
+    - 명령어 실행
+            cd c:\program files\openvpn\easy-rsa
+            vars.bat [엔터]
+            clean-all.bat [엔터]   => 실행하면 keys폴더가 생성됨
+ 
+            서버쪽의 c:\program files\openvpn\easy-rsa\keys폴더아래에  ca.*와 dh1024.pem를
+            클라이언트쪽 c:\program files\openvpn\easy-rsa\keys폴더아래로 copy한다.(파일 첨부함)
+ 
+            build-key.bat client[엔터]    => 실행하면 keys폴더아래에 client.crt client.csr client.key 생성됨
+ 
+                Country Name : KR
+                State of Province Name : RO
+                Locality Name : SEOUL
+                Organization Name : LAB
+                Organization Unit Name : LABINFO
+                Common Name : 192.168.105.109
+                Email : USER@DOMAIN.SAMPLE
+ 
+                A challenge password []:                  <== 그냥 엔터
+                An optional company name []:           <== 그냥 엔터
+ 
+           keys폴더아래 모든 파일을 config파일로 복사
+               => copy c:\program files\openvpn\easy-rsa\keys\* c:\program files\openvpn\config
+ 
+            *-* 주의 *-*
+                위와 같이 항목을 다 채워넣어야 됨
+                각 명령어 실행후 파일들이 제대로 생성되는지 반드시 확인할것(파일명, 파일사이즈 0 이상이어야 함)
+           
+    - opepvpn guil 실행
+            시작>프로그램>openvpn>openvpn gui 실행 => 실행후 오른쪽 tray에 아이콘이 보여야 함. 아이콘에서 connect 클릭

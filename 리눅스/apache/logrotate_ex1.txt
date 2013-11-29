@@ -1,0 +1,154 @@
+/etc/crontab
+
+00 */4 * * root /usr/sbin/logrotate /etc/logrotate.d/httpd
+
+[root@e-iit ~]# cat /etc/logrotate.d/httpd
+/var/log/httpd/*log {
+    daily
+    rotate 1
+    size=500M
+    missingok
+    notifempty
+    sharedscripts
+    postrotate
+        /sbin/service httpd reload > /dev/null 2>/dev/null || true
+    endscript
+}
+
+
+ex2)
+
+/usr/local/httpd-2.2.10/logs/*log  {    rotate 5    create    size=100k    missingok    notifempty    sharedscripts    postrotate       /bin/kill -HUP `cat /usr/local/httpd-2.2.10/logs/httpd.pid 2>/dev/null` 2> /dev/null || true    endscript}
+
+size=100k
+지정 사이즈보다 크면 logrotate 실행됨.
+(이 값을 명시하지 않았을때, size 기준은 얼마일까?, 암튼 로그용량이 작을때, size를 명시하지 않으니깐,
+ logrotate가 돌지 않았다.)
+
+/etc/crontab
+# apache log lotate
+0 4 * * * root logrotate -f /etc/logrotate.conf.apache
+===================================================
+case 2
+===================================================
+
+
+/etc/logrotate.d/httpd 내용을 다음과 같이 수정했습니다.
+
+/home/httpd_log/*log {
+daily
+compress
+rotate 6
+create
+notifempty
+postrotate
+/bin/kill -HUP `cat /var/run/httpd.pid 2>/dev/null`
+2> /dev/null || true
+endscript
+}
+
+
+===================================================
+case 3
+===================================================
+
+
+apache와 tomcat에 대한 로그관리 설정을 수정하였습니다.
+
+모두 logrotate를 이용해서 처리됩니다.
+
+-. apache (기존 설정 수정)
+설정파일 : /usr/local/apache-2.0.63/conf/logrotate.conf.apache
+수정 : notifempty -> ifempty
+로그관리 안되는 것처럼 보여 size가 0이라도 logrotate함.
+==============================================================
+/usr/local/apache-2.0.63/logs/*log {
+rotate 7
+create
+missingok
+ifempty
+sharedscripts
+postrotate
+/bin/kill -HUP `cat /usr/local/apache-2.0.63/logs/httpd.pid 2>/dev/null` 2> /dev/null || true
+endscript
+}
+==============================================================
+
+-. tomcat (새로 적용)
+설정파일 : /usr/local/apache-tomcat-6.0.20/conf/logrotate.conf.tomcat
+==============================================================
+/usr/local/apache-tomcat-6.0.20/logs/catalina.out {
+copytruncate
+rotate 30
+missingok
+ifempty
+dateext
+}
+===============================================================
+
+logs에서 보면 catalina.out-20100518 형태로 보관되어짐.
+
+-. /etc/crontab
+===============================================================
+# logrotate & webalizer
+50 4 * * * root logrotate -f /usr/local/apache-tomcat-6.0.20/conf/logrotate.conf.tomcat
+0 5 * * * root logrotate -f /usr/local/apache-2.0.63/conf/logrotate.conf.apache && /root/.bin/weblog.sh
+===============================================================
+
+===================================================
+case 4
+===================================================
+
+from 팀장님.
+
+수고많으십니다.
+
+보통 apache에 대한 로그관리는
+rpm의 경우 /etc/logrotate.d/httpd 로 설정파일이 있고
+소스컴파일의 경우에는 없습니다.
+
+rpm 패키지에 있는 httpd에는 daily 옵션이 없어서
+실제로는 logrotate.conf에 있는 weekly옵션으로  1주에 1번 lotate됩니다.
+
+daily옵션을 추가하더라도 고객이 봤을때 특정시간에 처리를 하지 않는 것으로
+보일 수 있습니다.
+
+하루에 한번 logrotate를 할 경우를 예로 들자면,
+이 설정파일을 딴 위치로 이동(mv)시키고 crontab에 등록하여
+처리하는게 중복처리를 피하게 됩니다.
+
+본론으로 들어가서,
+보통 데몬을 재시작하는 것으로 설정을 할텐데,
+다음 옵션으로 하면 데몬을 재시작 할 필요가 없습니다.
+(copytruncate)
+
+톰캣의 catalina.out의 로그관리를 웹에서 찾아보다 확인하게 되었습니다.
+
+예) catalina.out
+===================================
+/usr/local/tomcat/logs/catalina.out {
+    copytruncate
+    rotate 30
+    missingok
+    ifempty
+    dateext
+}
+====================================
+
+예) apache 로그
+=====================================
+/var/log/httpd/*log {
+    copytruncate
+    rotate 30
+    missingok
+    ifempty
+}
+======================================
+
+데몬 초기화 의미가 없다면,
+copytruncate옵션을 주고 데몬 재시작을 빼는것도 괜찮을 듯 합니다.
+
+참고로 dateext는 logrotate 버전에 따라 지원안할 수 있습니다.
+(날짜 포맷으로 로그관리)
+
+참조바랍니다.

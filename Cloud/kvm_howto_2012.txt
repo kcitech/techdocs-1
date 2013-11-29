@@ -1,0 +1,2 @@
+
+http://www.slideshare.net/baramdori/qemu-kvm-guide-1-intro-basic

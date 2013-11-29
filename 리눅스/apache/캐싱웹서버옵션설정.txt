@@ -1,0 +1,12 @@
+
+
+< IfModule mod_expires.c >
+# 기본 캐싱 안함
+ExpiresActive Off
+
+# 캐싱할 디렉토리 설정
+< Directory "/usr/local/apache/htdocs/temp" >
+ExpiresActive On
+ExpiresDefault "access plus 1 month"
+< /Directory >
+< /IfModule >

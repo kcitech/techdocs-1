@@ -1,0 +1,74 @@
+http://www.joinc.co.kr/modules/moniwiki/wiki.php/Site/cloud/ClusterLBWithOpenSource
+
+on centos 6.3 x64
+
+http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+
+
+/etc/rsyslog.conf 로그 활성화 
+
+...
+$ModLoad imudp
+$UDPServerAddress 127.0.0.1
+$UDPServerRun 514
+...
+
+local2.*                                                /var/log/haproxy.log
+...
+
+
+ping 
+
+net.ipv4.icmp_echo_ignore_all = 1
+
+
+
+reference : http://kvz.io/blog/2010/08/11/haproxy-logging/
+
+--------------------------------------------------------------------------------------------------------------------
+reference
+--------------------------------------------------------------------------------------------------------------------
+
+http://www.joinc.co.kr/modules/moniwiki/wiki.php/Site/cloud/ClusterLBWithOpenSource
+http://kvz.io/blog/2010/08/11/haproxy-logging/
+
+--------------------------------------------------------------------------------------------------------------------
+multidomain
+--------------------------------------------------------------------------------------------------------------------
+
+references>
+ http://blog.csdn.net/gripleaf/article/details/8560590
+ http://nixcraft.com/high-availability-cluster/15957-multiple-domain-subdomain-routing-haproxy.html
+ http://jit.nuance9.com/2009/11/haproxy-routing-by-domain-name.html
+ http://cbonte.github.com/haproxy-dconv/configuration-1.4.html
+ 
+#---------------------------------------------------------------------
+# main frontend which proxys to the backends
+#---------------------------------------------------------------------
+#frontend  main *:80
+#    acl url_static       path_beg       -i /static /images /javascript /stylesheets
+#    acl url_static       path_end       -i .jpg .gif .png .css .js
+#
+#    use_backend static          if url_static
+#    default_backend             app
+
+frontend  main *:80
+     acl domain1 hdr_dom(host) -i www.domain1.com
+     acl domain2 hdr_dom(host) -i www.domain2.com
+     acl domain1 hdr_dom(host) -i domain1.com
+     acl domain2 hdr_dom(host) -i domain2.com
+
+     use_backend www.domain1.com if domain1
+     use_backend www.domain2.com if domain2
+
+#---------------------------------------------------------------------
+# www.domain1.com
+#---------------------------------------------------------------------
+backend www.domain1.com
+     server domain11 x.x.x.x:80 check
+
+#---------------------------------------------------------------------
+# www.domain2.com
+#---------------------------------------------------------------------
+backend www.domain2.com
+     server domain21 y.y.y.y:80 check

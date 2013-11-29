@@ -1,0 +1,202 @@
+http://www.oracle.com/technology/tech/php/index.html
+
+http://www.oracle.com/technology/pub/notes/technote_php_instant.html
+
+다운로드 : http://www.oracle.com/technology/tech/oci/instantclient/index.html
+
+oracle과 연동하기 위한 방법으로 Oracle 10g Instant Client를 이용하는 방법.
+(oci8 을 이용한다)
+
+위 참조사이트는 php자체를 재컴파일하는 방법이다.
+
+여기서는 oracle instand client패키지만 이용해서
+oci8.so모듈을 생성 및 이용하는 방법을 언급하겠다.
+
+
+1. instant client download
+   다운로드페이지에서 os별로 다운로드 한다.
+
+   oracle-instantclient-basic-10.2.0.3-1.i386.rpm
+   oracle-instantclient-devel-10.2.0.3-1.i386.rpm
+   
+2. rpm 설치
+   위 두 파일 설치.
+   # rpm -Uvh oracle-*.rpm
+
+3. php src rpm설치
+   현재 설치되어 있는 php rpm버전의 src rpm을 다운받는다.
+   oracle-instantclient패키지를 이용해서 oci8.so를 생성해야 하기 때문에
+   src rpm이 필요하다.
+   (위 설치문서에서 언급한 패치파일을 별도로 받을 필요가 없기 때문에
+    src rpm을 이용한다)
+
+   # mkdir /usr/local/src/srcrpm
+   # cd /usr/local/src/srcrpm
+
+   # wget http://mirror.secuidc.com/centos/4.5/updates/SRPMS/php-4.3.9-3.22.9.src.rpm   
+  
+   # rpm2cpio php-4.3.9-3.22.9.src.rpm | cpio -id
+     ls를 해보면 .spec파일, 소스파일, patch파일등 풀린다.
+
+   # tar xvzf php-4.3.9.tar.gz
+
+4. oci8.so 컴파일
+   # cd php-4.3.9/ext/oci8
+ 
+   # patch -u config.m4 /usr/local/src/srcrpm/php-4.3.9-oci8.patch
+     이 패치를 해줘야 configure옵션에서 --with-oci8-instant-client 부분이
+     새롭게 나타난다. 즉, oracle-instantclient패키지를 이용하게 하는
+     패치이다.
+
+   # phpize
+ 
+   # ./configure --with-php-config=php-config --with-oci8-instant-client
+     oracle-instantclient패키지가 rpm설치가 아니라면 패키지를 압축해제한
+     디렉터리를 --with-oci8-instant-client=DIR 처럼 경로명시해야 한다.
+     ==================================================================
+     위 옵션은 다음 메세지를 뿌린다.
+     configure: error: --with-oci8 and --with-oci8-instant-client are mutually
+exclusive
+     
+     다음과 같이 configure파일에 추가한다.
+     3041라인 즈음에...
+
+     if test "$PHP_OCI8" != "no"; then
+     ...
+      --> PHP_OCI8="no" (추가)
+          if test "$PHP_OCI8" != "no"; then
+          ...
+     ==================================================================
+     에러 없이 프롬프트 떨어지면 ok.
+
+   # make
+     Build complete.
+
+   # cd modules
+
+   # cp oci8.so /usr/lib/php4/
+
+5. php.ini설정    
+     
+   # vi /etc/php.ini
+     다음 추가.
+     =========================
+     extension=oci8.so
+     =========================
+
+     httpd restart.
+ 
+   혹시 oracle연동 스크립트를 웹에서 보면 
+   다음과 같은 경고표시가 발생할 수 있다.
+   
+Warning: Call-time pass-by-reference has been deprecated - argument passed by
+value; If you would like to pass it by reference, modify the declaration of
+ocifetchinto(). If you would like to enable call-time pass-by-reference, you
+can set allow_call_time_pass_reference to true in your INI file. However,
+future versions may not support this any longer.
+
+     다음을 수정한다.
+     ==========================================
+     allow_call_time_pass_reference = Off -> On
+     ==========================================
+
+6. apache start 스크립트 수정
+   /etc/sysconfig/httpd 또는 /etc/init.d/httpd 스크립트에 다음을 추가.
+   보통 /etc/init.d/httpd에 추가하는 것이 좋으며,
+   apache프로세스가 oracle 설치경로를 인식하게 하는 것이 목적이다.
+   /etc/profile에 아래 변수를 인식하게 하면 apache가 인식을
+   못하는 경우가 자주 발생하므로 반드시 start스크립트에 추가한다.
+   ========================================================
+   export ORACLE_HOME="/usr/lib/oracle/10.2.0.3/client"
+   export LD_LIBRARY_PATH="$ORACLE_HOME/lib"
+   export NLS_LANG=AMERICAN_AMERICA.KO16KSC5601
+   export TNS_ADMIN=/etc/httpd/conf
+   ========================================================
+   ORACLE_HOME : oracle instantclient 설치 위치
+   LD_LIBRARY_PATH : oracle instantclient library
+   NLS_LANG : characterset 지정
+   TNS_ADMIN : oci연동을 위한 tnsnames.ora파일의 위치
+
+7. phpinfo() 확인
+   ===========================================================
+                           oci8
+    OCI8 Support 	        enabled
+    Revision 	                $Revision: 1.1 $
+    Oracle Version 	        no value
+    Compile-time ORACLE_HOME 	no value
+    Libraries Used 	        no value
+   ===========================================================
+   
+   위처럼 oci8 부분이 따로 보여야 한다.
+   no value는 굳이 신경쓰지 않아도 된다.
+ 
+8. oracle 연동 test
+   오라클 데이타베이스가 다른 서버에 설치되어 있다고 하자.
+   
+   -. tnsnames.ora 설정
+      # vi /etc/httpd/conf/tnsnames.ora
+        ====================================================================
+        ORA8 =
+         (DESCRIPTION =
+           (ADDRESS_LIST =
+            (ADDRESS = (PROTOCOL = TCP)(HOST = db서버ip)(PORT = 1521))
+           )
+          (CONNECT_DATA =
+            (SERVICE_NAME = ora8)
+          )
+         )
+        ====================================================================
+
+        ORA8 : php소스에서 사용할 tnsname
+        SERVICE_NAME = ora8 : database SID
+
+   -. php소스
+      oratest.php
+      =============================================
+      <?php
+        $conn=OCILogon("system","manager","ORA8");
+        if(!$conn){
+        echo("실패");
+        exit;
+        }
+        echo("성공");
+
+        $query1 = OCIParse($conn,"select * from nls_database_parameters");
+        OCIExecute($query1);
+      ?>
+      <html>
+      <body>
+      <?php
+        print "<br><br>";
+        print "ORACLE_HOME=$ORACLE_HOME<br>";
+        print "NLS_LANG=$NLS_LANG<br>";
+        print "TNS_ADMIN=$TNS_ADMIN<br>";
+      echo"
+        <table border=1>
+        <tr width=600>
+                <td width='200' align='center'>PARAMETER</td>
+                <td width='400' align='center'>VALUE</td>
+        </tr>
+        <tr>";
+        while(OCIFetchinto($query1,&$rows,OCI_ASSOC))
+        {
+        echo "
+                <td width=200 align=left>$rows[PARAMETER]</td>
+                <td width=400 align=left>$rows[VALUE]</td>
+        </tr>";
+        }
+        echo "
+        </table>";
+      OCILogoff($conn);
+      ?>
+      </body>
+      </html>
+      =============================================
+      system : 유저명
+      manager : 패스워드
+      ORA8 : tnsnames.ora에서 설정한 tnsname
+
+   http://ip/oratest.php
+   이렇게 해서 화면에 에러없이 뿌려져야 정상.
+
+끝.

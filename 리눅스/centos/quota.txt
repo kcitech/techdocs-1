@@ -1,0 +1,168 @@
+
+
+1,2 설정은 정상적으로 했네요..
+디스크 용량만 체크하면 되니까, block부분의 soft, hard limit에..
+
+3. repquota -a로 보면 사용량 보임.
+[root@mail ~]# repquota -a
+*** Report for user quotas on device /dev/sda4
+Block grace time: 7days; Inode grace time: 7days
+                        Block limits                File limits
+User            used    soft    hard  grace    used  soft  hard  grace
+----------------------------------------------------------------------
+root      --  587140       0       0             52     0     0
+nobody    --   58592       0       0            992     0     0
+apache    -- 9820480       0       0          26206     0     0
+mysql     --  655756       0       0           6058     0     0
+sms       --   39560       0       0             71     0     0
+USER1 --   60552  204800  256000           6296     0     0
+생략...
+
+USER1라는 유저의 현황중에서...
+
+# repquota -a | awk -F" " '$1 == "USER1" {print $5}'
+256000
+
+$5는 hard limit, $3은 사용하고 있는 량이므로
+변수에 받아서 비교하는 스크립트를 만들면 되지 않을까...
+
+4. mod_cband에서 redirect
+
+<VirtualHost *>
+ServerName DOMAIN.SAMPLE
+Document /home/DOMAIN/www
+CBandLimit 300Mi
+CBandPeriod 1D
+CBandExceededURLhttp://traffic.DOMAIN.SAMPLE/traffic_exceeded.html
+</VirtualHost>
+
+=====================================================
+case 2
+=====================================================
+
+#quotacheck -avug 수행시 다음과 같은 메세지가 나오면서
+체크 수행진행이 되지 못하고 있습니다.
+
+quotacheck: WARNING - Quotafile /home/aquota.user was
+probably truncated. Can\'t save quota settings...
+quotacheck: Cannot remount filesystem mounted on /home read-
+only so counted values might not be right.
+Please stop all programs writing to filesystem or use -m flag
+to force checking.
+
+remount 후에도 동일 한 현상이 보이고 있습니다.
+
+일단 문제점은 mysql이 데이터 쓰기 상태로 안되는 것일 수도 있으
+니 정지 시킨 뒤에 쿼터 체크 하신 뒤 하시면 되겠습니다.
+
+그래도 안될 경우는 리부팅 하셔서 확인 진행 해주시기 바랍니다.
+
+# edquota -u Account(계정명)
+Disk quotas for user inweb_home (uid 501):
+Filesystem blocks soft
+hard inodes soft hard
+/dev/sda4 131244 0
+0 6395 0 0
+
+명령어를 입력하면 아마 위와 같이 나올것 입니다.
+- Filesystem : 쿼타를 적용할 대상의 파일시스템
+- blocks : 사용자가 사용중인 파티션의 총 블럭(kb단위)을 의미
+- soft : soft limit는 사용자가 사용할 수 있는 최대 용량을 의미
+하며 이 용량 이상 사용은 불가능합니다.
+그러나 만약 Grace Period가 설정되어 있다면 사용자는 soft limit
+를 초과했을 경우에
+시스템의 경고를 받지만 hard limit까지 사용할 수 있습니다.
+- hard : hard limit는 Grace Period가 설정되어 있을 경우에만 동
+작하며, 실제 최대용량을 의미합니다.
+- inodes : 사용자가 사용하는 현재 파일의 갯수를 의미
+- soft : 두번째 soft limit는 사용자가 사용할 수 있는 최대 파일
+갯수를 의미합니다.
+- hard : 두번째 hard limit 역시 Grace Period가 설정되어 있을
+경우만 작동하게 됩니다.
+- grace period : 유예기간은 사용자의 soft limit을 초과했을 경
+우부터 적용되어 지는 시간제한입니다.
+시간은 sec, min, hour, day, week, month 단위로 사용할 수 있으
+며
+\'edquota -t\' 명령으로 확인과 설정이 가능합니다. (디폴트는 7일
+입니다)
+
+====================================================
+case 3
+====================================================
+
+
+1. quota 확인.(유저,사용량,Soft,Hard...)
+inday:~# repquota /dev/md3 | grep yiso
+yiso -- 510000 500000 510000 5652 0 0
+
+
+2. quota 재설정.
+inday:~# setquota -u yiso 1000000 1010000 0 0 /dev/md3
+
+
+3. quota 확인.
+inday:~# repquota /dev/md3 | grep yiso
+yiso -- 510000 1000000 1010000 5652 0 0
+
+
+기존 500M에서 1G로 재설정 해드렸습니다.
+
+======================================================
+case 4
+======================================================
+
+/home파티션이 마운트해제가 되지 않아 발생한 에러이며, mysql및
+아파치프로세서가 /home파티션을 사용중임이 그 이유입니다..
+
+mysql, sendmail, httpd를 셧다운하후에, 아래 실행.
+
+#quotacheck -avug
+
+#quotaon /home
+
+후, 셧다운한 프로세스 재시작..
+
+=================================================
+
+쿼타설정을 적용하시려면,
+
+#edquota -u 계정명
+
+하시어, 데이타용량 혹은 inode갯수에 대한 제한을 주실수 있습니다.
+기본단위는 Kbyte이므로 1G = 1048576 Kbyte 가 되겠습니다.
+
+0은 제한없음을 의미합니다.
+
+설정확인은..
+
+#repquota -avug 로 하시면 됩니다.
+
+좀더 자세한 세팅은 아래링크를 참조 부탁드립니다.
+
+※ 참조 : http://www.superuser.co.kr/home/lecture/?leccode=292
+
+========================================================
+case 5
+========================================================
+
+USER:~# repquota /dev/md3 | grep USER
+USER +- 3010000 3000000 3010000 2days 9552 0 0
+
+USER:~# setquota -u USER 10000000 10100000 0 0 /dev/md3
+
+USER:~# repquota /dev/md3 | grep USER
+USER -- 3010000 10000000 10100000 9552 0 0
+
+=========================================================
+case 6
+=========================================================
+
+# repquota -a | grep print
+print -- 661236 1024000 1034000 5940 0 0
+
+아래와 같이 print 계정에 대한 쿼터 용량을 1G -> 5G 로 변경하여 드렸습니다.
+
+#setquota -u print 5120000 5140000 0 0 /dev/md3
+
+#repquota -a | grep print
+print -- 661236 5120000 5140000 5940 0 0 

@@ -1,0 +1,30 @@
+http://tycho.usno.navy.mil/ntp.html
+
+ntp server
+http://annyung.oops.org/?m=white&p=ntp
+
+ln -sf /usr/share/zoneinfo/US/Pacific /etc/localtime
+
+http://www.codeforum.net/wiki/doku.php?id=%EC%84%9C%EB%B2%84%EC%9A%B4%EC%98%81_tip
+
+세계시간
+http://www.timeticker.com/
+
+===========================================
+로컬타임변경
+===========================================
+
+
+서버의 로컬타임변경은, 아래와 같이 변경가능합니다.
+
+/usr/share/zoneinfo/US 에 보시면, 시간설정이 들어가 있는 파일이 있습니다.
+
+해당 파일을
+/etc/localtime 으로 카피하시면, 시스템시각이 해당 시각으로 변경됩니다.
+
+시간동기화 세팅은,
+재부팅시와, 매주 1회 동기화 세팅이 되어있을것입니다.
+
+고객님이 원하시는세팅으로 변경하시고,
+
+rdate -s time.bora.net 으로 동기화를 1회하시기 바랍니다.

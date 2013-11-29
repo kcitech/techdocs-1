@@ -1,0 +1,20 @@
+ 
+Forefront client에서 모니터링 관리(ad 구축 필요)를 제외하고  설치는 CMD창에서 forefront 폴더에서
+ 
+clientsetup.exe /nomom 명령을 치시면 자동으로 설치가 됩니다.
+ 
+더 자세한 내용은 아래 링크에서 확인하시면 될 것 같습니다.
+ 
+http://spla.freeteamspace.com/default.aspx?RootFolder=%2fMS%2fforefront&FolderCTID=&View=%7bBEB4B886%2d6D09%2d4942%2dB458%2d470AB70EB1DE%7d
+ 
+그리고 세미나 발표자료는 아래 링크에서 열람하실 수 있습니다.
+ 
+http://spla.freeteamspace.com/MS/Forms/AllItems.aspx?RootFolder=%2fMS%2f%ed%98%b8%ec%8a%a4%ed%8c%85%20%ec%84%b8%eb%af%b8%eb%82%98%2fApril%5f2009&FolderCTID=&View=%7b31B34C33%2dA237%2d4575%2d8A6C%2d284D73476AA7%7d
+ 
+설치할때 client 디렉토리안에 x64 디렉토리에 x64용 클라이언트가 있으며 os가 한글판이냐 영문판이냐에 따라서
+ 
+설치 시디가 나누어집니다. 한글팩을 설치했더라도 영문 윈도우의 경우엔 영문 윈도우용 forefront를 설치
+ 
+ 
+ 
+ 

@@ -1,0 +1,45 @@
+
+
+서버에서 php.ini 파일 (구성에 따라 다르긴 하지만 windows 면 일반적으로 windows폴더 내에 위치합니다.)
+을 여시고 다음 부분을 수정 하시면 됩니다.
+
+; Maximum allowed size for uploaded files.
+upload_max_filesize = 2M
+
+위의 2M 부분을 원하시는 부분으로 수정 하시면 됩니다.
+
+혹은 ASP면 IIS에서의 구성을 변경 하셔야 합니다.
+
+드라이브명:\윈도우경로\system32\inetsrv\MetaBase.xml 파일을 열고
+
+→ AspMaxRequestEntityAllowed="204800000" <- 업로드 용량제한을 200MB로 설정
+→ AspBufferingLimit="204800000" <- 다운로드 용량제한을200MB로 설정 등
+
+
+==================================================
+case 2
+==================================================
+업로드 용량을 다음의 명령으로 수정 가능합니다.
+
+만약 AspMaxRequestEntityAllowed 값을 변경하시려면
+
+시작 - 실행 - cmd
+cd C:\inetpub\adminscripts
+cscript adsutil.vbs set w3svc/AspMaxRequestEntityAllowed
+iisreset /reset (혹은 IIS 재시작)
+
+--- 예제 ---
+
+C:\Inetpub\AdminScripts>cscript adsutil.vbs set w3svc/AspMaxRequestEntityAllowed 10485760
+Microsoft (R) Windows Script Host 버전 5.6
+Copyright (C) Microsoft Corporation 1996-2001. All rights
+reserved.
+
+AspMaxRequestEntityAllowed : (INTEGER) 10485760
+
+C:\Inetpub\AdminScripts>iisreset /reset
+
+중지하려고 합니다...
+인터넷 서비스를 성공적으로 중지했습니다.
+시작하려고 합니다...
+인터넷 서비스를 성공적으로 다시 시작했습니다.

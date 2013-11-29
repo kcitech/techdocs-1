@@ -1,0 +1,5 @@
+
+# apache start
+# apache2.2에서는 startssl이 아니고 start하면 됨.
+# 패스워드 : PWD
+/usr/local/httpd-2.2.4/bin/apachectl start

@@ -1,0 +1,11 @@
+
+
+php.ini에서 다음 설정을 한 후 apache restart하였습니다.
+
+/etc/php.ini
+======================================
+cookie_domain =
+-> cookie_domain = .SAMPLEDOMAIN.com
+======================================
+
+세션 공유 확인해보시기 바랍니다.

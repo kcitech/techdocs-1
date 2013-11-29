@@ -1,0 +1,74 @@
+
+
+adaptec 1430sa 컨트롤러 사용시 커널 업데이트 방법입니다. 
+(그냥 커널 업데이트후 리부팅하면 정상적인 부팅이 안됩니다.)
+
+2. kernel update
+
+# yum update
+커널까지 설치됨.
+
+리부팅 하지 말것.
+
+# ls /lib/modules/
+2.6.18-164.6.1.el5PAE -> 최종 update 커널
+2.6.18-53.el5PAE -> 현재 부팅 커널
+
+2.6.18-164.6.1.el5PAE 커널에 aar81xx 모듈 설치 후
+부팅해야 ok.
+
+# tar xvzf /usr/local/src/aar81xx-rhel5qu1_b11987.tar.gz
+# ls /usr/local/src/
+aar81xx.rhel5qu1.i686.img
+aar81xx.rhel5qu1.i686.rpm
+aar81xx.rhel5qu1.x86_64.img
+aar81xx.rhel5qu1.x86_64.rpm
+
+# rpm2cpio aar81xx.rhel5qu1.i686.rpm | cpio -id
+
+# cd /usr/local/src/usr/adaptec/aar81xx
+
+# ls
+aar81xx_prebuilt.tgz
+adpt_mkinitrd
+adpt_mk_initrd
+install.sh
+
+# tar xvzf aar81xx_prebuilt.tgz
+아래 3파일 풀림.
+aar81xx-2.6.18-53.el5-i686
+aar81xx-2.6.18-53.el5PAE-i686
+aar81xx-2.6.18-53.el5xen-i686
+
+아래와 같이 부팅할 커널이름으로 카피.
+# cp aar81xx-2.6.18-53.el5PAE-i686 aar81xx-2.6.18-164.6.1.el5PAE-i686
+aar81xx-2.6.18-53.el5PAE-i686 : 현재 부팅되어 있는 커널
+aar81xx-2.6.18-164.6.1.el5PAE-i686 : 부팅할 커널
+
+# tar cvzf aar81xx_prebuilt.tgz *
+
+# mkdir -p /usr/adaptec/aar81xx
+
+# cp -a * /usr/adaptec/aar81xx/
+
+# cd /usr/adaptec/aar81xx/
+
+# chmod 700 install.sh
+
+# ./install.sh
+생략..
+
+Done.
+
+알아서 ramdisk image 생성한다.
+
+/lib/modules/2.6.18-164.6.1.el5PAE/modules.dep의 내용.
+======================================================
+/lib/modules/2.6.18-
+164.6.1.el5PAE/aar81xx.ko: /lib/modules/2.6.18-
+164.6.1.el5PAE/kernel/drivers/scsi/scsi_mod.ko
+
+======================================================
+
+
+# shutdown -r now

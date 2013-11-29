@@ -1,0 +1,30 @@
+
+
+# timeconfig
+위 명령 없으면 패키지 설치.
+(centos4.6 os임. system-config-date 패키지 설치, yum list로 확인해보면 됨)
+
+아래와 같이 시간대역 선택할 수 있는 gui 뜸. -> Asia/Seoul 선택 및 확인(UTC는 uncheck)
+
+시스템의 시간대를 선택해 주십시오.  │
+                    │                                     │
+                    │  Asia/Qatar                      ▒  │
+                    │  Asia/Qyzylorda                  ▒  │
+                    │  Asia/Rangoon                    ▒  │
+                    │  Asia/Riyadh                     ▒  │
+                    │  Asia/Saigon                     #  │
+                    │  Asia/Sakhalin                   ▒  │
+                    │  Asia/Samarkand                  ▒  │
+                    │  Asia/Seoul                      ▒
+ 
+                     [ ] 시스템의 시간을 UTC에 맞춤
+
+# cat /etc/sysconfig/clock
+ZONE="Asia/Seoul"
+UTC=false
+ARC=false
+
+# date
+2008. 07. 04. (금) 10:17:30 KST
+
+KST 로 변경됨을 확인.

@@ -1,0 +1,26 @@
+
+
+통화 후 시스템 부하가 계속 상승하고 있었습니다.
+mysql process를 보면 다음과 같은 프로세스가 계속 진행되고 있는것을볼 수 있습니다.
+mysql> show processlist;
+생략..
+| 1101 | root | localhost | endofeva | Query | 404 |
+Sorting result | select * from final order by rand() limit 90 |
+| 1102 | root | localhost | endofeva | Query | 404 |
+Sorting result | select * from final order by rand() limit 90 |
+생략..
+
+위와 같은 프로세스만 수십개 보이고 있습니다.
+
+apache와 mysql의 파라미터 조정은 다음과 같이 했습니다.
+-. apache
+/usr/local/httpd-2.0.54/conf/httpd.conf
+KeepAlive Off
+MaxRequestsPerChild 1000
+
+-. mysql
+우선 동접자수와 timeout시간만 조정했습니다.
+/etc/my.cnf
+set-variable = max_connections=200
+set-variable = wait_timeout=120
+

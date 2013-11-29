@@ -1,0 +1,27 @@
+
+<VirtualHost *:80>
+    ServerAdmin webmaster@dummy-host.example.com
+    DocumentRoot /home/user/xe
+    ServerName MYTEST.google.com
+    ErrorLog logs/MYTEST.google.com-error_log
+    CustomLog logs/MYTEST.google.com-access_log common
+
+        <Location /trac>
+                SetHandler mod_python
+                PythonHandler trac.web.modpython_frontend
+                PythonOption TracEnv    /home/project
+                AuthType Basic
+                AuthName "Trac, Issue Tracking and Documenting"
+                AuthUserFile /etc/httpd/conf/.htpasswd
+                Require valid-user
+        </Location>
+
+        <Directory "/home/user/xe">
+                Options None
+                AllowOverride None
+                Order deny,allow
+                Deny from all
+                Allow from 192.168.68.226 192.168.94.38 192.168.190.198
+        </Directory>
+
+</VirtualHost>

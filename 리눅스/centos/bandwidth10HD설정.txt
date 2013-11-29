@@ -1,0 +1,59 @@
+
+
+1.
+스위치(accton)에서 포트 수정.
+10HD -> 10FD조정.
+
+telnet -> menu 엔터 -> switch configuration ->
+2. port/trunk settins -> edit선택 엔터 ->
+10번 포트의 10HDX에 갖다놓고 스페이스바로 10FDX선택 엔터 ->
+save
+
+2.서버
+# ethtool eth0
+speed / duplex : 10 / half 확인
+
+# ethtool -s eth0 speed 10 duplex full autoneg off
+
+이후 10 FDX 확인 및 collision 발생 없음 확인.
+
+collision 수치 초기화 위해 네트워크restart.
+네트워크 restart는 스크립트 만들어서 실행.
+=========================
+#!/bin/sh
+/etc/init.d/network stop
+rmmod 8139too
+rmmod mii
+/etc/init.d/network start
+=========================
+collision 수치 0 확인.
+
+case2
+
+eth0 : sis900 모듈 사용함
+
+# mii-tool -A 10baseT eth0
+스위치 포트 10M-FD로 변경함
+스위치에서 10M-HD 접속으로 확인됨
+서버에 ethtool 없음
+
+# mii-tool -F 10baseT-FD eth0
+
+스위치에서 10M-FD 접속으로 확인됨
+
+
+collision 수치 초기화 위해 네트워크restart.
+네트워크 restart는 스크립트 만들어서 실행.
+=========================
+#!/bin/sh
+/etc/init.d/network stop
+rmmod sis900
+/etc/init.d/network start
+=========================
+collision 수치 0 확인함
+
+/etc/modules.conf 에 다음의 내용을 추가함
+options sis900 Speed=10 Duplex=2
+
+
+ddddddddddddddddd

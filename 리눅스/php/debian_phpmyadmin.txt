@@ -1,0 +1,20 @@
+
+
+debian:/home/phpMyAdmin-2.11.3-all-languages# cp config.sample.inc.php config.inc.php
+
+debian:/home/phpMyAdmin-2.11.3-all-languages# vi config.inc.php
+
+해당 파일에서 인증 cookie를 http로 변경후 저장.
+--------------------------------------------------
+debian:/home# vi /usr/share/squirrelmail/config/apache.conf 
+아래 부분 추가후 저장..
+
+################phpMyAdmin#################
+Alias /phpmyadmin/ "/home/phpMyAdmin-2.11.3-all-languages/"
+
+--------------------------------------------------
+debian:/home# pwd
+/home
+debian:/home# chown -R www-data.www-data phpMyAdmin-2.11.3-all-languages
+
+접속URL : http://192.168.2.177/phpmyadmin/

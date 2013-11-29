@@ -1,0 +1,66 @@
+
+pop3프로그램으로 dovecot을 사용하고 있는데,
+dovecot에서는 홈디렉터리가 존재해야 합니다.
+
+-. 홈디렉터리 생성
+/home/mailuser/디렉터리 밑에 계정명을 가진 디렉터리를 만들었습니다.
+============================================================
+예) /home/mailuser/TESTUSER
+
+# ls -ald /home/mailuser/TESTUSER
+drwx------ 2 TESTUSER TESTUSER 4096 1월 10
+17:05 /home/mailuser/TESTUSER
+
+# ls -alR TESTUSER
+
+# ls -alR /home/mailuser/TESTUSER
+/home/mailuser/TESTUSER:
+합계 24
+drwx------ 2 TESTUSER TESTUSER 4096 1월 10 17:05 .
+drwxr-xr-x 31 root root 4096 1월 12 09:53 ..
+-rw-r--r-- 1 TESTUSER TESTUSER 24 10월 20
+21:09 .bash_logout
+-rw-r--r-- 1 TESTUSER TESTUSER 191 10월 20
+21:09 .bash_profile
+-rw-r--r-- 1 TESTUSER TESTUSER 124 10월 20
+21:09 .bashrc
+-rw-r--r-- 1 TESTUSER TESTUSER 383 8월 13 2006 .emacs
+
+============================================================
+
+-. /etc/passwd 파일 수정
+홈디렉터리 및 mail만 가능한 shell로 수정하였습니다.
+예)
+TESTUSER:x:503:503::/home/mailuser/TESTUSER:/bin/nologin
+
+
+이상과 같이 처리하였습니다.
+
+계정 추가방법을 알려드리겠습니다.
+
+-. 메일만 사용
+TESTMAN라는 계정 추가시.
+# useradd -d /home/mailuser/TESTMAN -s /bin/nologin TESTMAN
+/home/mailuser/TESTMAN라는 홈디렉터리 생성됩니다.
+
+-. ftp(웹 관련) 필요한 계정 ssh접속은 되지 않습니다.
+
+# useradd TESTMAN -s /bin/false
+/home/TESTMAN 라는 홈디렉터리 생성됩니다.
+
+이를 위해 /etc/shells 파일에 /bin/false 라인 추가.
+# cat /etc/shells
+/bin/sh
+/bin/bash
+/sbin/nologin
+/bin/ash
+/bin/bsh
+/bin/ksh
+/usr/bin/ksh
+/usr/bin/pdksh
+/bin/tcsh
+/bin/csh
+/bin/false <-- 추가
+
+-. ssh, ftp모두 필요한 계정
+# useradd TESTMAN

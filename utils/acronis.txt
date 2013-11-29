@@ -1,0 +1,16 @@
+
+=========================================================
+1748: Transferring Linux to Dissimilar Hardware
+=========================================================
+http://kb.acronis.com/content/1748
+
+=========================================================
+7863: Converting Backup Archive of a Linux System to a Virtual Machine
+=========================================================
+http://kb.acronis.com/content/7863
+
+
+=========================================================
+Backup to USB, Create Acronis Bootable Media, Restore with Acronis Universal Restore
+=========================================================
+http://www.acronis.com/r/support/en/kb/502/aur_restore.html

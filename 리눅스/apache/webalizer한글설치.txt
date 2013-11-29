@@ -1,0 +1,82 @@
+
+-. webalizer설치
+한글지원을 위해 rpm rebuild.
+# wget ftp://ftp.daum.net/centos/5.4/os/SRPMS/webalizer-2.01_10-30.1.src.rpm
+
+# rpm -ivh webalizer-2.01_10-30.1.src.rpm
+# vi /usr/src/redhat/SPECS/webalizer.spec
+===============================================
+Release: 30.1
+--> 수정
+Release: 30.1_korean
+
+%configure --enable-dns --with-dblib=/lib
+==> 수정
+%configure --enable-dns --with-dblib=/lib --with-language=korean
+===============================================
+
+# rpmbuild -ba /usr/src/redhat/SPECS/webalizer.spec
+
+# rpm -ivh /usr/src/redhat/RPMS/i386/webalizer-2.01_10-30.1_korean.i386.rpm --nodeps
+
+-. webalizer config파일
+아래 2개 사이트만 로그분석 설정하였으며,
+DOMAIN.SAMPLE사이트 모두 같은 소스를 이용하는 것으로 보이나,
+사이트주소를 따로 설정해놓아서 별개로 설정.
+
+www.DOMAIN2.net : /etc/webalizer.conf-www.DOMAIN2.net
+www.DOMAIN2.co.kr : /etc/webalizer.conf-www.DOMAIN2.co.kr
+
+-. 분석대상 로그파일
+www.DOMAIN2.net : www.DOMAIN2.co.kr-access.log.1
+www.DOMAIN2.co.kr : www.DOMAIN2.net-access.log.1
+
+-. webalizer 로그분석 결과 디렉터리
+www.DOMAIN2.net : /home/weblog_usage/www.DOMAIN2.net
+www.DOMAIN2.co.kr : /home/weblog_usage/www.DOMAIN2.co.kr
+
+-. apache config추가
+웹DocumentRoot 디렉터리 구조 변경없기 위해 별도 디렉터리
+생성 및 virtualhost 구성.
+< VirtualHost *:80>
+DocumentRoot /home/weblog_usage
+ServerName weblog.DOMAIN2.net
+ServerAlias weblog.DOMAIN2.co.kr
+
+< Directory /home/weblog_usage>
+Options FollowSymLinks
+AllowOverride All
+< /Directory>
+< /VirtualHost>
+
+-. 각 도메인 host 추가
+웹DocumentRoot 디렉터리 구조 변경없기 위해 별도 주소 생성.
+weblog.DOMAIN2.net , weblog.DOMAIN2.co.kr
+
+-. webalizer실행 파일 및 cron추가
+실행파일 : /root/.bin/weblog.sh
+===================================================
+#!/bin/sh
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+
+webalizer -c /etc/webalizer.conf-www.DOMAIN2.net
+webalizer -c /etc/webalizer.conf-www.DOMAIN2.co.kr
+===================================================
+
+/etc/crontab :
+0 5 * * * root /usr/sbin/logrotate -f /usr/local/apache-2.0.63/conf/logrotate.conf.apache && /root/.bin/weblog.sh
+
+매일 새벽 5시에 apache logrotate 후 webalizer실행.
+
+
+-. 로그분석 웹경로 및 로그인 정보
+www.DOMAIN2.co.kr :
+http://weblog.DOMAIN2.net/www.DOMAIN2.co.kr
+www.DOMAIN2.net :
+http://weblog.DOMAIN2.net/www.DOMAIN2.net
+
+로그인id/password(공통) : USER1 / PWD
+
+
+지난 7일 보관 로그파일을 이용해서 webalizer 실행했으며,
+11월 28일경부터의 로그분석 되어 있는 상태입니다.

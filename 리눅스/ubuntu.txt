@@ -1,0 +1,158 @@
+view /etc/init.d/user_script
+
+chmod 777 /etc/init.d/user_script
+
+update-rc.d user_script defaults
+
+====================================
+booting
+====================================
+
+view /etc/rc.local 
+
+====================================
+snmpd
+====================================
+
+apt-get install snmpd
+
+====================================
+after adding normal users, 
+====================================
+
+<username> is not in the sudoers file.  This incident will be reported
+
+sudo 명령을 이용할때 나타나는 문구이다.
+
+/etc/sudoers  파일을 수정한다. 
+<username> ALL=(ALL) ALL
+
+다른 방법
+#> echo 'USERNAME ALL=(ALL) ALL' >> /etc/sudoers
+
+====================================
+X11 forwarding request failed on channel 0
+====================================
+
+Solution #1: install xauth on the server.
+
+====================================
+build environment
+====================================
+
+sudo apt-get install build-essential 
+
+for the GCC build tools, and
+
+sudo apt-get install linux-headers-`uname -r` 
+
+<once>
+
+apt-get install apache2 libapache2-mod-fastcgi php5 php5-gd mysql-server mysql-client php5-mysql
+
+apt-get install build-essential linux-headers-`uname -r` libreadline6-dev libreadline6 libncurses5-dev php5-mysql php5-curl libcr-dev
+
+====================================
+
+
+apt-get install build-essential
+apt-get install linux-headers-`uname -r`
+
+apt-get install libreadline6-dev libreadline6
+
+/usr/bin/ld: cannot find -lncurses
+
+==> apt-get install libncurses5-dev
+
+apt-get install php5-mysql
+
+Call to undefined function curl_init()
+==> apt-get install php5-curl
+
+
+
+<reference>
+$ sudo apt-file update
+$ apt-file search libcr.so
+lib32cr0: /usr/lib32/libcr.so.0
+lib32cr0: /usr/lib32/libcr.so.0.5.2
+libcr-dbg: /usr/lib/debug/usr/lib/libcr.so.0.5.2
+libcr-dbg: /usr/lib/debug/usr/lib32/libcr.so.0.5.2
+libcr-dev: /usr/lib/libcr.so
+libcr0: /usr/lib/libcr.so.0
+libcr0: /usr/lib/libcr.so.0.5.2
+* So the libcr-dev package is the one we want
+Code:
+$ sudo apt-get install libcr-dev
+$ ls -l /usr/lib/libcr.so
+lrwxrwxrwx 1 root root 14 Dec 15  2010 /usr/lib/libcr.so -> libcr.so.0.5.2
+
+====================================
+APM
+====================================
+
+apt-get install apache2 libapache2-mod-fastcgi php5 php5-gd mysql-server mysql-client php5-mysql
+
+
+-----
+
+----
+
+ CREATE TABLE profile (id int(10) unsigned NOT NULL AUTO_INCREMENT,profile varchar(200) NOT NULL DEFAULT 'NULL',username varchar(30) NOT NULL DEFAULT 'NULL',password varchar(30) NOT NULL DEFAULT 'NULL',db varchar(30) NOT NULL DEFAULT 'NULL',PRIMARY KEY (id) );
+ 
+ 
+ ------------------------
+ tr
+ -----------------------
+
+apt-get install apache2 libapache2-mod-fastcgi php5 php5-gd mysql-server mysql-client php5-mysql
+apt-get install build-essential linux-headers-`uname -r` libreadline6-dev libreadline6 libncurses5-dev php5-mysql php5-curl libcr-dev
+
+bzip2 -d tr..bz2
+tar xvf tr.tar
+
+cd aquarium 
+# php -f make_release.php
+# cd release/ 
+[root@starfish release]# ./setup 
+Welcome to Aquarium - setup wizard 
+Kindly select 
+[i]nstall/[I]nstall with no confirmation and [u]ninstall/[U]ninstall with no confirmation: [i/I/u/U]: I
+
+
+#mysqladmin -u root password 'wel****'
+
+Create a Database:
+mysql> create database aquarium;
+Work within Database:
+mysql> use aquarium;
+
+mysql> CREATE TABLE profile ( 
+  id int(10) unsigned NOT NULL AUTO_INCREMENT, 
+  profile varchar(200) NOT NULL DEFAULT 'NULL', 
+  username varchar(30) NOT NULL DEFAULT 'NULL', 
+  password varchar(30) NOT NULL DEFAULT 'NULL', 
+  db varchar(30) NOT NULL DEFAULT 'NULL', 
+  PRIMARY KEY (id) 
+);
+
+insert into profile (id, username, password) values (1, "root","wel****");
+
+grant usage on *.* to root@localhost identified by 'wel****';
+
+#cd release/
+#./aquariumd
+
+http://IP ( root / wel****)
+
+--------------------------
+
+nice --20 make -j 20
+
+make modules
+
+make modules_install
+
+make install
+
+http://hermes2.egloos.com/1152863

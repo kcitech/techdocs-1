@@ -1,0 +1,80 @@
+
+[ tomcat 5.0.x ]
+
+1. tomcat / jdk설치
+
+2. cgi환경설정
+   cgi가 들어있는 디렉터리명은 cgi-bin으로 한다.
+   
+-. web.xml
+   ===========================================================================
+   cgi부분이 주석처리 되어 있음.
+   <!--  --> 를 주석해제.
+
+   <servlet>
+     <servlet-name>cgi</servlet-name>
+        <servlet-class>org.apache.catalina.servlets.CGIServlet</servlet-class>
+        <init-param>
+          <param-name>clientInputTimeout</param-name>
+          <param-value>100</param-value>
+        </init-param>
+        <init-param>
+          <param-name>debug</param-name>
+          <param-value>6</param-value>
+        </init-param>
+        <init-param>
+          <param-name>cgiPathPrefix</param-name>
+          <param-value>WEB-INF/cgi-bin</param-value>
+        </init-param>
+         <load-on-startup>5</load-on-startup>
+    </servlet>
+
+    위의 <param-value>WEB-INF/cgi-bin</param-value>는 
+    cgi가 원래 디렉터리명이다.
+    하단의 아래 부분도 주석해제한다.
+
+    <servlet-mapping>
+        <servlet-name>cgi</servlet-name>
+        <url-pattern>/cgi-bin/*</url-pattern>
+    </servlet-mapping>
+   ===========================================================================
+
+-. servlets-cgi.jar
+   # cd $CATALINA_HOME/server/lib
+   # cp servlets-cgi.renametojar servlets-cgi.jar
+
+3. 디렉터리
+   server.xml을 그대로 사용할때 경로는 아래와 같다.
+
+   # cd $CATALINA_HOME/webapps/ROOT/WEB-INF
+   # mkdir cgi
+   # cd cgi
+   # vi test.cgi
+   ===========================================
+   #!/bin/bin/perl
+
+   printf "Content Type:text/html\n\n";
+   printf "cgi test\n";
+   ===========================================
+
+4. tomcat restart
+   
+5. 확인
+   http://localhost/cgi-bin/test.cgi
+
+   위 페이지내용이 보이면 OK.
+
+6. server.xml에서 Host의 appBase가 달라질때
+   -. server.xml
+   아래와 같이 수정된다.
+   =========================================
+   appBase="/home/TEST"
+   
+   Context path="" docBase=""
+   =========================================
+
+   -. 디렉터리
+   ROOT와 같은 형태로 만들어주면 되나.
+
+끝. 
+   

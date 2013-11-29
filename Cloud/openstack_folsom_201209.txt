@@ -1,0 +1,17 @@
+
+Folsom은 2012.9에 release 되었고,
+대표적으로 변동된 부분은 
+nova-network이 Quantum으로 진화했고,
+block storage인 Cinder가 추가 되었음.
+
+참고
+기존의 swift는 object storage임
+
+Table 2.1.  OpenStack version names
+Release name	Release date	OpenStack Compute version number	OpenStack Object Storage version number
+Folsom	September 2012	2012.2	1.7.2
+Essex	April 2012	2012.1	1.4.8
+Diablo	October 2011	2011.3	1.4.3
+Cactus	April 2011	2011.2	1.3.0
+Bexar	March 2011	2011.1	1.2.0
+Austin	October 2010	0.9.0	1.0.0

@@ -1,0 +1,4 @@
+PHP 5.X 버젼부터 제로보드 설치시 아래의 옵션을
+활성화 해주어야 한다고 합니다.
+
+register_long_arrays = Off --> On 으로 변경

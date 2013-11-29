@@ -1,0 +1,18 @@
+
+
+mysql 옵션 중에 쿼리 시간이 늦는 것을 별도의 파일로 로그를 남길 수 있습니다.
+
+/etc/my.cnf 에 다음 옵션을 추가하면 됩니다.
+
+[mysqld]
+다음 라인 추가
+set-variable = long_query_time = 2
+set-variable = log_slow_queries =/var/log/mysql_slow_querys.log
+
+위 /var/log/mysql_slow_querys.log을 만든 후 (mysql 소유자로)
+mysql restart하면 됩니다.
+
+위 옵션에서는 long_query_time 을 기본 10초에서 2초로 설정한 것
+입니다.
+즉, 2초 이상 걸리는 쿼리문을 mysql_slow_querys.log 에 남기라는
+뜻입니다.

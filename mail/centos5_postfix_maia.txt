@@ -1,0 +1,941 @@
+[ centos 5 + amavisd-new + maia mailguard + spamassassin + dcc + pyzor + razor ]
+
+스팸필터서버와 메일서버는 분리되어 있는 구조이다.
+메일서버는 이미 구축되어 있다고 가정한다.
+
+스팸필터서버는 외부에서 봤을때 메일을 받는 MX레코드로
+등록되어야 하며, 스팸필터 서버에서는 스팸체크 후
+실제 메일유저가 있고 메일이 저장될 서버로 메일을 
+보내는 구조이다.
+
+스팸필터적용은 모든 설정이 완료된후
+dns작업한다.(TTL값을 미리 작게 설정)
+
+dns로 보면 다음과 같다.
+TESTDOMAIN.co.kr이라는 가상 도메인을 예로 든다.
+메일서버 : mail,  스팸필터서버 : antispam
+========================================
+도메인 : TESTDOMAIN.co.kr
+
+-. 스팸필터 적용 전  
+   MX       :  mail.TESTDOMAIN.co.kr
+   mail     :  192.168.70.50
+   antispam :  192.168.70.51
+
+-. 스팸필터 적용 후
+   MX       :  antispam.TESTDOMAIN.co.kr
+   mail     :  192.168.70.50
+   antispam :  192.168.70.51
+========================================
+
+I. OS설치 및 rpmforge등록
+1. centos5 설치 & update
+      development tools만 설치.
+2. APM설치
+   #  yum install httpd httpd-devel \
+      php php-devel php-bcmath php-cli php-common \
+      php-mcrypt php-domxml php-gd php-imap php-mbstring \
+      php-mysql php-xmlrpc php-pear \
+      mysql mysql-server mysql-devel
+
+3. mysql설정
+   maia mailguard에서 사용하는 테이블이 innodb를 사용하기 때문에
+   my.cnf에서 미리 설정해놓아야 한다.
+
+   my.cnf
+   =========================================================================
+   [mysqld]
+   innodb_data_file_path = ibdata1:100M;ibdata2:100M;ibdata3:100M:autoextend
+   
+   innodb_buffer_pool_size = 256M
+   innodb_additional_mem_pool_size = 20M
+   innodb_log_file_size = 100M
+   innodb_log_buffer_size = 8M
+   innodb_flush_log_at_trx_commit = 1
+   innodb_lock_wait_timeout = 50
+
+   wait_timeout = 60000 # mysql server gone away 등의 connect error방지
+   key_buffer=20M
+   max_allowed_packet=20M # mail size와 비슷하게 설정.
+   ===========================================================================
+
+   httpd.conf에서는 AddDefaultCharset UTF-8 -> EUC-KR로 수정.
+   php.ini는 디폴트 상태이다.
+
+4. rpmforge 등록
+   centos에서 지원하지 않는 패키지는 dag.wieers.com에서 
+   yum으로 설치하도록 한다.
+   http://dag.wieers.com/rpm/FAQ.php 에서 os별 설치방법을 확인한다.
+   
+   # rpm -Uhv http://apt.sw.be/packages/rpmforge-release/rpmforge-release-0.3.6-1.el5.rf.i386.rpm
+
+   # vi /etc/yum.repos.d/rpmforge.repo
+     아래와 같이 mirrorlist 수정.
+     =============================================================
+     #mirrorlist = http://apt.sw.be/redhat/el5/en/mirrors-rpmforge
+     mirrorlist = file:///etc/yum.repos.d/mirrors-rpmforge
+     =============================================================
+
+II. 실제 패키지 설치 및 설정
+
+1. Amavisd-New  설치
+   spamassassin(스팸필터), ClamAV(바이러스) 의 프로그램과 연동하는 
+   content-filtering 데몬
+
+   # yum install amavisd-new
+     의존성 패키지는 모두 설치하면 됨.
+     /var/amavis, /var/virusmails 
+     /var/amavis/db, /var/amavis/tmp, /var/amavis/var
+     ==============================
+     amavis     디렉터리 권한 : 750
+     virusmails 디렉터리 권한 : 750
+     소유자, 그룹 : amavis
+     ==============================
+    
+2. postfix 
+   
+   postfix는 mysql지원가능한 버전을 설치하기 위해 centosplus에서 설치한다.
+
+   # yum install postfix --enablerepo=centosplus
+     postfix-2.3.3-2.el5.centos.mysql_pgsql 설치된다.
+
+   mta로 postfix를 지정한다.
+   alternative --config mta 로 선택해도 되지만 sendmail을 제거한다.
+
+   # yum remove sendmail
+   
+   # ls -al /etc/alternatives/mta
+     /etc/alternatives/mta -> /usr/sbin/sendmail.postfix
+
+    -. /etc/postfix/master.cf
+      맨 아래에 다음 추가
+      ================================================================================
+       smtp-amavis unix	-	-	-	-	2	smtp
+         -o smtp_data_done_timeout=1200
+         -o smtp_send_xforward_command=yes
+         -o disable_dns_lookups=yes
+         -o max_use=20
+
+       127.0.0.1:10025 inet	n	-	-	-	-	smtpd
+         -o content_filter=
+         -o local_recipient_maps=
+         -o relay_recipient_maps=
+         -o smtpd_restriction_classes=
+         -o smtpd_delay_reject=no
+         -o smtpd_client_restrictions=permit_mynetworks,reject
+         -o smtpd_helo_restrictions=
+         -o smtpd_sender_restrictions=
+         -o smtpd_recipient_restrictions=permit_mynetworks,reject
+         -o smtpd_data_restrictions=reject_unauth_pipelining
+         -o smtpd_end_of_data_restrictions=
+         -o mynetworks=127.0.0.0/8
+         -o smtpd_error_sleep_time=0
+         -o smtpd_soft_error_limit=1001
+         -o smtpd_hard_error_limit=1000
+         -o smtpd_client_connection_count_limit=0
+         -o smtpd_client_connection_rate_limit=0
+         -o receive_override_options=no_header_body_checks,no_unknown_recipient_checks
+      ==================================================================================
+
+      ==============================================================
+      pickup    fifo  n       -       n       60      1       pickup
+      다음 2라인 추가
+          -o content_filter=
+          -o receive_override_options=no_header_body_checks
+      ==============================================================
+
+    -. /etc/postfix/main.cf
+      mynetworks의 주소는 CIDR 포맷으로 기재한다.
+      ex) 192.168.10.0/24 (24bit 대역)
+      ex) 192.168.10.100/32 (192.168.10.100 ip 한개)
+      ==============================================================
+      alias_database = hash:/etc/aliases
+      alias_maps = hash:/etc/aliases
+      command_directory = /usr/sbin
+      config_directory = /etc/postfix
+      content_filter = smtp-amavis:[127.0.0.1]:10024
+      daemon_directory = /usr/libexec/postfix
+      debug_peer_level = 2
+      html_directory = no
+      inet_interfaces = all
+      local_recipient_maps =
+      local_transport = error:no local mail delivery
+      mail_owner = postfix
+      mailq_path = /usr/bin/mailq.postfix
+      manpage_directory = /usr/share/man
+      mydestination =
+      myhostname = antispam.AAAAA.kr
+      mynetworks = 127.0.0.0/8, 192.168.70.51/32
+      myorigin = AAAAA.kr
+      newaliases_path = /usr/bin/newaliases.postfix
+      queue_directory = /var/spool/postfix
+      readme_directory = /usr/share/doc/postfix-2.3.3/README_FILES
+      recipient_delimiter =
+      relay_domains = hash:/etc/postfix/relay_domains
+      relay_recipient_maps = hash:/etc/postfix/relay_recipients
+      sample_directory = /usr/share/doc/postfix-2.3.3/samples
+      sendmail_path = /usr/sbin/sendmail.postfix
+      setgid_group = postdrop
+      transport_maps = hash:/etc/postfix/transport
+      unknown_local_recipient_reject_code = 550
+      virtual_alias_maps = hash:/etc/postfix/virtual
+      append_dot_mydomain = no
+      
+      message_size_limit = 104857600
+      
+      smtpd_helo_required = yes
+      
+      smtpd_sender_restrictions =
+            check_sender_access hash:/etc/postfix/sender_access,
+            reject_non_fqdn_sender,
+            reject_unknown_sender_domain
+      
+      smtpd_recipient_restrictions =
+            permit_mynetworks,
+            reject_unauth_destination,
+            reject_unauth_pipelining
+            reject_non_fqdn_recipient,
+            reject_unknown_recipient_domain
+      
+      smtpd_helo_restrictions = reject_invalid_hostname
+      smtpd_data_restrictions = reject_unauth_pipelining
+      ===================================================================
+      
+      recipient_delimiter = :  no local mailboxes
+
+      mydestination = : this machine is not the final destination.
+
+    hash파일은 모두 다음과 같은 명령으로 hash db를 만들어줘야
+    postfix가 제대로 작동한다.
+    (transport_maps = hash:/etc/postfix/transport)
+
+    # postmap 파일명
+    예) # postmap transport
+         --> transport.db가 생성된다.
+    
+    -. # vi /etc/postfix/virtual
+       spam filter서버는 메일을 받는 곳이 아니기때문에
+       실제 메일 서버에 postmaster란 계정 만들어야한다.
+       =====================================
+       postmaster postmaster@TESTDOMAIN.co.kr
+       =====================================
+
+    -. # /etc/postfix/relay_domains
+       mydestination이 빠져있다.
+       실제 메일도메인으로 relay 해줘야 한다.
+       ========================
+       TESTDOMAIN.co.kr  OK
+       ========================
+
+    -. # /etc/postfix/relay_recipients
+       =======================
+       @TESTDOMAIN.co.kr OK
+       =======================
+
+    -. # /etc/postfix/transport
+       smtp의 ip는 실제 메일을 저장하는
+       메일 서버이다.
+       =====================================
+       TESTDOMAIN.co.kr  smtp:[192.168.70.50]
+       =====================================
+
+    -. sender_access
+       # cp access sender_access
+       # postmap sender_access
+ 
+3. maia mailguard
+   amavisd-new, spamfiler를 제어할 수 있는 웹인터페이스
+
+   http://www.maiamailguard.com/
+   maia-1.0.2a.tar.gz
+
+   mysql> CREATE DATABASE maia;
+   mysql> grant all privileges on maia.* to amavis@localhost identified by
+'PWD';
+   mysql> flush privileges;
+
+   # wget http://www.maiamailguard.com/files/maia-1.0.2a.tar.gz
+
+   # tar xvzf maia-1.0.2a.tar.gz
+
+   # cd maia-1.0.2
+
+   # mysql -u root -p maia < maia-mysql.sql
+
+   # mkdir /var/amavis/maia
+
+   # cp -a scripts    /var/amavis/maia/   
+   # cp -a templates  /var/amavis/maia/
+
+   # chown amavis.amavis /var/amavis -R
+   # chmod 750 /var/amavis/maia -R
+ 
+   # chmod 640 /var/amavis/maia/templates/*.tpl
+
+   # cp maia.conf.dist /etc/maia.conf
+
+   # vi /etc/maia.conf
+     ==============================================
+     $dsn = "DBI:mysql:maia:localhost:3306";
+     $username = "amavis";
+     $password = "PWD";
+     $script_dir = "/var/amavis/maia/scripts";
+     $template_dir = "/var/amavis/maia/templates/";
+
+     $base_url = "http://antispam.TESTDOMAIN.co.kr/mail/";
+
+        경로가 amavisd로 되어 있으므로 vi에서 다음과 같이 수정.
+        :%s/amavisd/amavis/g
+     ==============================================
+
+   # /var/amavis/maia/scripts/configtest.pl
+     =================================================================
+     MAIA MAILGUARD CONFIGURATION TEST
+
+     Perl                 :    5.8.8 : OK
+     file(1)              :     4.17 : OK
+     Archive::Tar         :     1.36 : OK
+     Archive::Zip         :     1.22 : OK
+     BerkeleyDB           :     0.32 : OK
+     Compress::Zlib       :     1.42 : OK
+     Convert::TNEF        :     0.17 : OK
+     Convert::UUlib       :    1.051 : UPGRADE RECOMMENDED (minimum version 1.06)
+     Crypt::Blowfish      :      N/A : NOT INSTALLED (Maia Mailguard's optional
+     encryption feature requires this)
+     Crypt::CBC           :      N/A : NOT INSTALLED (Maia Mailguard's optional
+     encryption feature requires this)
+     Crypt::OpenSSL::RSA  :      N/A : NOT INSTALLED (SpamAssassin's optional
+     DomainKeys plugin requires this)
+     Data::UUID           :      N/A : NOT INSTALLED (required by Maia Mailguard)
+     DB_File              :    1.814 : OK
+     DBD::mysql           :   3.0007 : OK
+     DBD::Pg              :      N/A : NOT INSTALLED (required if you use
+     PostgreSQL as your Maia Mailguard database)
+     DBI                  :     1.58 : OK
+     Digest::MD5          :     2.36 : OK
+     Digest::SHA1         :     2.11 : OK
+     File::Spec           :     3.12 : OK
+     HTML::Parser         :     3.55 : OK
+     HTTP::Date           :     1.47 : OK
+     IO::Stringy          :    2.110 : OK
+     IO::Zlib             :     1.05 : OK
+     IP::Country          :      N/A : NOT INSTALLED (SpamAssassin's optional
+     RelayCountry plugin requires this)
+     LWP::UserAgent       :    2.033 : OK
+     Mail::Address        :     1.77 : OK
+     Mail::DomainKeys     :      N/A : NOT INSTALLED (SpamAssassin's optional
+     DomainKeys plugin requires this)
+     Mail::Internet       :     1.77 : OK
+     Mail::SpamAssassin   :    3.2.3 : OK
+     Mail::SPF::Query     :      N/A : NOT INSTALLED (SpamAssassin's optional SPF
+     plugin requires this)
+     MIME::Base64         :     3.07 : OK
+     MIME::Parser         :    5.420 : OK
+     MIME::QuotedPrint    :     3.07 : OK
+     Net::CIDR::Lite      :      N/A : NOT INSTALLED (SpamAssassin's optional SPF
+     plugin requires this)
+     Net::DNS             :     0.61 : OK
+     Net::Server          :     0.97 : OK
+     Net::SMTP            :     2.29 : OK
+     Pod::Usage           :     1.33 : OK
+     Template             :      N/A : NOT INSTALLED (required by Maia Mailguard)
+     Time::HiRes          :     1.86 : OK
+     Unix::Syslog         :    0.100 : OK
+     URI                  :     1.35 : OK
+     
+     Database DSN test    : PASSED
+     =================================================================
+
+     위와 같이 not installed된 것은 설치해야 한다.
+
+     # yum install perl-Crypt-Blowfish perl-Crypt-CBC \
+                   perl-Crypt-OpenSSL-RSA perl-Data-UUID \
+                   perl-DBD-pg perl-IP-Country perl-Mail-DomainKeys \
+                   perl-Mail-SPF-Query "perl-Template*"
+
+     configtest.pl로 해보면 OK됨을 볼 수 있다.
+
+     UUlib(perl-Convert-UUlib)는 1.051버전 사용한다.
+     
+        ============================================
+        upgrade방법( 굳이 할 필요 없다. )
+
+        http://search.cpan.org/
+        uulib로 조회하면 Convert-UUlib-1.09 검색된다.
+
+        Convert-UUlib-1.09.tar.gz를 받는다.
+
+        # tar xvzf Convert-UUlib-1.09.tar.gz
+        # cd Convert-UUlib-1.09
+        # perl Makefile.PL
+        # make
+        # make install
+         -> 이후 configtest.pl 해보면 UUlib도 ok.
+        ============================================
+     
+4. razor
+    Vipul's Razor is a distributed, 
+        collaborative, spam detection and filtering network    
+
+    # yum install razor-agents
+      perl-Razor-Agent 도 설치된다.
+
+   # su amavis -c 'razor-admin -create'
+   # su amavis -c 'razor-admin -register'
+     Register successful.  Identity stored in /var/amavis/.razor/identity-ruTEUxhzw9
+
+    # vi /var/amavis/.razor/razor-agent.conf
+      disable razor logging
+      =========================================
+      debuglevel             = 3  -> 0으로 수정
+      =========================================
+
+    create initial bayes database
+    # su amavis -c 'sa-learn --sync'
+    # ls -al /var/amavis/.spamassassin
+      2개의 berkeley db파일 생성.
+      bayes_seen, bayes_toks
+
+    # vi /etc/mail/spamassassin/v310.pre
+      다음 라인이 주석(#)처리 되어 있으면 제거한다.
+      주석 안되어 있을 것임.
+      =============================================
+      loadplugin Mail::SpamAssassin::Plugin::Razor2
+      =============================================
+
+5. pyzor
+    razor와 비슷한 기능의 spam filter.
+    Pyzor is a Python implementation of a spam-blocking
+    networked system that use spam signatures to identify them.
+    udp 24441 사용.
+
+    http://pyzor.sourceforge.net/
+    pyzor-0.4.0.tar.bz2
+
+    # bunzip2 pyzor-0.4.0.tar.bz2
+    # tar xvf pyzor-0.4.0.tar
+    # cd pyzor-0.4.0
+    # python setup.py build
+    # python setup.py install
+      /usr/lib/python2.4/site-packages/pyzor 생성
+      
+
+    # su amavis -c 'pyzor discover'
+      downloading servers from http://pyzor.sourceforge.net/cgi-bin/inform-servers-0-3-x  
+
+      /var/amavis/.pyzor/servers생성.
+      ======================
+      82.94.255.100:24441
+      ======================
+
+    # su  amavis -c 'pyzor ping'
+      82.94.255.100:24441     (200, 'OK')
+      만약 ip가 변경되면 pyzor discover를 수행.
+    
+6. dcc
+    Much like Razor and Pyzor, 
+        DCC is a collaborative network of spam signatures
+
+    # wget http://www.dcc-servers.net/dcc/source/dcc-dccproc.tar.Z
+    # tar xvzf dcc-dccproc.tar.Z
+    # cd dcc-dccproc-1.3.79
+    
+    # ./configure --with-uid=amavis
+    # make && make install
+
+    # chown -R amavis.amavis /var/dcc
+    # ln -s /var/dcc/libexec/cron-dccd /usr/bin/cron-dccd
+     
+    # vi /etc/crontab
+      ===================================
+      0 5 * * * root /usr/bin/cron-dccd
+      ===================================
+
+    # /etc/init.d/crond restart
+
+    # vi /var/dcc/dcc_conf
+      =================
+      DCCIFD_ENABLE=on
+      =================
+
+    # cd /etc/init.d
+    # ln -s /var/dcc/libexec/rcDCC DCC
+    # chkconfig --add DCC
+
+    # vi /etc/mail/spamassassin/local.cf
+      다음 라인 추가.
+      =================
+      dcc_home /var/dcc
+      =================
+    
+      local.cf의 기존 설정은 주석처리.
+      ==============================
+      #required_hits 5
+      #report_safe 0
+      #rewrite_header Subject [SPAM]
+      ==============================
+    
+    # vi /etc/mail/spamassassin/v310.pre
+      아래 라인 주석 해제.(디폴트 주석처리)
+      ==========================================
+      loadplugin Mail::SpamAssassin::Plugin::DCC 
+      ==========================================
+
+    # /etc/init.d/DCC start
+      /var/dcc/libexec/dccifd -tREP,20 -tCMN,5, -llog
+       \_ /var/dcc/libexec/dccifd -tREP,20 -tCMN,5, 
+
+7.  test - look for pyzor, razor, dcc
+     
+    # wget http://www200.pair.com/mecham/spam/sample-spam.txt
+    # su amavis -c 'spamassassin -D <sample-spam.txt'
+      dcc, pyzor등의 메세지 보인다.
+
+8. spamassassin 추가 룰셋 
+    # cd /etc/mail/spamassassin
+    # sa-update
+      sa-update-keys 디렉터리 및 하위 파일 생성
+
+      make sure we lint Ok
+    # su amavis -c 'spamassassin --lint'
+       
+    # cd /var/amavis/maia/scripts
+    # ./load-sa-rules.pl
+
+9. maia 웹소스 설치 및 웹 설정
+
+   # mkdir /var/www/html/mail
+   # cp -r /usr/local/src/maia-1.0.2/php/*  /var/www/html/mail/
+   # cp /var/www/html/mail/config.php.dist /var/www/html/mail/config.php
+   # vi config.php
+     ==================================================================
+     $maia_sql_dsn = "mysql://amavis:PWD@tcp(localhost:3306)/maia";
+     $auth_method = "internal";
+     ==================================================================
+   # chgrp amavis /var/www/html/mail/themes/*/compiled
+   # chmod 775 /var/www/html/mail/themes/*/compiled
+
+   -. Smarty Template Engine설치
+      http://smarty.php.net/
+      Smarty-2.6.18.tar.gz
+   # cd Smarty-2.6.18
+   # cp -r libs /var/www/html/mail/libs/Smarty
+
+   -. maia 한글깨지는 것 방지
+      mime.php포함한 php소스를 찾아서  
+      htmlentities을 htmlspecialchars로 변경
+
+      cache.php,xlogin.php,view.php,mime.php
+      ./libs/Smarty/plugins/modifier.escape.php
+      ==================================
+      %s/htmlentities/htmlspecialchars/g
+      ==================================
+
+   -. maia 메일 blocked image로 변환되는것 방지.
+      mime.php 에서 아래 라인 주석처리.
+      $body = preg_replace("/<img(.*?)>/si", "<img src=\"images/blocked.jpg\">", $body);
+        -> //$body = preg_replace("/<img(.*?)>/si", "<img src=\"images/blocked.jpg\">", $body);
+
+   -. add apache to the amavis group
+   # gpasswd -a apache amavis
+     /etc/group
+     ===============================================
+     amavis:x:101:apache  -> apache 유저가 추가된다.
+     ===============================================
+
+   # /etc/init.d/httpd start
+
+    -. maia mailguard configuration test
+    http://ip주소/mail/admin/configtest.php
+ 
+    Fail부분은 설치해서 OK가 되어야 한다.
+
+    -. php extention
+      centos extra 또는 rpmforge에 있으면 yum으로 설치.
+      없으면 pear 명령으로 설치
+
+   # yum install php-pear-Mail-Mime php-pear-Log \
+                 php-pear-Net-SMTP php-pear-Net-Socket \
+                 php-pear-Auth-SASL
+     의존성으로 php-pear-DB도 설치됨.(extras 이용)
+   
+   # pear install Pager
+   # pear install Image_Color
+   # pear install channel://pear.php.net/Image_Canvas-0.3.1
+   # pear install channel://pear.php.net/Image_Graph-0.7.2
+
+     Numbers_Roman 1.0.x는 php-pear 1.5버전 이상에서 설치.
+     버전을 이전 stable로 낮춰 설치.
+     Numbers_Words도 마찬가지.
+   # pear install Numbers_Roman-0.2.0
+   # pear install Numbers_Words-0.15.0
+
+   PEAR::Image_Graph 는 0.7.2버전이 설치되는데,
+   패치를 해야 한다고 웹에 표시된다. 패치하자.
+   http://www.maiamailguard.org/maia/ticket/326
+   Pie.php.patch 파일 download
+
+   # cp Pie.php.patch /usr/share/pear/Image/Graph/Plot/
+   # cd /usr/share/pear/Image/Graph/Plot/
+   # cp Pie.php Pie.php.orig
+   # patch < Pie.php.patch
+     $this->_clip(false);  --> 원래는 true였다.
+     configtest.php에는 그대로 SKIPPED로 표시된다.
+
+10. amavisd.conf 추가 설정
+
+   # cd /etc
+   # cp amavisd.conf amavisd.conf.orig
+
+   # cp /usr/local/src/maia-1.0.2/amavisd.conf.dist /etc/amavisd.conf
+ 
+   # vi /etc/amavisd.conf
+     =======================================================================
+     $max_servers = 5;
+     $daemon_user  = 'amavis';
+     $daemon_group = 'amavis';
+
+     $mydomain = 'TESTDOMAIN.co.kr';
+
+     $MYHOME   = '/var/amavis';
+
+     @local_domains_maps = ( [".$mydomain"] );
+     @mynetworks = qw( 127.0.0.0/8 );
+
+     $sa_mail_body_size_limit = 512*1024;
+
+     @lookup_sql_dsn = ( ['DBI:mysql:maia:localhost', 'amavis', 'PWD'] );
+     $virus_admin               = undef;
+     $mailfrom_notify_admin     = "postmaster\@$mydomain";
+     $mailfrom_notify_recip     = "postmaster\@$mydomain";
+     $mailfrom_notify_spamadmin = "postmaster\@$mydomain";
+     $mailfrom_to_quarantine = '';
+
+     $recipient_delimiter = undef;
+     
+     $myhostname = 'antispam.TESTDOMAIN.co.kr';
+
+     $final_virus_destiny      = D_DISCARD;
+     $final_banned_destiny     = D_DISCARD;
+     $final_spam_destiny       = D_DISCARD;
+     $final_bad_header_destiny = D_DISCARD;
+
+     ['ClamAV-clamd',
+         \&ask_daemon, ["CONTSCAN {}\n", "/tmp/clamd.socket"],
+     =======================================================================
+
+11. amavisd-maia 시작
+    이 과정 주의해야 함. 잊지 않고 수행.
+
+   # cd /usr/local/src/maia-1.0.2
+   # cp amavisd-maia /usr/sbin
+   # cd /usr/sbin
+   # mv amavisd amavisd.orig
+   # ln -s amavisd-maia amavisd
+
+12. clamav설치 및 설정
+    # yum install clamav clamav-devel clamd
+      clamav-db 도 설치된다.
+
+    # gpasswd -a clamav amavis
+      ==========================
+      amavis:x:101:apache,clamav
+      ==========================
+
+    # vi /etc/clamd.conf
+      다음 라인 확인.
+      ==================================
+      LocalSocket /tmp/clamd.socket
+      ==================================
+    
+    # vi /etc/freshclam.conf
+      나머지는 그대로.
+      ================================
+      DNSDatabaseInfo current.cvd.clamav.net
+      NotifyClamd /etc/clamd.conf
+      AllowSupplementaryGroups yes
+      ================================
+
+    # /etc/init.d/clamd start
+
+    # freshclam
+
+    # cat /var/log/clamav/freshclam.log
+      ClamAV update process started at Wed Dec 26 10:44:16 2007
+      main.cvd is up to date (version: 45, sigs: 169676, f-level: 21, builder: sven)
+      daily.cvd is up to date (version: 5252, sigs: 11342, f-level: 21, builder: ccordes)
+
+    -. test
+       # telnet localhost 3310
+       Trying 127.0.0.1...
+       Connected to localhost.localdomain (127.0.0.1).
+       Escape character is '^]'.
+       PING  <-- 수동 입력
+       PONG  <-- 이하 display
+       Connection closed by foreign host.
+       [root@localhost clamav]#
+
+   
+       # telnet localhost 3310
+       Trying 127.0.0.1...
+       Connected to localhost.localdomain (127.0.0.1).
+       Escape character is '^]'.
+       VERSION  <-- 수동 입력
+       ClamAV 0.92/5338/Wed Jan  2 12:46:29 2008 <-- 이하 display
+       Connection closed by foreign host.
+       [root@localhost clamav]#
+
+     # vi /etc/crontab
+       ============================================
+       # clamav update
+       0 6,12,18,24 * * * root freshclam 
+       또는
+       0 6,12,18,24 * * * * root freshclam --quiet
+       ============================================
+
+13. spamassassin 추가 설정
+    # cd /root/.spamassassin
+    # rm -rf user_prefs
+      user_prefs 없으면 무시.
+    # ln -s /var/amavis/.spamassassin/user_prefs user_prefs
+
+    # vi /etc/mail/spamassassin/local.cf
+      ============================================================
+      razor_config /var/amavis/.razor/razor-agent.conf
+      bayes_path /var/amavis/.spamassassin/bayes
+      auto_whitelist_path /var/amavis/.spamassassin/auto-whitelist
+      
+      lock_method flock
+      ============================================================
+
+    # sa-learn --sync
+    # chown amavis.amavis -R /var/amavis
+
+14. start script
+    DCC
+    amavisd
+    clamd
+    httpd
+    mysqld
+    postfix
+    ==========================================================================
+    [root@localhost ~]# netstat -tnlp
+    tcp  0  0 127.0.0.1:10024  0.0.0.0:* LISTEN      17962/amavisd (mast
+    tcp  0  0 127.0.0.1:10025  0.0.0.0:* LISTEN      17845/master
+    tcp  0  0 0.0.0.0:3306     0.0.0.0:* LISTEN      2366/mysqld
+    tcp  0  0 127.0.0.1:3310   0.0.0.0:* LISTEN      17591/clamd
+    tcp  0  0 0.0.0.0:25       0.0.0.0:* LISTEN      17845/master
+    tcp  0  0 :::80                 :::* LISTEN      17330/httpd
+    tcp  0  0 :::22                 :::* LISTEN      1954/sshd
+    ==========================================================================
+
+15. maia administrator 생성
+
+    1) super-administrator 생성
+       도메인 대신 ip로 웹 연결해도 됨.
+
+       http://antispam.TESTDOMAIN.co.kr/mail/internal-init.php
+
+       super administrator(이메일 형식의 id)를 생성하는 부분.
+       =========================================================
+       Template file (with path) for e-mail sent to new users:
+         -> /var/amavis/maia/templates/newuser.tpl
+       E-mail address users should write to for help:
+         -> 패스워드를 받을 메일주소
+       E-mail address your login credentials should be mailed to:
+         -> 위와 같은 주소
+       =========================================================
+       "initialize internal Authentication" 버튼 누름
+         -> 설정 및 메일서버 정상이라면 다음과 같은 메세지 표시된다.
+       ===========================================================================
+       Auto-creation of new users is DISABLED Auto-issue of passwords to new
+       users is ENABLED
+       A new account has been created for you. An e-mail with a temporary username
+       and password has been sent to you at the address you specified. Login with
+       these credentials, and you can change them from your personal Settings page.
+       250 2.0.0 Ok: queued as A0D1C166F28
+       ============================================================================
+
+       위에서 입력한 이메일로 패스워드 온다.
+
+    2) super-administrator register
+      http://antispam.TESTDOMAIN.co.kr/mail/login.php?super=register     
+
+      id : 1)에서 입력한 이메일
+      passwd : 이메일주소로 온 패스워드
+
+      로그인 후 settings > Login Credentials > new password 입력 > update
+       로그아웃 후 변경된 패스워드로 로그인되면 ok.
+
+    3)  wide system configuration (super계정으로)
+        꼭 진행해야 함.
+
+       http://antispam.TESTDOMAIN.co.kr/mail
+       admin > system configuration
+       ====================================================================
+       System Configuration 블록
+    
+       Enable banned file attachment checks?                          : No    
+       Allow users to enable/disable banned file attachment checks?   : No    
+       Enable checks for invalid mail headers?                        : No    
+       Allow users to enable/disable checks for invalid mail headers? : No    
+       Enable spam-trap accounts?                                     : No    
+       Allow users to link e-mail addresses to their accounts?        : No
+
+       Cache Expiry & Quarantine Reminders 블록
+   
+       E-mail reminder template file :
+             /var/amavis/maia/templates/reminder.tpl 
+       ====================================================================
+
+    4) 도메인 추가
+       admin > Domains > Add Domain > 도메인 입력 (@TESTDOMAIN.co.kr) 
+        > add domain으로 추가
+
+    5) 추가한 도메인에 대해 스팸체크 활성
+       admin > Domains > System Default는 스팸필터 disable이다.(건드리지 말것)
+
+       admin > Domains > 스팸체크할 도메인 클릭 > 다음과 같이 체크.
+       20으로 설정된 값은 적당히 기준을 잡아주면 되며,
+       모니터링 하면서 값을 조정해주는 것이 기본이다.
+       ============================================================
+       Virus Scanning                        : Enabled
+       Detected viruses should be...         : Quarantined
+
+       Spam Filtering                        : Enabled    
+       Detected spam should be...            : Quarantined    
+       Add a prefix to the subjects of spam? : No    
+       Add X-Spam: Headers when Score is >=  : -999
+       Consider mail 'Spam' when Score is >= : 20
+       Quarantine Spam when Score is >=      : 20
+  
+       Attachment Type Filtering             : Enabled    
+       Mail with dangerous attachments should be... : Quarantined
+       
+       Bad Header Filtering                  : Disabled    
+       Mail with bad headers should be...    : Quarantined
+  
+       Should non-spam items be cached?      : No    
+       ============================================================
+
+       > update 하여 적용.
+
+16. 적용 전 확인 사항
+    -. postfix에 도메인 추가
+       스팸필터서버를 사용하기 위한 도메인이
+       transport등 postfix설정에서 추가되었는지 확인한다.
+       해당 도메인이 설정되어 있지 않으면 relay access denied에러발생.
+
+17. MX 변경 및 maia 적용 예
+    MX를 스팸필터서버로 변경.
+    postfix에서 tranport등 도메인 설정되어 있으며,
+    메일을 받을 수 있다.이때는 스팸필터를 사용하지 않는 것이다.
+
+    아래는 maia에 도메인 및 유저를 추가했을때의 
+    스팸필터적용 여부 및 메일 수신 여부이다.
+
+    1) maia에 도메인 없고, 유저 없는 상태
+      Passed CLEAN, [192.168.65.34] [192.168.68.226] <AAAAA@CCCCC.co.kr> ->
+      <AAAAA@TESTDOMAIN.co.kr>, Message-ID: <47D0BA3D.9060002@CCCCC.co.kr>,
+      Hits: -, 144 ms
+
+      -> hits score없고 유저로 메일 받아진다.
+
+    2) maia에 도메인 있고(spam filter는 disable) 유저 없는 상태
+       Passed CLEAN, [192.168.65.34] [121.125.68.226] <AAAAA@CCCCC.co.kr> ->
+       <AAAAA@TESTDOMAIN.co.kr>, Message-ID: <47D0BD11.2070402@CCCCC.co.kr>,
+       Hits: -, 178 ms
+
+      -> hits score없고 유저로 메일 받아진다.
+
+    3) maia에 도메인 있고(spam filter는 enable) 유저 없는 상태.
+       Passed CLEAN, [192.168.65.34] [192.168.68.226] <AAAAA@CCCCC.co.kr> ->
+       <AAAAA@TESTDOMAIN.co.kr>, Message-ID: <47D0BE1D.1000501@CCCCC.co.kr>,
+       Hits: 0.259, 1998 ms
+
+       -> hist score있고 유저로 메일 받아진다.
+
+       Blocked SPAM, [192.168.50.5] [192.168.50.5] <root@empal.com> ->
+       <AAAAA@TESTDOMAIN.co.kr>, Message-ID: <GTUBE1.1010101@example.net>,
+       Hits: 1010.482, 2123 ms
+
+       -> spam으로 파악되면 유저로 메일 안받아진다.
+
+    4) maia에 도메인 있고(spam filter는 enable) 유저 있는 상태.
+
+       -> non spam, spam을 확인할 수 있다.
+
+18. spam test
+
+    전제조건 : MX 를 스팸필터서버로 변경.
+               maia에 도메인 등록(spam filter enable)
+               
+    스팸은 다른 컴퓨터에서 진행한다.
+    이 서버는 외부로 메일이 잘 보내지도록 설정되어야 한다.(FQDN설정등)
+
+    테스트 스팸은 다음 위치에 있다.
+
+    # cd /usr/share/doc/amavisd-new-2.5.3/test-messages
+    # scp sample.tar.gz.compl 외부서버:/usr/local/src/
+
+    # cd /usr/local/src
+    # perl -pe 's/./chr(ord($&)^255)/sge' <sample.tar.gz.compl | zcat | tar xvf -    
+    
+    # /etc/init.d/sendmail start
+      localhost로 인식하면 안보내지니, sendmail.cf의 Djempas.com과 같이
+      임의로 도메인 설정한 후 start한다.
+
+    # sendmail -i postmaster@TESTDOMAIN.co.kr  <sample-virus-simple.txt
+
+    /var/amavis/amavis.log에 보면 sample-virus-simple.txt로 보내진 메일에 대해
+    spam여부 및 Hits score등이 표시됨을 볼 수 있다.
+       
+    
+19. maia 사용. 일반  부분
+   
+   -. 유저 생성
+      super-administrator로그인
+
+      admin -> users -> Add New Email Address/Alias 
+        -> add email(계정) : USER2@TESTDOMAIN.co.kr
+
+      해당 계정에 대한 패스워드는 USER2@TESTDOMAIN.co.kr로 보내진다.
+
+      패스워드로 로그인되면 ok.
+
+   -. 유저 패스워드 변경
+      유저로 로그인
+      
+      settings -> Login Credentials -> New Password / confirm : 변경할 패스워드
+       -> update 
+
+      변경할 패스워드로 로그인되면 ok.
+
+   -. mysql에서 유저 패스워드 변경
+      maia_users테이블에서 수정.
+      패스워드 타입은 md5이다. 
+
+20. maia cron등록
+    maia에서 spam등으로 처리한 메일의 규칙을 적용하기 위해
+    cron작업 설정.
+
+    # cd /var/log
+    # touch process-quarantine.log
+    # touch expire-quarantine-cache.log
+    # touch send-quarantine-reminders.log
+    # touch load-sa-rules.log
+
+    # chown amavis.root process-quarantine.log expire-quarantine-cache.log \
+            send-quarantine-reminders.log load-sa-rules.log
+
+    # vi /etc/crontab
+    =======================================================================
+    # Maia Scripts
+    0 * * * * root su amavis -c '/var/amavis/maia/scripts/process-quarantine.pl --learn --limit=2 > /var/log/process-quarantine.log 2>&1'
+    0 1 * * * amavis /var/amavis/maia/scripts/expire-quarantine-cache.pl > /var/log/expire-quarantine-cache.log 2>&1
+    0 2 * * * amavis /var/amavis/maia/scripts/send-quarantine-reminders.pl > /var/log/send-quarantine-reminders.log 2>&1
+    0 3 * * * amavis /var/amavis/maia/scripts/load-sa-rules.pl > /var/log/load-sa-rules.log 2>&1
+    =======================================================================
+
+    # /etc/init.d/cron restart
+끝.

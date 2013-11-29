@@ -1,0 +1,8 @@
+
+
+portsentry 동작 관련 iptables에 누적된 룰들을
+#cd /root
+#iptables-save > ruleset.txt 로 저장하고
+
+iptables -F 로 초기화 시킨후 정상적으로 서비스가 올라
+온것을 확인 하였습니다. 

@@ -1,0 +1,130 @@
+-------------
+http://serverfault.com/questions/236913/windows-tcp-congestion-control
+http://technet.microsoft.com/en-au/library/bb878127.aspx
+http://en.wikipedia.org/wiki/Compound_TCP
+-------------
+
+netsh interface tcp>sh gl
+...
+congestionprovider - One of the following values:
+none: Use the built-in standard congestion control algorithm.
+ctcp: Use the add-on Compound TCP congestion control algorithm.
+default: Restore the selected provider to the system default.
+...
+
+The default for Windows 7 is none (you can test this by netsh int tcp se gl cong=default).
+
+For Windows 2008, the default was CTCP according to this article: http://technet.microsoft.com/en-au/library/bb878127.aspx (Section entitled Compound TCP). On my R2 TMG machine, it's set to CTCP, so it appears that the link above is correct, and that for client OSs it's off, for servers it's on.
+
+See also: http://en.wikipedia.org/wiki/Compound_TCP
+
+The short description is: If you're expecting to be running applications that have a large volume of data in Sends that may be unacknowledged at any point, CTCP may help when large-latency networks are involved.
+
+--
+
+Windows Vista/2008/7
+CTCP is enabled by default in computers running beta versions of Windows Server 2008 and disabled by default in computers running Windows Vista and 7.
+CTCP can be enabled with the command:
+netsh interface tcp set global congestionprovider=ctcp 
+or disabled with the command:
+netsh interface tcp set global congestionprovider=none
+To display the current setting for CTCP use:
+netsh interface tcp show global
+Parameter "Add-On Congestion Control Provider" will either have a value of "none" if CTCP is disabled or "ctcp" if it is enabled.
+[edit]Windows 8
+CTCP is now enabled using PowerShell as netsh is deprecated:
+set-nettcpsetting -CongestionProvider CTCP
+-- This command for Windows 8 doesn't work --
+[edit]Windows 2003 & XP x64
+A hotfix is available that adds CTCP support to 64 bit Windows XP and Windows Server 2003.[2]
+The following registry key can be set to 1 to enable, or 0 to disable:
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\TCPCongestionControl
+
+
+-----------------------------------------------------------
+http://fasterdata.es.net/host-tuning/linux/
+-----------------------------------------------------------
+
+Linux Tuning
+
+Table of Contents
+
+ General Approach
+ TCP tuning
+ UDP Tuning
+ NIC Tuning
+ Virtual Machine Tuning
+This page contains a quick reference guide for Linux 2.6+ tuning for Data Transfer hosts connected at speeds of 1Gbps or higher. Note that most of the tuning settings described here will actually decrease performance of hosts connected at rates of OC3 (155 Mbps) or less, such as home users on Cable/DSL connections. 
+
+For a detailed explanation of some of the advice on this page, see the Linux Tuning Expert page. Note that the settings on this page are not attempting to achieve full 10G with a single flow. These settings assume you are using tools that support parallel streams, or have multiple data transfers occurring in parallel, and want to have fair sharing between the flows.
+
+If you are trying to optimize for a single flow, see the tuning advice for test/measurement hosts page.
+
+ General Approach
+
+To check what setting your system is using, use 'sysctl name' (e.g.: 'sysctl net.ipv4.tcp_rmem'). To change a setting use 'sysctl -w'. To make the setting permanent add the setting to the file 'sysctl.conf'.
+
+Back to Top
+ TCP tuning
+
+Like most modern OSes, Linux now does a good job of auto-tuning the TCP buffers, but the default maximum Linux TCP buffer sizes are still too small. Here are some example sysctl.conf commands for different types of hosts.
+
+For a host with a 10G NIC, optimized for network paths up to 100ms RTT, add this to /etc/sysctl.conf
+
+# increase TCP max buffer size settable using setsockopt()
+net.core.rmem_max = 16777216 
+net.core.wmem_max = 16777216 
+# increase Linux autotuning TCP buffer limit 
+net.ipv4.tcp_rmem = 4096 87380 16777216
+net.ipv4.tcp_wmem = 4096 65536 16777216
+# increase the length of the processor input queue
+net.core.netdev_max_backlog = 30000
+# recommended default congestion control is htcp 
+net.ipv4.tcp_congestion_control=htcp
+# recommended for hosts with jumbo frames enabled
+net.ipv4.tcp_mtu_probing=1
+Also add this to /etc/rc.local (where N is the number for your 10G NIC): 
+    /sbin/ifconfig ethN txqueuelen 10000
+For a host with a 10G NIC optimized for network paths up to 200ms RTT, or a 40G NIC up on paths up to 50ms RTT:
+
+# increase TCP max buffer size settable using setsockopt()
+net.core.rmem_max = 67108864 
+net.core.wmem_max = 67108864 
+# increase Linux autotuning TCP buffer limit
+net.ipv4.tcp_rmem = 4096 87380 67108864
+net.ipv4.tcp_wmem = 4096 65536 67108864
+# increase the length of the processor input queue
+net.core.netdev_max_backlog = 250000
+# recommended default congestion control is htcp 
+net.ipv4.tcp_congestion_control=htcp
+# recommended for hosts with jumbo frames enabled
+net.ipv4.tcp_mtu_probing=1
+Also add this to /etc/rc.local (where N is the number for your 10G NIC):
+    /sbin/ifconfig ethN txqueuelen 10000
+Notes: you should leave net.tcp_mem alone, as the defaults are fine. A number of performance experts say to also increase net.core.optmem_max to match net.core.rmem_max and net.core.wmem_max, but we have not found that makes any difference. Some experts also say to set net.ipv4.tcp_timestamps and net.ipv4.tcp_sack to 0, as doing that reduces CPU load. We disagree with that recommendation, as we have observed that the default value of 1 helps in more cases than it hurts. But if you are extremely CPU bound you might want to experiment with turning those off.
+
+Linux supports pluggable congestion control algorithms. To get a list of congestion control algorithms that are available in your kernel (kernal  2.6.20+), run:
+
+sysctl net.ipv4.tcp_available_congestion_control
+If cubic and/or htcp are not listed try the following, as most distributions include them as loadable kernel modules:
+
+/sbin/modprobe tcp_htcp
+/sbin/modprobe tcp_cubic
+NOTE: There seem to be bugs in both bic and cubic for a number of versions of the Linux kernel up to version 2.6.33. We recommend using htcp with older kernels to be safe. To set the congestion control do:
+
+sysctl -w net.ipv4.tcp_congestion_control=htcp
+If you are using Jumbo Frames, we recommend setting tcp_mtu_probing = 1 to help avoid the problem of MTU black holes. Setting it to 2 sometimes causes performance problems.
+
+Back to Top
+ UDP Tuning
+
+The TCP window size actually effects UDP as well on Linux. Be sure to use the setsockopt() call to increase SO_SNDBUF/SO_RCVBUF to around 4MB if you want to do UDP streams that are faster than 3-4 Gbps. The optimal data payload size is the MTU size minus IP and UDP header size, or 1472 for a 1500 byte MTU and 8972 for a 9000 byte MTU.
+
+Back to Top
+ NIC Tuning
+
+This can be added to /etc/rc.local to be run at boot time:
+
+    # increase txqueuelen for 10G NICS
+    /sbin/ifconfig ethN txqueuelen 10000
+Note that this might have adverse affects for a 10G host sending to a 1G host or slower.

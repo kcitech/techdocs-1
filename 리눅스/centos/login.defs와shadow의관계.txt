@@ -1,0 +1,98 @@
+
+
+Linux 시스템에 보면 /etc/login.defs 파일이 있습니다. 
+이 파일은 로그인에 관련된 부분을 정의하고 있습니다.
+그 중, 패스워드와 관련된 부분을 살펴보면 다음과 같습니다.
+
+예) CentOS 5.2(Final)
+
+/etc/login.defs
+----------------------
+- 상략 -
+
+#       PASS_MAX_DAYS   Maximum number of days a password may be used.
+#       PASS_MIN_DAYS   Minimum number of days allowed between password changes.
+#       PASS_MIN_LEN    Minimum acceptable password length.
+#       PASS_WARN_AGE   Number of days warning given before a password expires.
+
+PASS_MAX_DAYS  999999
+PASS_MIN_DAYS  0
+PASS_MIN_LEN   5
+PASS_WARN_AGE  7
+
+- 하략 -
+
+------------------------
+
+위의 내용이 패스워드와 관련된 기본 설정입니다.
+ - PASS_MAX_DAYS : 패스워드를 사용할 수 있는 최대 일 수 (숫자)
+ - PASS_MIN_DAYS : 패스워드를 변경하기 위해 최소한 지나야하는 일 수 (숫자)
+ - PASS_MIN_LEN : 패스워드의 최소 길이
+ - PASS_WARN_AGE : 패스워드 만료 전 경고를 보여줄 일 수
+
+위의 설정 값을 다음과 같이 변경해보겠습니다.
+
+------------------------
+PASS_MAX_DAYS  2
+PASS_MIN_DAYS  0
+PASS_MIN_LEN   8
+PASS_WARN_AGE  1
+-------------------------
+
+위와 같이 변경 후 계정을 생성해보겠습니다.
+
+계정명 : test
+
+생성 후의 /etc/shadow 파일을 보면 다음과 같습니다.
+
+/etc/shadow
+--------------------------
+root:$1$tocLuK1r$.giTjPzypwGdUuRFmPphC.:14264:0:99999:7:::
+- 중략 -
+test:$1$7rXIoqbr$ajUChvRB8qhn2I2sUbK9x.:14264:0:2:1:::
+--------------------------
+
+각 항목에 대해 manpage 를 보면 다음과 같이 기술되어 있습니다.
+
+-----------------------------------
+DESCRIPTION
+       shadow manipulates the contents of the shadow password file, /etc/shadow. The structure in the #include file is:
+
+          struct spwd {
+                char          *sp_namp; /* user login name */
+                char          *sp_pwdp; /* encrypted password */
+                long int      sp_lstchg; /* last password change */
+                long int      sp_min; /* days until change allowed. */
+                long int      sp_max; /* days before change required */
+                long int      sp_warn; /* days warning for expiration */
+                long int      sp_inact; /* days before account inactive */
+                long int      sp_expire; /* date when account expires */
+                unsigned long int  sp_flag; /* reserved for future use */
+          }
+-------------------------------------
+root 계정의 경우
+마지막으로 패스워드를 변경한 날짜가 14264일
+패스워드 변경 허용 최소 사용일은 0일
+패스워드 최대 사용일은 99999일까지
+패스워드 만료 경고일은 만료 7일 전부터
+
+test 계정의 경우
+마지막으로 패스워드를 변경한 날짜가 14264일
+패스워드 변경 허용 최소 사용일은 0일
+패스워드 최대 사용일은 2일까지
+패스워드 만료 경고일은 만료 1일 전부터
+
+로 설정된 것을 볼 수 있습니다.
+
+※ 패스워드를 변경한 일수는 1970년 1월 1일부터 지난 일 수입니다.
+
+위에서 보는 것과 같이 /etc/login.defs 파일을 수정하면, 해당 정책은 새로 생성되는 계정부터 적용되는 것을
+볼 수 있습니다.
+
+login.defs 의 manpage를 보면 다음과 같이 기술되어 있습니다.
+
+-----------------------------------
+       PASS_MAX_DAYS, PASS_MIN_DAYS and PASS_WARN_AGE are only used at the time of account creation. Any changes to these settings won’t affect existing accounts.
+-----------------------------------
+
+업무에 참고 바랍니다.

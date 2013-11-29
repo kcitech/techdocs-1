@@ -1,0 +1,135 @@
+
+IIS 6.0 + TOMCAT 설치 2007.8.19일 y
+
+구성 버전
+
+www.sun.com 에서 Download -> JAVA 페이지 이동하여 찾아 받는다.
+JDK = jdk-1_5_0_12-windows-i586-p.exe (jre가 같이 설치 되므로 따로 받지 않아도 됨)
+
+apache.org에서 다운로드 가능
+TOMCAT = apache-tomcat-5.5.23.exe 
+redirect ISAPI = isapi_redirect-1.2.9
+
+mysql.org에서 다운로드 가능
+Mysql-connector = mysql-connector-java-5.0.7
+Mysql = mysql-5.0.45-win32
+
+1. J2SE를 다운로드 합니다. 기본 구성 설치를 합니다.
+
+2. TOMCAT을 다운로드 합니다 기본 구성 설치를 합니다.
+    ※설치후 localhost:8080으로 호랑이를 확인합니다. 방화벽 구성시엔 8080포트를 추가 하도록 합니다.
+    ※톰캣 기본 설치시 서비스가 자동 시작이 되어 있지 않으므로 확인 하여 서비스 자동 시작 설정을  해두셔야 합니다.
+
+3. redirect isapi를 설치합니다. exe파일이나 msi파일로 구하셔서 설치를 하시는 것이 편리합니다.
+    굳이 dll파일로만 받으시면 tomcat document에서 레지스트리 및 등록을 찾아 직접 수정 진행 
+    하셔 합니다. exe파일로 설치 되면 기본적으로 등록 내용이 자동 구성 됩니다.
+
+4. MYSQL을 설치 합니다. 기본 적인 구성으로 설치 진행 합니다.
+
+5. mysql-connector 압축 파일을 열어 해당 mysql-connector-java-5.0.7-bin.jar를
+    JAVA_HOME\jre\lib\ext 에 풀어 넣어 줍니다.
+   (위 JDK 버전으로 기본 설치를 하셨다면
+    C:\Program Files\Java\jdk1.5.0_12\jre\lib\ext 에 넣어 주시면 됩니다.)
+
+6.시스템 등록정보 -> 고급 -> 환경 변수 -> 시스템 변수란에서 다음을 추가 합니다. 
+   CATALINA_HOME 
+   경로 C:\Program Files\Apache Software Foundation\Tomcat 5.5
+   JAVA_HOME
+   경로 C:\Program Files\Java\jdk1.5.0_12 
+   ※ 옛날 버전에선 해당 설치의 bin까지 잡아 주었지만 1.5.0버전 이후에선 자바 설치 홈까지 
+       잡아 주시면 됩니다.
+
+   cmd 창에서 java -version 명령을 수행하여 잘 실행 되는 지 확인합니다. 
+   안되면 경로가 제대로 잡혀 있는지 재차 확인 합니다.
+7.IIS를 설치 합니다. 최상위의  "웹사이트"에서 오른쪽 클릭 속성탭을 이동합니다.
+  
+   ISAPI필터에서 실행 파일을 다음과 같이 잡아 줍니다. 리다이렉트 isapi설치가 기본으로 되었다면
+  C:\Program Files\Apache Software Foundation\Jakarta Isapi Redirector\bin
+  가 해당 경로가 될 것입니다.
+
+  필터이름은 임의로 잡아 줘도 되지만 구분을 명확히 하기 위해 jakarta로 지정 하였습니다.
+
+8. IIS 6.0에만 적용 되는 부분으로 웹 서비스 확장 -> 새 웹 서비스 확장 추가 선택
+ 
+
+확장이름을 jakarta로 잡고 파일 추가를 아까 isapi등록 했던 경로와 동일하게 dll파일 위치를 잡아 
+줍니다.
+확장 상태를 허용으로 체크 하거나 작업을 마친뒤 비 활성화 된 부분을 활성 시켜주면 활성화가 됩니다.
+
+9. IIS를 재 시작 합니다. 
+    ※cmd 창에서 net stop iisadmin 후 net start iisadmin 을 입력 하셔도 됩니다.
+
+올바르게 구성이 되었다면 기본 웹사이트 아래에 jakarta라는 가상디렉토리가 보일 것입니다.
+그럼 이제 적용 하고자 하는 사이트에서 다음과 같이 진행을 합니다.
+위 경우 test라는 웹사이트에 작업을 수행 하도록 하겠습니다.
+요지는 기본 웹사이트에 있는 jakarta와 동일한 가상디렉토리를 test에 생성해 주면 됩니다.
+
+ 생성을 마치면 기본 웹 사이트의 jakarta와 동일하게 구성을 하여 줍니다. 
+ 이후 test웹 사이트만 중지 재시작을 적용 합니다.
+
+9. C:\Program Files\Apache Software Foundation\Jakarta Isapi Redirector\conf 로 이동 하여 uriworkermap.properties 파일을 수정 합니다.
+
+/admin/*=ajp13w
+/manager/*=ajp13w
+/jsp-examples/*=ajp13w
+/servlets-examples/*=ajp13w
+
+/*.jsp=ajp13w <- 추가 
+/servlet/*=ajp13w <- 추가
+/=ajp13w <-추가 : 이 부분이 없으면 http://도메인명/ 으로 입력시 페이지를 못찾게 됩니다.
+톰캣을 재시작 합니다.
+
+10. 톰캣에서 sever.xml을 수정 합니다.
+ 기본 설치로 되었다면 위와 같은 경로에 존재 할 것입니다.
+  
+<Engine>과 </Engine>사이에 등록하고자 하는 웹사이트 정보를 등록합니다.
+KT이 주신 문서의 등록 부분을 그대로 활용 하셔도 무방합니다.
+
+11. IIS상의 test웹사이트에도 TOMCAT에서 자은 c:\test와 같이 동일한 홈 디렉토리를
+      지정해 줍니다.
+12. index.jsp를 생성하여 테스트를 합니다.
+      저는 다음과 같이 테스트를 하였습니다.
+<%@ page language="java" contentType="text/html; charset=EUC-KR" isErrorPage="false"%>
+<%
+out.println("OK TEST");
+%>
+ 
+13. mysql연동을 테스트 합니다.
+   KT 주신 Tomcat설치 문서의 내용을 그대로 사용 하시면 됩니다.
+ <%@ page language="java" import="java.sql.*,java.io.*" %>
+
+   <html><body>
+   <meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+   
+   <%@ page contentType="text/html; charset=EUC-KR" %>
+   
+   <%
+   java.sql.Connection conn = null;
+   java.sql.PreparedStatement ps = null;
+   java.sql.ResultSet rs = null;
+   String strRet = null;
+   int    intRet = 0;
+   
+     try { Class.forName("org.gjt.mm.mysql.Driver");
+         } catch (ClassNotFoundException e ) { out.println(e); }
+   
+     try { conn = java.sql.DriverManager.getConnection("jdbc:mysql://localhost/mysql?user=root&password=");
+         } catch (java.sql.SQLException e) { out.println(e); }
+     
+     try { ps = conn.prepareStatement("select host, user from user where user='root'");
+           rs = ps.executeQuery();
+   
+                   rs.next();
+                   out.println("id:  " + rs.getString("host") + "<br>");
+                   out.println("user:  " + rs.getString("user") + "<br><br>");
+           rs.close();
+           ps.close();
+           conn.close();
+   
+         } catch (java.sql.SQLException e) { System.out.println(e); }
+           catch (java.io.UnsupportedEncodingException e) {System.out.println(e); }
+   
+   %>
+   </body></html>
+
+※모든 작업을 마치시면 리부팅을 한 번 실시 하는 것이 좋습니다.

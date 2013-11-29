@@ -1,0 +1,24 @@
+
+=============================
+본인 작성한 글 아님. 내용 확인 필요함
+=============================
+
+FTP는 접근은 정상적이나 파일 리스팅을 해오지 못하고 있었습니다.
+아마도 FTP 프로그램에서 passvie 모드를 지원하지 않는것으로
+파악되었습니다.
+이에 아래와 같이 처리하였습니다.
+
+[FTP Passive Port 설정]
+# vi /etc/proftpd.conf
+PassivePorts 59000 63000
+
+[iptables 방화벽에서 Passvie 포트 허용]
+# vi /root/bin/newfirewall.sh
+#FTP Passive port
+$IPTABLES -A INPUT -m state --state NEW -p tcp --dport 59000:63000 -j
+ACCEPT
+
+[ftp 및 iptables 재시작]
+# /etc/init.d/proftpd restart
+# /root/bin/nofirewall.sh.org && /root/bin/newfirewall.sh
+

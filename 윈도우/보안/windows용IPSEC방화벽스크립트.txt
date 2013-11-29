@@ -1,0 +1,242 @@
+=====================================
+case 1
+=====================================
+
+시작 -> 실행 -> secpol.msc입력 -> ip보안정책
+
+=====================================
+case 2
+=====================================
+ 
+윈도우용 ipsec 을 이용한 방화벽 스크립트 입니다.
+ 
+최대한 저희 리눅스 스크립트와 유사하게 셋팅 하였으나 모자란 부분도 있으리라 봅니다.
+ 
+기본 적인 테스트는 로컬상 윈도우 서버에서 양쪽간에 실시 하였습니다.
+ 
+셋팅은 windows 2003/XP 기준으로 되어 있으며 2000의 경우는 별도 파일과 실행명령어를 변경 하셔야 됩니다.
+ 
+ex)스크립트 내의 ipseccmd 부분을 ipsecpol로 변경
+ 
+2003 / xp 용 실행 파일 ipseccmd.exe / ipseccmd_setup.zip 내의 .msi 인스톨러로 설치
+2000 용 실행 파일 ipsecpol.exe / ipsecpol_setup.zip 내 ipsecpol_setup.exe 인스톨러로 설치
+ 
+설치 후 PATH를 스크립트내에 추가 하여 등록 하시거나
+ 
+컴퓨터 구성정보의 PATH에서 추가를 하셔도 됩니다.(단 바로 적용이 안되니 도스 커맨드에서 추가 하셔야 함)
+ 
+예:) C:>PATH=%PATH%;실행파일설치된경로
+ 
+ 
+방화벽 구동 : start_ipsec.cmd
+ 
+기존 정책이 확인 되면 삭제 후 새로 생성 하게  됩니다.
+(iptables -F 하고 새로 정책 할당 하는 것과 같습니다)
+ 
+방화벽 삭제 : stop_ipsec.cmd
+ 
+명명된 정책이 확인 되면 중지 하고 삭제 합니다.
+ 
+정책의 적용 확인
+ 
+ipseccmd show filters (iptables -nL 과 같다 보시면 됩니다.)
+ 
+이상입니다.
+ 
+추가나 수정은 start_ipsec.cmd 파일에서 체크 해보시기 바랍니다.
+ 
+나머지 자동 수행 등록 부분은 아래를 참고 하시기 바라며 해당 유틸은 window 2003 resource kit을 설치 하셔야 합니다.
+ 
+〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓
+instsrv : 실행파일이니 지정된 파일을 서비스로 등록 합니다.
+〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓〓
+등록 방법 :
+ 
+i)  instsrv 서비스명 서비스파일경로 -a 계정지정 -p 패스워드
+ii) instsrv 서비스명 서비스파일경로
+ 
+1. 계정지정이 없으면 기본 로컬계정으로 지정되나 서비스 에서 실행 계정을 지정해 주는 것이 좋습니다
+2. 추천 하는 방법은 ii) 방법이며 이유는 도메인 , 호스트명등 정확한 계정을 지정하기 힘들 경우가 많기 때문입니다.
+ 
+제거 방법 :
+ 
+instsrv 서비스명 remove
+ 
+이상입니다.
+ 
+==================================================================================
+ start_ipsec.cmd
+==================================================================================
+@REM 아래 패스에 ipseccmd.exe 의 경로를 추가합니다
+@REM ipseccmd.exe(xp,2003용) , ipsecpol.exe(2000용)
+@REM ex) PATH=%PATH%;D:\sample;
+@REM 정책 적용 내용 확인 : commnad_shell>ipseccmd show filters
+
+PATH=%PATH%;
+
+@REM IPADDRESS 입력 IP하나를 사용하는 윈도우엔 의미가 없습니다.
+@REM 필터 옵션에서 0 이 내컴퓨터 즉 자신의 로컬 NIC를 의미 합니다.
+
+@REM 파일/프린터 공유에 관련된 정책은 없습니다. 별도 생성을 하셔야 됩니다.
+@REM 파일/프린터 공유 포트 UDP 137,138 TCP 139,445
+
+@REM WMS 서비스 포트 도 별도 관련 정책은 없으므로 별도 생성을 하셔야 됩니다.
+@REM WMS 부분은 아래의 포트를 검토 하여 inbound 를 구성합니다.
+
+@REM Microsoft Media Server, with TCP-based transport (MMST) TCP 포트 1755 
+@REM Microsoft Media Server, with UDP-based transport (MMSU) UDP 포트 1755 및 TCP 포트 1755 
+@REM RTSPT TCP 포트 554 
+@REM RTSPU UDP 포트 5005, UDP 포트 5004 및 TCP 포트 554 
+@REM Hypertext Transport Protocol (HTTP) TCP 포트 80 
+@REM Hypertext Transport Secure Protocol (HTTPS) TCP 포트 443 
+
+
+@REM SET IP=xxx.xxx.xxx.xxx
+@REM IP 변수의 사용 ex) %IP%
+
+@REM 정적 IPSEC 정책 제거 및 재 생성
+@REM ipseccmd 정책명 -y // 정책의 비활성화
+@REM ipseccmd 정책명 -o // 정책의 삭제
+@REM ipseccmd 정책명 -x // 정책의 적용
+@REM ##############################################################################################
+@REM 사용 예제 : ipseccmd -w REG -p FW_POLICY -r RULE_NAME -f 192.168.2.2=0:3389:TCP -n BLOCK 
+
+@REM -w REG // REG는 현재 로컬컴퓨터의 정책에 작성한다
+@REM -p FW_POLICY // FW_POLICY 는 정책명(정책 구분을 위함)을 의미
+@REM -r RULE_NAME // RULE_NAME 은 룰셋 명을 구분하기 위하여 지정
+@REM -n BLOCK // 협상요청의 종류 (PASS / BLOCK)
+@REM -f 192.168.2.2+0:3389:TCP // source+destination 을 의미합니다. 
+@REM    윗 라인은 192.168.2.2에서 내컴퓨터로의 TCP프로토콜의 3389 포트 접근을 말함.
+
+@REM 최종적으로는 다음과 같이 됩니다.
+
+@REM 작성 컴퓨터 : 로컬컴퓨터
+@REM 정책명      : FW_POLICY 
+@REM 룰셋명      : RULE_NAME
+@REM 협상수준    : 차단
+@REM 필터        : Src ip : 192.168.2.2 Dst ip : 내컴퓨터(지정되지않은모든IP) 
+@REM               port : 3389 protocol : TCP
+
+@REM ##############################################################################################
+
+@REM   IP입력의 예
+@REM   A.B.C.D/mask:port+A.B.C.D/mask:port:protocol
+@REM  144.92.*.* -> 144.92.0.0/255.255.0.0
+@REM  128.*.*.* -> 128.0.0.0/255.0.0.0
+@REM  128.*.* // 초과로 적용불가
+@REM  128.* // 초과로 적용불가
+
+@REM ##############################################################################################
+@REM FW_POLICY 정책 해제(y) 및 삭제(o)
+@REM ##############################################################################################
+ipseccmd -w REG -p FW_POLICY -y
+ipseccmd -w REG -p FW_POLICY -o
+
+@REM ##############################################################################################
+@REM 모든 접근 차단 생성
+@REM ##############################################################################################
+ipseccmd -w REG -p FW_POLICY -r Deny_All -f *+0:: -n BLOCK 
+
+@REM ##############################################################################################
+@REM 기본적인 외부 접근을 모두 허용하는 정책 (FTP,HTTP,HTTPS,DNS,SMTP,ICMP,IMAP,POP3,)
+
+@REM 서비스별 접근을 구성 할 경우 : DEFAULT_ALL_ALLOW 는 주석(REM)처리 
+@REM "서비스별 접근 정보 허용" 란의 REM 부분을 지우고 IP들을 추가 할 것
+@REM 너무 IP추가가 길어지면 새로운 룰 명을 지정해 동일한 포트 접근으로 구성 할 것
+@REM ##############################################################################################
+ipseccmd -w REG -p FW_POLICY -r DEFAULT_ALL_ALLOW -f *+0:21:TCP *+0:20:TCP *+0:80:TCP *+0:443:TCP *+0::ICMP *+0:53:UDP *+0:53:TCP  *+0:3389:TCP *+0:1433:TCP *+0:143:TCP *+0:25:TCP *+0:110:TCP -n PASS 
+
+@REM ##############################################################################################
+@REM 스위치 접근 허용
+@REM ##############################################################################################
+@REM ipseccmd -w REG -p FW_POLICY -r PRIVATE_SWITCH -f 172.29.2.*+0 0+172.29.2.* -n PASS
+
+
+@REM ##############################################################################################
+@REM 서비스별 접근 정보 허용
+@REM ##############################################################################################
+
+@REM SAMPLE 
+@REM 
+@REM ipseccmd -w REG -p FW_POLICY -r RDP_INBOUND_COMPANYOFFICE -f 121.125.68.226+0:3389:TCP -n PASS 
+
+@REM ICMP 접근 허용
+@REM ipseccmd -w REG -p FW_POLICY -r ICMP_INBOUND  -f *+0::ICMP -n PASS 
+
+@REM DNS 외부 인바운드 허용
+@REM ipseccmd -w REG -p FW_POLICY -r DNS_INBOUND -f *+0:53:UDP -f *+0:53:TCP -n PASS 
+
+@REM HTTP 접근 인바운드 허용
+@REM ipseccmd -w REG -p FW_POLICY -r HTTP_INBOUND -f *+0:80:TCP *+0:443:TCP -n PASS 
+
+@REM FTP 접속 인바운드 허용
+@REM ipseccmd -w REG -p FW_POLICY -r FTP_INBOUND -f *+0:21:TCP *+0:20:TCP -n PASS
+
+@REM 원격 접속 인바운드 허용
+@REM ipseccmd -w REG -p FW_POLICY -r RDP_INBOUND -f *+0:3389:TCP -n PASS 
+
+@REM MSSQL 외부 인바운드 허용
+@REM ipseccmd -w REG -p FW_POLICY -r MSSQL_INBOUND -f *+0:1433:TCP -n PASS
+
+@REM SMTP 외부 인바운드 허용
+@REM ipseccmd -w REG -p FW_POLICY -r SMTP_INBOUND -f *+0:25:TCP -n PASS
+
+@REM POP3 외부 인바운드 허용
+@REM ipseccmd -w REG -p FW_POLICY -r POP3_INBOUND -f *+0:110:TCP -n PASS
+
+@REM IMAP 외부 인바운드 허용
+@REM ipseccmd -w REG -p FW_POLICY -r IMAP_INBOUND -f *+0:143:TCP -n PASS
+
+@REM MYSQL 외부 인바운드 허용
+@REM ipseccmd -w REG -p FW_POLICY -r MSSQL_INBOUND -f *+0:3306:TCP -n PASS
+
+@REM ######################################################################################
+@REM 기본 서비스 OUTBOND 
+@REM ######################################################################################
+
+@REM SMTP 내부 아웃바운드 허용
+ipseccmd -w REG -p FW_POLICY -r SMTP_OUTBOUND -f 0+*:25:TCP -n PASS
+
+@REM FTP 내부 아웃바운드 허용
+ipseccmd -w REG -p FW_POLICY -r FTP_OUTBOUND -f 0+*:21:TCP 0+*:21:TCP -n PASS
+
+@REM MSSQL 내부 아웃바운드 허용
+ipseccmd -w REG -p FW_POLICY -r MSSQL_OUTBOUND -f 0+*:1433:TCP -n PASS
+
+@REM 기본 HTTP/HTTPS/DNS 아웃바운드 허용
+ipseccmd -w REG -p FW_POLICY -r HTTP_OUTBOUND -f 0+*:80:TCP 0+*:443:TCP -n PASS
+ipseccmd -w REG -p FW_POLICY -r DNS_OUTBOUND -f 0+*:53:UDP 0+*:53:TCP -n PASS
+
+@REM 기본 SSH 아웃바운드 허용
+ipseccmd -w REG -p FW_POLICY -r SSH_OUTBOUND_TCP -f 0+*:22:TCP -n PASS
+
+@REM MYSQL 내부 아웃바운드 허용
+@REM ipseccmd -w REG -p FW_POLICY -r MSSQL_OUTBOUND -f 0+*:3306:TCP -n PASS
+
+@REM MSTERMINAL 내부 아웃바운드 허용
+ipseccmd -w REG -p FW_POLICY -r MSTS_OUTBOUND -f 0+*:3389:TCP -n PASS
+
+@REM ######################################################################################
+@REM IP 차단 
+@REM ######################################################################################
+
+@REM ipseccmd -w REG -p FW_POLICY -r BLOCK_LIST -f 192.168.2.53=
+
+@REM ######################################################################################
+@REM FW_POLICY 적용
+@REM ######################################################################################
+ipseccmd -w REG -p FW_POLICY -x
+
+==================================================================================
+ stop_ipsec.cmd
+==================================================================================
+ipseccmd -w REG -p FW_POLICY -y
+ipseccmd -w REG -p FW_POLICY -o
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 

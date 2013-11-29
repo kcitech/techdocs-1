@@ -1,0 +1,228 @@
+---------------------
+LVS setup (2008.02.01)
+---------------------
+ os : centos3.9 
+ (centos4.x/5.x보다는 3.9가 안정적임.  ipvsadm -L시 size가 3.9대는 65536   4.x/5.x 4096 참조글=>KT글)
+   
+ 필요 s/w : ipvsadm / piranha
+ 
+확인 및 설치 준비) 
+#modprobe ip_vs
+#cat /proc/net/ip_vs
+ 
+[root@lvs02 src]# rpm -q kernel-source
+kernel-source-2.4.21-53.EL
+[root@lvs02 src]# pwd
+/usr/src
+[root@lvs02 src]# ls -n linux-2.4.21-53.EL linux
+
+<ipvsadm 설치>  (1.21-11버전은 오류가 발생함, 1.21-10버전 다운로드)
+다운로드 : 
+ http://www.linuxvirtualserver.org/software/kernel-2.4/ipvsadm-1.21-10.src.rpm
+#rpmbuild --rebuild ipvsadm-1.21-10.src.rpm
+#cd /usr/src/redhat/RPMS/i386
+#rpm -Uvh ipvsadm-1.21-10.i386.rpm
+#rpm -Uvh ipvsadm-debuginfo-1.21-10.i386.rpm
+ 
+<piranha 설치>
+#ftp mirror.secuidc.com
+#get /centos/3.9/csgfs/i386/RPMS/piranha-0.7.12-1.i386.rpm <--이 버전으로 설치함.
+ 
+<== httpd / php 설치가 되어 있어야 함.
+#yum install httpd httpd-devel php php-devel php-imap php-mysql
+ 
+#vi /etc/sysconfig/ha/lvs.cf
+service = lvs
+primary = 192.168.2.118
+backup  = 192.168.2.119
+backup_active = 1
+heartbeat = 1
+heartbeat_port = 1050
+keepalive = 2
+deadtime = 5
+reservation_conflict_action = preempt
+debug_level = NONE
+network = direct
+rsh_command = ssh
+virtual web {
+        address = 192.168.2.82 eth0:0
+        vip_nmask = 255.255.255.255
+        active = 1
+        port = 80
+        timeout = 5
+        reentry = 10
+        load_monitor = none
+        send = "GET / HTTP/1.0\r\n\r\n"
+        expect = "HTTP"
+        scheduler = wlc
+        persistent = 60
+        pmask = 255.255.255.255
+        protocol = tcp
+        server real1 {
+                address = 192.168.2.69
+                active = 1
+                weight = 1
+        }
+        server real2 {
+                address = 192.168.2.92
+                active = 1
+                weight = 1
+        }
+}
+virtual https {
+        address = 192.168.2.82 eth0:0
+        vip_nmask = 255.255.255.255
+        active = 1
+        port = 443
+        timeout = 5
+        reentry = 10
+        load_monitor = none
+        scheduler = wlc
+        persistent = 60
+        pmask = 255.255.255.255
+        protocol = tcp
+        server real1 {
+                address = 192.168.2.69
+                active = 1
+                weight = 1
+        }
+        server real3 {
+                address = 192.168.2.92
+                active = 1
+                weight = 1
+        }
+}
+
+#/etc/init.d/pulse start
+ 
+확인)
+ #watch "ipvsadm -L"
+ 
+
+real 서버 셋팅
+윈도우)
+ 시작>설정>제어판>하드웨어 추가 마법사 시작
+        하드웨어가 연결되어 있습니까? 예, 하드웨어를 연결했습니다. 다음>
+        새 하드웨어 장치 추가 다음>
+        목록에서 직접 선택한 하드웨어 설치(고급) 다음>
+        네트워크 어댑터 다음>
+        Microsoft > Microsoft Loopback Adapter 다음>
+ 
+        Loopback adapter에 vip셋팅(192.168.2.25)
+        넷마스크는 255.255.255.255입력이 안되기 때문에 레지스트리에서 수정
+        HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces
+        아래에 192.168.2.25 IP에 해당되는 키 선택후 SubnetMask 를 255.255.255.255로 수정
+ 
+참조글)
+
+
+pulse가동시 load되는 ipvs모듈의 커널로딩 값이 os별로 다릅니다.
+
+-. centos5
+   kernel: IPVS: Connection hash table configured (size=4096, memory=32Kbytes)
+
+-. centos3
+   IPVS: Connection hash table configured (size=65536, memory=512Kbytes)
+
+확인은 dmesg, 또는 messages파일 또는 다음명령에서 확인가능합니다.
+
+# ipvsadm -Ln
+size= 부분에서 확인.
+
+centos3에서 패키징된 pulse만 size, 메모리값이 크고,
+centos4, centos5, 소스컴파일 된 pluse는 size와 메모리값이 작으며,
+pulse데몬이 죽는 원인이 됩니다.
+
+참조하시기 바랍니다.
+
+
+기타참조)
+/centos/3.9/csgfs/i386/RPMS
+ 
+
+
+
+ 
+------------------
+lvs 192.168.3.180
+------------------
+/etc/sysconfig/ha/lvs.cf
+ 
+serial_no = 8
+primary = 192.168.3.181
+service = lvs
+rsh_command = ssh
+backup_active = 1
+backup = 192.168.3.182
+heartbeat = 1
+heartbeat_port = 1050
+keepalive = 2
+deadtime = 5
+network = direct
+reservation_conflict_action = preempt
+debug_level = NONE
+virtual http {
+     active = 1
+     address = 192.168.3.180 eth0:1
+     vip_nmask = 255.255.255.255
+     port = 80
+     persistent = 10
+     pmask = 255.255.255.255
+     send = "GET / HTTP/1.0\r\n\r\n"
+     expect = "HTTP"
+     load_monitor = none
+     scheduler = wlc
+     protocol = tcp
+     timeout = 5
+     reentry = 10
+     quiesce_server = 0
+     server web1 {
+         address = 192.168.3.185
+         active = 1
+         weight = 1
+     }
+     server web2 {
+         address = 192.168.3.186
+         active = 1
+         weight = 1
+     }
+     server web3 {
+         address = 192.168.3.187
+         active = 1
+         weight = 1
+     }
+     server web4 {
+         address = 192.168.3.188
+         active = 1
+         weight = 1
+     }
+     server web5 {
+         address = 192.168.3.189
+         active = 1
+         weight = 1
+     }
+     server web6 {
+         address = 192.168.3.190
+         active = 1
+         weight = 1
+     }
+     server web7 {
+         address = 192.168.3.166
+         active = 1
+         weight = 1
+     }
+     server web8 {
+         address = 192.168.3.167
+         active = 1
+         weight = 1
+     }
+}
+
+etc>
+#ftp ftp.redhat.com
+#get /pub/redhat/linux/updates/enterprise/2.1AS/en/os/SRPMS/piranha-0.7.0-5.src.rpm
+
+ 
+ 
+        
+ 

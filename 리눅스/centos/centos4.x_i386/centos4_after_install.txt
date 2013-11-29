@@ -1,0 +1,35 @@
+[ centos4.2 install후 수정사항 ]
+
+1. install시 설치 옵션:
+
+   SElinux : disabled 선택
+
+   Development Tool
+   X Software Development
+   Legacy Software Development
+
+2. yum update
+
+3. install후 조정사항:
+  -. /etc/sysconfig/i18n
+     LANG="ko_KR.UTF-8"  -> LANG="ko_KR.eucKR"
+
+  -. /etc/ssh/sshd_config
+     Protocol 2
+
+  -. /etc/initscript
+     이 파일은 생성을 해야 함. openfiles 관련임.
+     이 파일은 리부팅해야 적용되므로 initscript를 작성 및 수정하게되면
+     부팅을 반드시 해야 한다.
+     =================
+     ulimit -Hn 65536
+     ulimit -Sn 65536
+
+     eval exec "$4"
+     =================
+  
+  -. /etc/sysctl.conf
+     아래 라인 추가.
+     ====================================================
+     net.ipv4.tcp_syncookies = 1
+     ====================================================

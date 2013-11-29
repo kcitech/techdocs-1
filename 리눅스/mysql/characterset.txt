@@ -1,0 +1,2 @@
+
+mysqldump -uroot -p --default-character-set=latin1 --databases DB1 DB2 DB3 > DB123_latiin.sql

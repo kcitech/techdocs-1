@@ -1,0 +1,51 @@
+
+-------------
+현상확인
+-------------
+
+수신자를 @TESTDOMAIN으로 다중으로 보냈을때,
+각 수신메일로 메일은 정상적으로 배달이 되나,
+발신자메일주소로 다음과 같은 오류메일이 배달됨.
+
+예) 발신자 : USER@TESTDOMAIN
+수신자 : USER@TESTDOMAIN;
+USER2@TESTDOMAIN;
+USER3@TESTDOMAIN;
+
+This is the Postfix program at host mail.TESTDOMAIN.
+
+I\'m sorry to have to inform you that your message could not
+be delivered to one or more recipients. It\'s attached below.
+
+For further assistance, please send mail to
+
+If you do so, please include this problem report. You can
+delete your own text from the attached returned message.
+
+The Postfix program
+
+: data format error. Command output: :
+Mailbox does not
+exist : Mailbox does not exist
+
+: data format error. Command output: :
+Mailbox does not exist
+: Mailbox does not exist
+
+: data format error. Command output: :
+Mailbox does not
+exist : Mailbox does not exist
+
+-------------
+조치 및 테스트
+-------------
+/etc/postfix/main.cf에 다음 추가
+default_destination_recipient_limit=1
+
+참조(구글검색어 : postfix cyrus multiple recipients)
+http://www.webservertalk.com/archive281-2004-11-538970.html
+
+위와 동일하게 메일을 발송해보았으나,
+오류메세지는 수신되지 않았습니다.
+
+동일 현상이 발생되는지 테스트 부탁드립니다.

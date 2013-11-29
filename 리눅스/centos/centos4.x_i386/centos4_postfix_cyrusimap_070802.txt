@@ -1,0 +1,495 @@
+[ postfix + cyrus-imap + mysql ]
+
+-. os : CentOS 4.2
+-. 패키지 : 기본적으로 제공하는 rpm사용
+      
+-. os 설치환경 
+   Development Tool
+   X Software Development 
+   Legacy software Development
+
+-. apm 기본설치
+   centos4 apm rpm설치 문서 참조
+
+-. 기능
+   virtualdomain지원
+   도메인,계정관리 : mysql
+   도메인,계정관리 인터페이스 : web(postfixadmin)
+
+1. postfix
+   postfix-2.1.5-4.2.RHEL4.src.rpm(centos4.2패키지) 받아서 
+   mysql 지원가능하게 rebuild해야함.
+   (apm을 설치하지 않으면 pcre-devel패키지가 설치되지 않아서  설치필요)
+
+   # rpm -ivh postfix-2.1.5-4.2.RHEL4.src.rpm
+   # cd /usr/src/redhat/SPECS
+   # vi postfix.spec
+     %define MYSQL 0 -> 1로 수정
+
+   # rpmbuild -ba postfix.spec
+
+   # rpm -ivh /usr/src/redhat/RPMS/i386/postfix-2.1.5-4.2.RHEL4.i386.rpm
+
+   # yum remove sendmail
+     MTA를 sendmail가리키고 있으므로(symbolic link) sendmail을 삭제하면
+     MTA를 postfix로 가리키게 된다.
+
+   # ls -al /etc/alternatives/mta
+   lrwxrwxrwx  1 root root 26  2월 20 16:32 /etc/alternatives/mta ->
+                                             /usr/sbin/sendmail.postfix
+
+    위와 같이 sendmail.postfix가 MTA로 링크되어 있으면 정상이다.
+
+3. cyrus-sasl
+   아래와 같이 os시 설치시 설치되어 있을 것이다.
+   cyrus-sasl-md5, cyrus-sasl, cyrus-sasl-plain, cyrus-sasl-devel
+
+   # yum install cyrus-sasl-sql
+
+4. cyrus-imap
+   # yum list cyrus-imapd*
+
+   # yum install cyrus-imapd cyrus-imapd-devel cyrus-imapd-utils
+
+5. postfixadmin
+   메일 도메인, 계정에 관련된 db 및 테이블 설치.
+   가상도메인으로 설정을 한다.
+   http://DOMAIN/postfixadmin/
+   
+   1) 웹 설정
+   # tar xvzf postfixadmin-2.1.0.tgz -C /home/webmail/
+   # cd /etc/httpd/conf
+   # vi httpd.conf
+     ==================================================
+     NameVirtualHost 192.168.3.140:80
+     <VirtualHost 192.168.3.140:80>
+        ServerAdmin oracle@test.test
+        DocumentRoot /home/webmail/
+        ServerName mail.test.test
+
+        Alias /postfixadmin/    "/home/webmail/postfixadmin-2.1.0/"
+
+        <Directory "/home/webmail/postfixadmin-2.1.0">
+           Options Indexes
+           AllowOverride AuthConfig
+           Order allow,deny
+           Allow from all
+        </Directory>
+      </VirtualHost>
+     ==================================================
+
+    # cd /home/webmail/postfixadmin-2.1.0/admin
+    # vi .htaccess
+      AuthUserFile /home/webmail/postfixadmin-2.1.0/admin/.htpasswd
+
+    # htpasswd -D .htpasswd admin
+      admin유저를 삭제한다.
+    # htpasswd .htpasswd postfixadmin
+       새로운 유저 입력(이미 postfixadmin계정이 있다면 수정이 된다)
+      password는 NEWPASSWD (NEWPASSWD)
+
+   2) db생성 및 table생성
+    # cd /home/webmail/postfixadmin-2.1.0
+    # vi DATABASE_MYSQL.TXT
+      =============================================================
+      패스워드를 수정한다.
+      postfix      -> NEWPASSWD
+      postfixadmin -> NEWPASSWD
+      =============================================================
+
+    # mysql < DATABASE_MYSQL.TXT
+    # mysql -u postfix -p postfix
+      위 암호로 로그인 되면 OK.
+    # mysql -u postfixadmin -p postfix
+      위 암호로 로그인 되면 OK.
+
+   3) postfixadmin과 db의 연동 환경설정
+    # /home/webmail/postfixadmin-2.1.0
+    # cp config.inc.php.sample config.inc.php
+    # vi config.inc.php
+      =======================================================
+      $CONF['database_password'] = 'NEWPASSWD';
+
+      change-this-to-your.domain.tld  -> 설정 도메인으로 변경
+      
+      $CONF['encrypt'] = 'md5crypt';  -> cleartext
+
+      $CONF['domain_path'] = 'NO';         -> 그대로
+      $CONF['domain_in_mailbox'] = 'YES';  -> 그대로
+
+      $CONF['aliases'] = '10';   -> 0 (무제한)
+      $CONF['mailboxes'] = '10'; -> 0
+      $CONF['maxquota'] = '10';  -> 0
+      =======================================================
+
+6. postfix 설정
+   /etc/postfix
+   1) master.cf
+      아래 라인을 수정한다.
+      user=cyrus argv=/usr/lib/cyrus-imapd/deliver -e -r ${sender} -m ${extension} ${user}
+      -->
+      user=cyrus argv=/usr/lib/cyrus-imapd/deliver -e -r ${sender} -m ${extension} ${user}@${nexthop}
+
+   2) main.cf
+      ======================================================================================
+      queue_directory = /var/spool/postfix
+      command_directory = /usr/sbin
+      daemon_directory = /usr/libexec/postfix
+      mail_owner = postfix
+      #default_privs = nobody
+      myhostname = mail.test.test
+      mydomain = test.test
+      myorigin = $mydomain
+      inet_interfaces = all
+      mydestination = $myhostname, localhost.$mydomain
+      unknown_local_recipient_reject_code = 550
+      mynetworks_style = host
+      #mynetworks = 168.100.189.0/28, 127.0.0.0/8
+      #mynetworks = $config_directory/mynetworks
+      #mynetworks = hash:/etc/postfix/network_table
+      alias_maps = hash:/etc/aliases
+      alias_database = hash:/etc/aliases
+      recipient_delimiter = +
+      #home_mailbox = Mailbox
+      #home_mailbox = Maildir/
+      mailbox_transport = cyrus
+      #header_checks = regexp:/etc/postfix/header_checks
+      #fast_flush_domains = $relay_domains
+      #smtpd_banner = $myhostname ESMTP $mail_name
+      #smtpd_banner = $myhostname ESMTP $mail_name ($mail_version)
+
+      #local_destination_concurrency_limit = 2
+      #default_destination_concurrency_limit = 20
+      debug_peer_level = 2
+
+      virtual_alias_maps = mysql:/etc/postfix/mysql_virtual_alias_maps.cf
+      virtual_mailbox_domains = mysql:/etc/postfix/mysql_virtual_domains_maps.cf
+      virtual_mailbox_maps = mysql:/etc/postfix/mysql_virtual_mailbox_maps.cf
+      virtual_mailbox_limit = 10240000
+      virtual_transport = cyrus
+
+      smtpd_sasl_auth_enable = yes
+      broken_sasl_auth_clients = yes
+      smtpd_recipient_restrictions = permit_mynetworks, permit_sasl_authenticated, reject_unauth_destination
+      smtpd_sasl_security_options = noanonymous
+      smtpd_sasl_local_domain =
+      ======================================================================================
+  
+   3) mysql_virtual_alias_maps.cf
+      =============================
+      user = postfix
+      password = NEWPASSWD
+      hosts = localhost
+      dbname = postfix
+      table = alias
+      select_field = goto
+      where_field = address
+      =============================
+ 
+   4) mysql_virtual_domains_maps.cf
+      =============================
+      user = postfix
+      password = NEWPASSWD
+      hosts = localhost
+      dbname = postfix
+      table = domain
+      select_field = description
+      where_field = domain
+      =============================
+
+   5) mysql_virtual_mailbox_limit_maps.cf
+      =============================
+      user = postfix
+      password = NEWPASSWD
+      hosts = localhost
+      dbname = postfix
+      table = mailbox
+      select_field = quota
+      where_field = username
+      =============================
+
+   6) mysql_virtual_mailbox_maps.cf
+      =============================
+      user = postfix
+      password = NEWPASSWD
+      hosts = localhost
+      dbname = postfix
+      table = mailbox
+      select_field = username
+      where_field = username
+      =============================
+
+7. cyrus-imapd 설정
+   1) /etc/imapd.conf
+      ======================================================
+      configdirectory: /var/lib/imap
+      partition-default: /var/spool/imap
+      admins: cyrus
+      sievedir: /var/lib/imap/sieve
+      sendmail: /usr/sbin/sendmail
+      #hashimapspool: true
+      #sasl_mech_list: PLAIN
+      #tls_cert_file: /usr/share/ssl/certs/cyrus-imapd.pem
+      #tls_key_file: /usr/share/ssl/certs/cyrus-imapd.pem
+      #tls_ca_file: /usr/share/ssl/certs/ca-bundle.crt
+
+      postmaster: postmaster
+      allowanonymouslogin: no
+      allowplaintext: yes
+      virtdomains: yes
+
+      createonpost: yes
+      autocreatequota: -1
+      allowusermoves: yes
+      sieveusehomedir: false
+      #autocreate_sieve_script: /var/lib/imap/myscript
+      #generate_compiled_sieve_script: yes
+
+      unixhierarchysep: yes
+      reject8bit: no
+      sasl_pwcheck_method: auxprop
+      sasl_auxprop_plugin: sql
+      sasl_mech_list: plain login
+      sasl_sql_engine: mysql
+      sasl_sql_user: postfix
+      sasl_sql_passwd: NEWPASSWD
+      sasl_sql_database: postfix
+      sasl_sql_hostnames: localhost
+      sasl_sql_select: SELECT password FROM mailbox WHERE username='%u@%r' AND active='1'
+      #sasl_sql_verbose: yes
+      #sasl_password_format: crypt
+
+      # characterset이 없는 8bit문자의 메일일 경우 X 치환 방지
+      munge8bit: 0
+      ======================================================
+   
+   3) cyrus.conf
+      imaps, pop3s 주석처리
+
+8. smtpd.conf
+   # vi /usr/lib/sasl2/smtpd.conf
+   ==============================================================================
+   pwcheck_method: auxprop
+   auxprop_plugin: sql
+   mech_list: plain login
+   sql_engine: mysql
+   sql_user: postfix
+   sql_passwd: NEWPASSWD
+   sql_hostnames: localhost
+   sql_database: postfix
+   sql_select: SELECT password FROM mailbox WHERE username='%u@%r' AND active='1'
+   #sql_verbose: yes
+   #minimum_layer: 0
+   #auto_transition: no
+   #password_format: crypt
+   ==============================================================================
+
+
+9. service start
+   /etc/init.d/postfix start
+   /etc/init.d/cyrus-imapd start
+   /etc/init.d/httpd start
+   /etc/init.d/mysql start
+
+10. postfix admin을 환경 체크
+    http://FQDN/postfixadmin/
+    1) 처음 방문할 경우
+       "Welcome to Postfix Admin" 페이지 보임
+       -> 2번째 라인에서 setup 클릭
+          -> Postfix Admin Setup Checker 1.0.0 페이지 보임
+             -> 맨 아래 admin section 클릭
+                -> .htpasswd로 입력한 유저로 로그인(admin)
+
+       위와 같은 과정을 거쳐서 postfix.admin페이지가 보이면 ok.
+       (adminlist, domainlist등 메뉴가 있음)
+    2) 위 과정이 잘 될 경우 
+      # cd /home/webmail/postfixadmin-2.1.0
+      # mv setup.php setup.php.orig
+
+      http://FQDN/postfixadmin/admin
+        -> .htpasswd에 등록된 유저로 로그인. 관리자가 사용하면 됨.
+      http://FQDN/postfixadmin/
+        -> 이메일로그인을 해야하는데 이 계정은 admin으로 생성된
+           메일계정이다. 
+        -> 일반 사용자는 이 주소에서 user section을 클릭해서 
+           일반사용자모드로 로그인 가능 및 forward,password수정가능.
+    
+11. 도메인, 계정 생성
+    10번항으로 웹 로그인.
+    1) domain
+       유저를 생성하기전 도메인이 우선 생성되어 있어야 한다.
+       "New Domain" 클릭.
+           domain, description 필드에 도메인 입력.
+    2) user
+       "Add Mailbox" 클릭.
+           username,password,name 입력
+           active,creation mailbox 체크는 빼지 말것.
+    3) alias생성
+       alias로 만드는 계정은 실제 계정이 아니다.
+       ex. se@DOMAIN이 실제 있는것이 아니라 
+           각각의 이메일로 구성.
+
+       "Add Alias" 클릭.
+           Alias필드 : 대표명 (ex. se)
+           To   필드 : 실제 메일을 받을 실제 계정.(ex. google@google.co.kr)
+       
+    4) 각 유저 수정 및 alias추가
+       "Virtual list" 클릭 -> 도메인 선택
+           하단의 리스트에서 수정 및 alias를 추가.
+
+12. smtp, pop 테스트
+    1) pop
+       # telnet localhost 110
+       user 유저명(ex.google@google.co.kr)  <- 입력
+       +OK Mailbox locked and ready     <- 보여야 정상
+       pass PASSWD                     <- 입력
+       +OK Mailbox locked and ready     <- 보여야 정상
+    2) smtp
+       # telnet localhost 25
+       ehlo locahost          <- 입력
+       생략..
+       250-AUTH LOGIN PLAIN   <- LOGIN, PLAIN방식 보여야 정상
+       생략.. 
+
+       -. PALIN방식 체크
+          # perl -MMIME::Base64 -e 'print \
+           encode_base64("AAAA\@google.co.kr\000DOMAIN\@google.co.kr\000PASSWD");'
+          aXNlZTk4QG9yYWNsZWd1aWRlLm5ldABpc2VlOThAb3JhY2xlZ3VpZGUubmV0AGVrZmFrOTk=
+
+          # telnet localhost 25
+          AUTH PLAIN  <- 입력
+          334
+          aXNlZTk4QG9yYWNsZWd1aWRlLm5ldABpc2VlOThAb3JhY2xlZ3VpZGUubmV0AGVrZmFrOTk=
+          235 Authentication successful  <- OK.
+
+       -. LOGIN 방식 체크
+          # perl -MMIME::Base64 -e 'print encode_base64("google\@google.co.kr");'
+          aXNlZTk4QG9yYWNsZWd1aWRlLm5ldA==
+          # perl -MMIME::Base64 -e 'print encode_base64("PASSWD");'
+          ZWtmYWs5OQ==
+
+          # telnet localhost 25
+          AUTH LOGIN  <- 입력
+          334 VXNlcm5hbWU6
+          aXNlZTk4QG9yYWNsZWd1aWRlLm5ldA==  <- 입력
+          334 UGFzc3dvcmQ6
+          ZWtmYWs5OQ==                      <- 입력
+          235 Authentication successful     <- OK.
+
+13. 메일 디렉터리 확인
+    /etc/imapd.conf에 지정된 partition-default에 생성
+    # cd /var/spool/imap/
+    # ls 
+      domain  stage.
+    # cd domain
+    # ls
+      생성한 도메인(ex. google.co.kr)
+    # cd 도메인( ex. google.co.kr)
+    # ls 
+      user
+    # cd user
+    # ls
+      생성한 유저명(ex. google)
+
+    postfixadmin에서 계정생성 축하 메세지같은 메일을 자동으로 보내기때문에
+    자동으로 디렉터리가 생성이 되는 것이다.
+     
+기타)
+-. squirrelmail 1.4.6 (MUA)
+   all_locale-1.4.6
+   # tar xvzf squirrelmail-1.4.6.tar.gz -C /home/webmail
+   # ln -s /home/webmail/squirrelmail-1.4.6/smail
+   # tar xvzf all_locales-1.4.6-20060221.tar.gz -C /home/webmail/smail/
+   # cd /home/webmail/smail/config
+   # ./conf.pl
+     ==========================================================
+     2. Server Settings
+        1.  Domain                 : test.test
+        3.  Sendmail or SMTP       : SMTP
+        A. IMAP Settings
+           4.  IMAP Server            : localhost
+           5.  IMAP Port              : 143
+           6.  Authentication type    : login
+           7.  Secure IMAP (TLS)      : false
+           8.  Server software        : other
+           9.  Delimiter              : detect
+        B. SMTP Settings
+           4.   SMTP Server           : localhost
+           5.   SMTP Port             : 25
+           6.   POP before SMTP       : false
+           7.   SMTP Authentication   : login
+           8.   Secure SMTP (TLS)     : false
+           9.   Header encryption key :
+     3. Folder Defaults
+        3.  Trash Folder                  : INBOX/Trash
+        4.  Sent Folder                   : INBOX/Sent
+        5.  Drafts Folder                 : INBOX/Drafts
+        14. Default Unseen Notify         : 3
+     10. Language preferences
+        1.  Default Language       : ko_KR
+     ==========================================================
+
+-. overlook4.0 (MUA)
+   # tar xvzf overlook4.0.tgz -C /home/webmail/
+   # cd /home/webmail/overlook
+   # cd config
+   # vi config.php  (config_default.php도 마찬가지로 수정)
+     ===========================================================
+     $squirrelmail_default_language = 'ko_KR';
+     $provider_uri     = 'http://google.co.kr/'; 
+     $domain                 = 'google.co.kr';
+     $smtpServerAddress      = 'localhost';
+     $imapServerAddress      = 'localhost';
+     $imap_server_type       = 'other';
+     $smtp_auth_mech = 'login';
+     $imap_auth_mech = 'login';
+     $optional_delimiter     = 'detect';
+     $data_dir                 = '/home/webmail/overlook/data/'; 
+
+     $default_folder_prefix          = 'INBOX/';
+     $default_unseen_notify          = 3;
+
+     $domains_sql['test.test'] = array();  <-- 추가
+     ===========================================================
+   # cd /home/webmail/overlook
+   # chmod 777 data
+   
+   # cd po
+   # ./compilepo ko_KR
+   이 부분을 안해주면 한글이 이상하게 잘려서 보임.
+   (compile한 php환경에서는 필요없지만 이상하면 실행)
+   
+-. httpd.conf
+   =============================================================
+   <VirtualHost 192.168.3.140:80>
+    ServerAdmin webadmin@test.test
+    DocumentRoot /home/webmail/overlook
+    ServerName webmail.test.test
+
+    Alias /postfixadmin/    "/home/webmail/postfixadmin-2.1.0/"
+    Alias /smail           "/home/webmail/smail/"
+
+    <Directory "/home/webmail/postfixadmin-2.1.0">
+       Options Indexes
+       AllowOverride AuthConfig
+       Order allow,deny
+       Allow from all
+    </Directory>
+    <Directory /home/webmail/overlook/>
+       php_flag register_globals off
+       php_flag register_argc_argv off
+       php_value post_max_size "32M"
+       php_value upload_max_filesize "32M"
+       php_value max_execution_time "30"
+       php_value max_input_time "60"
+       php_value memory_limit "32M"
+       php_value session.use_cookies "1"
+       php_value session.auto_start "1"
+       php_value session.save_path /tmp
+       php_value session.gc_maxlifetime 180
+       php_value session.cache_expire "180"
+       DirectoryIndex index.php
+    </Directory>
+    </VirtualHost>
+   =============================================================
+

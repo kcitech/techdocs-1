@@ -1,0 +1,96 @@
+[ mysql multi install ]
+
+1. mysql install
+   prefix=/pkg/mysql-5.0.19
+
+2. mysql_install_db
+   # cd /pkg/mysql-5.0.19/bin
+   # ./mysql_install_db
+   /pkg/mysql-5.0.19/var라는 디렉터리 생성.
+
+3. chown mysql.mysql -R var
+
+4. cp -a var data3306
+   cp -a var data3307
+
+5. vi /etc/profile
+   export PATH=/pkg/mysql-5.0.19/bin:$PATH
+   위 라인 추가 후 로그아웃 후 로그인해서 진행.
+   
+6. /etc/my.cnf
+   ======================================================
+   [mysqld_multi]
+   mysqld     = /pkg/mysql-5.0.19/bin/mysqld_safe
+   mysqladmin = /pkg/mysql-5.0.19/bin/mysqladmin
+   #user       = multi_admin
+   #password   = multipass
+   
+   [mysqld3306]
+   socket     = /tmp/mysql.sock3306
+   port       = 3306
+   datadir    = /pkg/mysql-5.0.19/data3306
+   pid-file   = /pkg/mysql-5.0.19/data3306/mysql.pid3306
+   #language   = /usr/local/share/mysql/english
+   #user       = john
+
+   [mysqld3307]
+   socket     = /tmp/mysql.sock3307
+   port       = 3307
+   datadir    = /pkg/mysql-5.0.19/data3307
+   pid-file   = /pkg/mysql-5.0.19/data3307/mysql.pid3307
+   #language   = /usr/local/share/mysql/english
+   #user       = john
+   ======================================================
+               
+6. start script
+   /etc/init.d/mysql_multi   
+   ======================================================
+   #!/bin/sh
+
+   export PATH=/pkg/mysql-5.0.19/bin:$PATH
+
+   start() {
+           mysqld_multi start 3306
+           mysqld_multi start 3307
+   }
+
+   stop() {
+           mysqld_multi stop 3306
+           mysqld_multi stop 3307
+   }
+   
+   case "$1" in
+     start)
+           start
+           ;;
+     stop)
+           stop
+           ;;
+     *)
+           echo $"Usage: $0 {start|stop}"
+           exit 1
+   esac
+   
+   exit $?
+   ======================================================
+   
+7. process start / stop
+   /etc/init.d/multi_mysql start / stop
+   또는 프롬프트상에서
+   multi_mysql start 3306 / multi_mysql stop 3306
+
+8. 로컬에서 mysql 로그인
+   # mysql -u root --socket=/tmp/mysql.sock3306
+   socket파일을 지정해준다.
+
+9. 원격에서 mysql 로그인
+   multi mysql : 192.168.2.190
+   원격        : 192.168.2.210
+
+   # mysql -h 192.168.2.190 -u root --port=3307
+     port를 명시해준다.
+
+10. mysql_connect (php이용한 연동)
+    mysql_connect("192.168.2.190:3307",......)
+    host부분에 post명시. host:port
+

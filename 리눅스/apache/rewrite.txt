@@ -1,0 +1,25 @@
+
+
+# httpd.conf 설정 추가.
+
+< VirtualHost 192.168.43.230 >
+ServerAdmin USER@TESTDOMAIN.com
+DocumentRoot /home/test
+ServerName TESTDOMAIN2.co.kr
+ServerAlias *.TESTDOMAIN2.co.kr
+
+
+ReWriteEngine on
+
+RewriteCond %{HTTP_HOST} !^www\.TESTDOMAIN2\.co\.kr$
+RewriteCond %{HTTP_HOST} !^TESTDOMAIN2\.co\.kr$
+
+RewriteRule ^(.+) %{HTTP_HOST}$1 [C]
+RewriteRule ^([^.]+)\.TESTDOMAIN2\.co\.kr(.*) /home/test/
+$1$2
+
+#ErrorDocument 404 /home/test/error/err-404.html
+#ErrorDocument 403 /home/test/error/err-403.html
+#ErrorLog /home/test/web_log/error_log
+#CustomLog /home/test/web_log/access_log common
+< /VirtualHost >

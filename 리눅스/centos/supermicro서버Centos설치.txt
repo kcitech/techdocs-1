@@ -1,0 +1,49 @@
+
+서버 : supermicro X7DVL-3 
+scsi : Lsilogic raid (software raid, os의  software raid아님)
+OS : Centos4.6
+
+1. 플로피 드라이버 디스켙 생성
+경로 : 
+ftp://ftp.supermicro.com/driver/SAS/LSI/Driver/1068/SR/Linux/
+
+파일 :
+09.32_RedHat4.zip
+압축풀면 다음 파일 있음.
+megasr-09.32.0207.2008-1-rh40-u6-all.img
+(rh40 -> centos4.0 / u6 -> update 6번째...즉 4.6)
+
+윈도우의 rawrite 유틸 또는 linux의 dd명령으로 드라이버 디스크 생성.
+
+2. OS설치
+-. OS CD부팅
+    linux dd
+
+-. driver 사용 단계에서 준비한 드라이버디스켙 사용.
+    이후 정상적인 하드 인식 및 일반적인 설치과정.
+
+3. OS설치 완료 및 부팅 후 새로운 커널에 드라이버 인식
+-. yum update
+   설치된 update 커널버전 확인
+
+-. 새로운 커널에 드라이버 인식시키기
+update 커널 : 2.6.9-67.0.15.ELsmp 이라고 가정.
+===============================================================
+megasr-09.32.0207.2008-1-rh40-u6-all.img를 해당 서버에 카피.
+(/usr/local/src에 카피했다고 가정)
+
+# mount -o loop megasr-09.32.0207.2008-1-rhel40-u6-all.img /mnt
+# cd /mnt
+# cp modules.cgz /tmp/
+# cd /tmp
+# gzip -cd modules.cgz > modules.cpio
+# cat modules.cpio | cpio -id
+# mkdir /lib/modules/2.6.9-67.0.15.ELsmp/updates
+# cp -a /tmp/2.6.9-67.ELsmp/i686/megasr.ko   \
+             /lib/modules/2.6.9-67.0.15.ELsmp/updates/
+# mkinitrd -f initrd-2.6.9-67.0.15.ELsmp.img  2.6.9-67.0.15.ELsmp
+# shutdown -r now
+정상 부팅 후 커널확인.
+==============================================================
+
+부팅후 커널 2.6.9-67.0.15.ELsmp 이면 OK.

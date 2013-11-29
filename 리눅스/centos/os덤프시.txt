@@ -1,0 +1,47 @@
+
+덤프 작업시 참조사항
+
+소스서버 :
+192.168.171.189 (SS3220M:삼성 ZSS-101M 3220)
+
+신규서버 : DL140G3(160SATA:하드모델명GB0160EAFJE)
+
+1)파일시스템 생성시 버전이 달라,
+하위버전에서는 상위 버전을 인식하지 못함.
+
+centos3.9의 mkfs.ext3 -V
+=> mke2fs 1.32 (09-Nov-2002)
+Using EXT2FS Library version 1.32
+
+centos4.4 LiveCD mkfs.ext3 -V
+=> 1.35
+(rescuecd 1.0.4버전도 버전이 높음)
+
+조치
+- centos3.9 cd1로 부팅하여 파일시스템 생성
+- centos4.4 LiveCD로 부팅하여 덤프뜸.
+
+2)/etc/modules.conf에 추가
+alias eth0 tg3
+alias eth1 tg3
+alias scsi_hostadapter1 mptbase
+alias scsi_hostadapter2 mptscsih
+
+3) /etc/fstab, /boot/grub/grub.conf 수정
+
+/etc/fstab
+
+LABEL=/ => /dev/sda1
+LABEL=/var => /dev/sda2
+LABEL=/home => /dev/sda4
+
+
+/boot/grub/grub.conf
+
+root=LABEL=/ => root=/dev/sda1
+
+4) mkinitrd -f /boot/initrd-2.4.21-53.ELsmp.img 2.4.21-53.ELsmp
+
+5) grub-install /dev/sda
+
+6) 변경된 디바이스는 kudzu 실행후 정리됨.

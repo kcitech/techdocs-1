@@ -1,0 +1,17 @@
+http://www.cyberciti.biz/tips/linux-find-out-if-harddisk-failing.html
+
+SMART(Self-Monitoring,Analysis and Reporting Techology
+
+#smartctl -i /dev/sda
+
+#smartctl -s on -d ata /dev/sda
+
+#smartctl -d ata -H /dev/sda
+
+#smartctl -d ata -a /dev/sda
+
+#smartctl -d 3ware,2 -a /dev/sda
+
+#smartctl -d 3ware,0 -a /dev/twe0
+
+#smartctl -d ata -t long /dev/sda -l selftest

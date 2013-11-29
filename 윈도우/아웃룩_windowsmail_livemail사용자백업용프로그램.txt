@@ -1,0 +1,38 @@
+
+
+일단 저 이외에 windows mail 을 사용 하는 분은 없겠지만..
+ 
+혹 필요 하실 분들도 있을 것으로 보아 백업 프로그램을 소개 드리고자 합니다.
+ 
+http://www.staticbackup.com/ 
+ 
+위 사이트에 가시면 메일 백업 솔루션이 여러가지 존재 하는데요.
+ 
+download페이지에서 free 라이센스 버전으로 다운로드 하여 백업을 수행 하시면 되겠습니다.
+ 
+로컬상의 메일 디렉토리가 너무 클 경우엔 메일 폴더만 별도로 백업 받으시고
+ 
+메일 data 를 제외한 메일 규칙 / 정크메일 과 연락처 관련된 레지스트리만 백업 하고 restore 해서 사용 하시면 될 것입니다.
+ 
+비스타를 사용한 이후 windows mail 이 타 메일과 호환성(windows live mail과 호환은 되나 문제는 서버 제품군엔 설치 안됨..)
+ 
+이나 마이그레이션이 없는 관계로 고민이였는데 혹여 없겠지만 동일한 문제를 안고 계신 분이 주변에 계시거나 하면 한번
+ 
+사용해 보시길 바랍니다.
+ 
+이상입니다.
+ 
+※ 별 의미는 없겠지만 메일 백업을 지원하는 종류는 여러 종류가 있으며 목록은 다음과 같습니다.
+ 
+Email Backup Utilities Free Version
+Static Windows Mail Backup Free 	ver 2.8d 	1,672 KB 	Download 	Info
+Static Windows Live Mail Backup Free 	ver 2.8d 	1,671 KB 	Download 	Info
+Static Outlook Backup Free 	ver 2.8d 	1,673 KB 	Download 	Info
+Static Outlook Express Backup Free 	ver 2.8d 	1,672 KB 	Download 	Info
+Static IncrediMail Backup Free 	ver 2.8d 	1,671 KB 	Download 	Info
+Static Thunderbird Backup Free 	ver 2.8d 	1,677 KB 	Download 	Info
+Static Becky Backup Free 	ver 2.8d 	1,671 KB 	Download 	Info
+Static Eudora Backup Free 	ver 2.8d 	1,670 KB 	Download 	Info
+ 
+ 
+ 

@@ -1,0 +1,58 @@
+
+
+httpd.conf에 Redirect옵션을 추가한후,
+TESTDOMAIN.co.kr접속시
+TESTDOMAIN.net으로 주소가 변경됨을 확인하였습니다.
+
+< VirtualHost *:80 >
+DocumentRoot /home/USER/docs
+ServerName TESTDOMAIN.net
+ServerAlias www.TESTDOMAIN.net
+ErrorLog logs/TESTDOMAIN.net-error_log
+CustomLog logs/TESTDOMAIN.net-access_log common
+< /VirtualHost >
+
+< VirtualHost *:80 >
+DocumentRoot /home/USER/docs
+ServerName TESTDOMAIN.co.kr
+ServerAlias www.TESTDOMAIN.co.kr
+Redirect / http://TESTDOMAIN.net
+< /VirtualHost >
+
+#< VirtualHost *:80 >
+# DocumentRoot /home/USER/docs
+# ServerName www.TESTDOMAIN.co.kr
+# CustomLog \"|/usr/local/sbin/cronolog /home/USERlog/%Y%m%d/access_log\" common env=!IMAGE
+# ErrorLog \"|/usr/local/sbin/cronolog /home/USERlog/%Y%m%d/error_log\"
+# CustomLog /home/USERlog/access_log common env=!IMAGE
+# TransferLog /home/USERlog/access_log
+# ErrorLog /home/USERlog/error_log
+#< /VirtualHost >
+
+=============================================
+case2
+=============================================
+a.b.c 방문시 주소창에 www.a.b.c 나타나게
+
+<VirtualHost *:80>
+    ServerAdmin user@mail
+    DocumentRoot /home/user/public_html
+    ServerName www.a.b.c
+    ServerAlias test.a.b.c
+    ErrorLog logs/test.a.b.c-error_log
+    CustomLog logs/test.a.b.c-access_log geoiplog
+</VirtualHost>
+
+<VirtualHost *:80>
+    ServerAdmin user@mail
+    DocumentRoot /home/user/public_html
+    ServerName a.b.c
+    ErrorLog logs/test.a.b.c-error_log
+    CustomLog logs/test.a.b.c-access_log geoiplog
+    Redirect /  http://www.a.b.c
+</VirtualHost>
+
+
+
+  
+

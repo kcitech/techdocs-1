@@ -1,0 +1,54 @@
+< reference 1 >
+Distributed Replicated Storage Across Four Storage Nodes With GlusterFS 3.2.x On CentOS 6.3
+
+http://www.howtoforge.com/distributed-replicated-storage-across-four-storage-nodes-with-glusterfs-3.2.x-on-centos-6.3
+
+< reference 2 >
+http://eyes.hatenablog.jp/entry/2012/07/27/160705
+
+< reference 3 > ucloud
+http://blog.syszone.co.kr/3038
+
+< reference 4 > 
+http://kaivanov.blogspot.kr/2012/07/deploying-glusterfs.html
+
+< installation >
+
+#wget -P /etc/yum.repos.d http://download.gluster.org/pub/gluster/glusterfs/LATEST/EPEL.repo/glusterfs-epel.repo
+
+#yum install glusterfs-server <--- glusterfs,glusterfs-fuse,glusterfs-server 설치됨 
+
+#service glusterd start
+#service glusterd status
+
+  
+
+error message
+[root@gluster-sv1 ~]# gluster peer probe gluster-sv2
+Probe unsuccessful
+Probe returned with unknown errno 107
+ 
+solution => stop iptables
+
+erro message
+ {path} or a prefix of it is already part of a volume
+
+solution => 
+
+setfattr -x trusted.glusterfs.volume-id /data
+setfattr -x trusted.gfid /data
+rm -rf $brick_path/.glusterfs
+
+service glusterd restart
+
+< trouble shooting >
+
+http://hekafs.org/index.php/2012/03/glusterfs-algorithms-distribution/
+
+cluster.min-free-disk Specifies the percentage of disk space that must be kept free. Might be useful for non-uniform bricks. Default is 10%
+
+Note how that is not very clear and doesn’t really tell you if that is per brick or per volume. It is per brick. What happens is linkfiles should be created on the target brick and the actual file redirected to less full bricks.
+
+The fix is to use a size number, not a % for this volume option. This is undocumented at the moment and is not listed as valid input but it is and works.
+
+gluster volume set rhs_test1 cluster.min-free-disk 1GB

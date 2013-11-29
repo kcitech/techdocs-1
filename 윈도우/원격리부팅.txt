@@ -1,0 +1,10 @@
+
+원격 터미널 접근시 포트는 살아 있으나 실제 연결은 불가가 확인 되었으며
+네트워크 접근을 명령어로 체크 하여 셧다운 수행을 진행 해 본 결과
+아래와 같은 메세지가 나타났습니다.
+
+c:\>psshutdown.exe -r -t 0 -u administrator -p \\192.168.9.2
+
+PsShutdown v2.52 - Shutdown, logoff and power manage local and remotesystems
+Copyright (C) 1999-2006 Mark Russinovich Sysinternals - www.sysinternals.com
+

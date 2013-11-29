@@ -1,0 +1,87 @@
+[ centos4 / nagios-2.7-1 ]
+
+fping-2.4-1.b2.2.el4.rf.i386.rpm
+nagios-2.7-1.el4.rf.i386.rpm
+nagios-devel-2.7-1.el4.rf.i386.rpm
+nagios-plugins-1.4.5-1.el4.rf.i386.rpm
+perl-Crypt-DES-2.05-3.2.el4.rf.i386.rpm
+perl-Net-SNMP-5.2.0-1.2.el4.rf.noarch.rpm
+perl-Socket6-0.19-1.2.el4.rf.i386.rpm
+
+1. rpm 설치
+   http://dag.wieers.com/rpm/packages/
+   위 사이트에서 다운받아 설치한다.
+   rpm의존성 걸린 것은 yum으로 설치가능하다.
+
+2. 환경설정
+   2.7에서는 commands.cfg와 localhost.cfg에서 각각
+   command,contact, host,service등이 되어 있다.
+
+# htpasswd -c /etc/nagios/htpasswd.users nagiosadmin
+
+# vi /etc/cgi.cfg
+  아래 사항만 주석 풀고 유저를 htpasswd를 이용해서 만든 유저로
+  설정하면 된다.
+  위에서는 nagiosadmin으로 만들었지만, 만약 다른 것이라면
+  예로 USER로 만들었다면 nagiosadmin대신 USER로 설정해야 한다.
+
+  authorized_for_system_information=nagiosadmin
+  authorized_for_configuration_information=nagiosadmin
+  authorized_for_system_commands=nagiosadmin
+  authorized_for_all_services=nagiosadmin
+  authorized_for_all_hosts=nagiosadmin
+  authorized_for_all_service_commands=nagiosadmin
+  authorized_for_all_host_commands=nagiosadmin
+
+# vi nagios.cfg
+  아래는 원래 주석이나 아래 파일에 모니터링할 서버를 기록한다.
+
+  cfg_file=/etc/nagios/hostgroups.cfg
+  cfg_file=/etc/nagios/hosts.cfg
+  cfg_file=/etc/nagios/services.cfg
+
+  check_external_commands=1
+
+# vi localhost.cfg
+  CONTACTS부분에서 email을 받을 주소로 변경한다.
+  
+  SERVICES부분에서 local체크는 필요치않다면 주석처리한다.
+
+# vi hosts.cfg
+define host{
+        use                     linux-server            
+        host_name               192.168.49.91
+        alias                   192.168.49.91
+        address                 192.168.49.91
+        }
+
+# vi hostgroups.cfg
+define hostgroup{
+        hostgroup_name  server
+        alias           server
+        members         192.168.49.91
+        }
+
+# services.cfg
+define service{
+        name                            server-service          
+        use                             generic-service         
+        check_period                    24x7                    
+        max_check_attempts              4                       
+        normal_check_interval           1                       
+        retry_check_interval            1                       
+        contact_groups                  admins                  
+        notification_options            w,u,c,r                 
+        notification_interval           2                       
+        notification_period             24x7                    
+        register                        0                       
+        }
+
+define service{
+        use                             server-service         
+        host_name                       192.168.49.91
+        service_description             PING
+        check_command                   check_ping!100.0,20%!500.0,60%
+        }
+
+

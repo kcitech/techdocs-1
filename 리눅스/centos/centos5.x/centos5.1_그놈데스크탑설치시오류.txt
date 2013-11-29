@@ -1,0 +1,35 @@
+http://bugs.centos.org/view.php?id=2483
+ 
+상기링크에 보시면 아래와 같은 내용이 있습니다.
+ 
+ 
+========================================================================================================================
+gaim was replaced with pidgin within the distro, however there is an unmet require for libgaim.so.0 in nautilus-sendto.
+
+This means that you "CAN NOT" install nautilus-sendto via yum.
+
+If you get the error:
+
+Error: Missing Dependency: libgaim.so.0 is needed by package nautilus-sendto
+
+Then to correct this issue you will have to do a "nodeps" install nautilus-sendto before running that yum transaction.
+
+The procedure would be to download the latest nautilus-sendto:
+
+http://mirror.centos.org/centos/5/os/i386/CentOS/nautilus-sendto-0.7-5.fc6.i386.rpm [^]
+
+Then install it via this command:
+rpm -Uvh --nodeps nautilus-sendto-0.7-5.fc6.i386.rpm
+
+This issue is an upstream issue and can be tracked at:
+
+https://bugzilla.redhat.com/show_bug.cgi?id=250403 [^]
+===========================================================================================================
+ 
+그놈 데스크탑 환경설치시에, 의존성에러가 나면서 설치가 진행되지 않습니다..
+ 
+그럴경우, 상기와 같이
+ 
+상기링크파일 다운받은후, 의존성제외 설치해주면 되겠습니다..
+ 
+rpm -Uvh --nodeps nautilus-sendto-0.7-5.fc6.i386.rpm

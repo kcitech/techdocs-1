@@ -1,0 +1,155 @@
+
+==================================
+iscsi Target
+==================================
+
+Setup an iSCSI Target Server on Ubuntu		
+	
+similar slides comment
+I found a lot of obsolete tutorials about how to do this in testing something (comparison of iscsi targets performance and reliability, i.e. trying to break iscsi targets).. Here's what I did on Ubuntu 8.04:
+
+Install Ubuntu, just a normal setup. Personally I do the bare minimum unless more is needed (less patching, less surface for attack, etc.)
+Update all..
+sudo apt-get install iscsitarget - Install the iSCSI Target
+sudo vi /etc/ietf.conf - Configuration file customizations
+# Configure your Target name - this is iqn.YYYY-MM.com.example:anyname.you.want
+# the YYYY-MM is the year and month your domain name was registered (this is a globally unique id, it's possible a domain name could be sold later and the name not be distinct with a new owner, hence this logic).
+# Modify the LUN lines to have the path you want to export, i.e. if you want to export the entire /dev/sdb then the line would be Lun 0 Path=/dev/sdb,Type=fileio
+Consider security restrictions, in this file, firewall, etc.
+Restart iscsitarget for changes to take effect
+"invoke-rc.d iscsitarget restart"
+
+Using Spare Files instead of actual hard disks
+
+While you're testing you may want to consider using sparse files (i.e. files that claim to be a large size, but in reality on disk they are just stored using the real amount of data they hold.
+
+For example lets take a 100 gb drive and create 4x 200gb partitions for iSCSI sharing:
+
+root@ibmx1:/tmp# dd if=/dev/zero of=templun3 count=0 obs=1 seek=200G
+0+0 records in
+0+0 records out
+0 bytes (0 B) copied, 4.1537e-05 s, 0.0 kB/s
+root@ibmx1:/tmp# ls -al *lun3*
+-rw-r--r-- 1 root root 214748364800 2008-05-03 04:43 templun3
+
+
+You'll see the file reports being 200 gb, howeer dd wrote 0kB.
+
+You can now export this as an iscsi target:
+
+Target iqn.1995-10.com.example:iscsi.yourid
+        Lun 0 Path=/tmp/templun3,Type=fileio
+
+==================================
+ iscsi initiator
+==================================
+ 
+ Debian / Ubuntu Linux Connect to an iSCSI Volume by VIVEK GITE · 22 COMMENTS
+
+Q. How do I format and connect to an iSCSI Volume under Debian / Ubuntu Linux?
+
+A. You need to install open-iscsi package for high performance, transport independent iSCSI implementation under Debian / Ubuntu Linux. This package is also known as the Linux Open-iSCSI Initiator. You need Linux operating system with kernel version 2.6.16, or later. See REHL 5 / CentOS 5 / Fedora Linux specific instructions here.
+
+Install Open-iSCSI Initiator
+Type the following command at a shell prompt:
+$ sudo apt-get install open-iscsi
+
+Open-iSCSI default configuration
+You need to soft-link (path fix) few two files to autologin work i.e. fix file paths for iscsiadm, enter:
+ln -s /etc/{iscsid.conf,initiatorname.iscsi} /etc/iscsi/
+
+Default configuration file could be located at /etc/iscsi/iscsid.conf or ~/.iscsid.conf. Open /etc/iscsi/iscsid.conf file:
+# vi /etc/iscsi/iscsid.conf
+
+Set node.session.auth.username, node.session.auth.password and other parameter as follows:
+node.startup = automatic
+node.session.auth.username = MY-ISCSI-USER
+node.session.auth.password = MY-ISCSI-PASSWORD
+discovery.sendtargets.auth.username = MY-ISCSI-USER
+discovery.sendtargets.auth.password = MY-ISCSI-PASSWORD
+node.session.timeo.replacement_timeout = 120
+node.conn[0].timeo.login_timeout = 15
+node.conn[0].timeo.logout_timeout = 15
+node.conn[0].timeo.noop_out_interval = 10
+node.conn[0].timeo.noop_out_timeout = 15
+node.session.iscsi.InitialR2T = No
+node.session.iscsi.ImmediateData = Yes
+node.session.iscsi.FirstBurstLength = 262144
+node.session.iscsi.MaxBurstLength = 16776192
+node.conn[0].iscsi.MaxRecvDataSegmentLength = 65536
+
+Save and close the file. Restart open-iscsi service:
+# /etc/init.d/open-iscsi restart
+
+Now you need to run a discovery against the iscsi target host:
+# iscsiadm -m discovery -t sendtargets -p ISCSI-SERVER-IP-ADDRESS
+
+If 192.168.1.60 is iSCSI server IP address, enter:
+# iscsiadm -m discovery -t sendtargets -p 192.168.1.60
+
+OR
+# iscsiadm --mode discovery --type sendtargets --portal 192.168.1.60
+
+Note down the record id (such as iqn.2001-05.com.doe:test) found by the discovery. You need the same for login. Login, must use a node record id found by the discovery:
+# iscsiadm --mode node --targetname iqn.2001-05.com.doe:test --portal 192.168.1.60:3260 --login
+
+Finally restart the service again:
+# /etc/init.d/open-iscsi restart
+
+Format iSCSI Volume
+Now you should see an additional drive on the system such as /dev/sdc. Use /var/log/messages file to find out device name:
+# tail -f /var/log/messages
+
+If your device name is /dev/sdc, enter the following command to create a partition:
+# fdisk /dev/sdc
+
+Next format partition:
+# mkfs.ext3 /dev/sdc1
+
+Mount file system:
+# mkdir /iscsi
+# mount /dev/sdc1 /iscsi
+
+
+==================================
+정리
+==================================
+
+<server쪽>IP:192.168.2.146
+iscsi target
+
+임시파일생성
+$sudo dd if=/dev/zero of=/home/temp01 count=0 obs=1 seek=2G
+
+$sudo apt-get install iscsitarget
+$sudo view /etc/ietd.conf
+
+......
+Target iqn.2001-04.com.example:storage.disk2.sys1.xyz
+        Lun 0 Path=/home/temp01,Type=fileio
+......
+
+sudo view /etc/default/iscsitarget
+ISCSITARGET_ENABLE=true
+
+sudo service iscsitarget restart
+
+<client쪽>
+$ sudo apt-get install open-iscsi
+
+#ln -s /etc/{iscsid.conf,initiatorname.iscsi} /etc/iscsi/
+
+#view /etc/iscsi/iscsid.conf
+  default설정값을 사용해도 됨(로그인 과정없이 접속하게됨)
+ 
+# /etc/init.d/open-iscsi restart
+
+$sudo iscsiadm -m discovery -t sendtargets -p 192.168.2.146
+192.168.2.146:3260,1 iqn.2001-04.com.example:storage.disk2.sys1.xyz
+
+# iscsiadm --mode node --targetname iqn.2001-04.com.example:storage.disk2.sys1.xyz --portal 192.168.1.146 --login
+
+마운트된 device명은 /var/log/messages에서 확인함( tail -f /var/log/messages)
+
+
+

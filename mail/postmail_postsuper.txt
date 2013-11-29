@@ -1,0 +1,14 @@
+
+~]# postsuper -d ALL deferred 로 deferred 메일 삭제처리해 주고
+
+~]# /etc/init.d/postfix stop
+~]# /etc/init.d/amavis stop
+
+~]# /etc/init.d/postfix start
+~]# /etc/init.d/amavis start
+
+한후
+
+~]# postsuper -r ALL deferred
+
+해 주시면 됩니다.

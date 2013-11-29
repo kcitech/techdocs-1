@@ -1,0 +1,535 @@
+
+(펌)http://cafe202.daum.net/_c21_/bbs_search_read?grpid=zchT&fldid=EchX&contentval=00005zzzzzzzzzzzzzzzzzzzzzzzzz&nenc=8SNCt.UzXo8cFfsmTecuug00&dataid=5&fenc=5TjRNwaVVNk0
+
+
+여기서 설명할 것은 패키지하는 방법과 사용법이다.
+일반적으로 그냥 프로시저만을 사용하는 경우가 많으나(나도 그렇지만..), 패키지하여 사용하는 것이
+여러 부분에서 우월하므로 왠만하면 패키지화하는 습관을 들이는 것이 좋겠다. 뒷부분에 설명하겠다.
+
+
+함수의 생성과 사용
+프로시저는 뭐고 함수는 또 뭔가?
+함수는 리턴값이 있고, 프로시저는 없다. 사실 프로시저도 리턴값을 패러미터로 받을 순 있다.
+C언어에서의 call by reference정도로 생각하면 되겠다.
+
+현재시간을 알아보게 싶게 2002-9-19과 같이 리턴하는 함수를 만들어 보자.
+
+SQL> create or replace function print_date return varchar is
+  2   cur_date varchar(15);
+  3  begin
+  4   select to_char(sysdate, 'YYYY-MM-DD') into cur_date from dual;
+  5   return cur_date;
+  6  end print_date;
+  7  /
+
+함수가 생성되었습니다.
+
+SQL> select print_date() from dual;
+
+PRINT_DATE()
+-------------------------------------
+2002-09-19
+
+
+함수는 위와 같이 사용하면 되겠다. 별다른 설명은 필요없으리라 본다.
+그럼 프로시저를 보자.
+
+
+프로시저의 생성과 사용
+test라는 테이블에 데이터를 insert하는 프로시저를 생성하자.
+프로시저는 insert, update, delete등에 사용하면 적절하겠다.
+
+SQL> create table test
+  2  (id varchar(10), name varchar(10));
+
+테이블이 생성되었습니다.
+
+SQL> create or replace procedure insert_test
+  2  (
+  3   v_id    IN TEST.ID%type,  -- ID
+  4   v_name  IN TEST.NAME%type  -- 이름
+  5  )
+  6  is
+  7  begin
+  8   insert into test(id, name) values(v_id, v_name);
+  9   commit;
+10  end;
+11  /
+
+프로시저가 생성되었습니다.
+
+SQL> exec insert_test('maddog', '강명규');
+
+PL/SQL 처리가 정상적으로 완료되었습니다.
+
+SQL> select * from test;
+
+ID         NAME
+---------- ----------
+maddog     강명규
+
+SQL> rollback;
+
+롤백이 완료되었습니다.
+
+SQL> select * from test;
+
+선택된 레코드가 없습니다.
+
+SQL> 
+
+데이터입력값의 유효성체크와 이에 따른 commit,rollback등 에러처리 추가해 주면 더욱 좋을 것이다.
+전체 테이블컬럼을 참조한다면 위의 type대신 rowtype을 사용하는 것도 고려해볼만 하겠다.
+예제라 간단하게 했는데, 부족함을 느낀다면 .. 음.. 스스로 하도록 하자.
+
+
+패키지의 사용
+위에서 만든 함수와 프로시저를 하나의 패키지에 담도록 하자.
+사실 관련있는 놈들끼리 패키지화 해야 하는데.. 어디까지나 예제이므로 그냥 해 보겠다.
+
+SQL> create or replace package pkg_dbakorea
+  2  as
+  3  procedure insert_test(v_id IN TEST.ID%type, v_name IN TEST.NAME%type); 
+  4  function print_date return varchar;
+  5  end;
+  6  /
+
+패키지가 생성되었습니다.
+
+SQL> create or replace package body pkg_dbakorea
+  2  as
+  3   procedure insert_test
+  4   (                                                
+  5    v_id    IN TEST.ID%type,  -- ID                 
+  6    v_name  IN TEST.NAME%type  -- 이름              
+  7   )                                                
+  8   is                                               
+  9   begin                                            
+10    insert into test(id, name) values(v_id, v_name);
+11    commit;                                         
+12   end;                                             
+13   
+14   function print_date return varchar is
+15    cur_date varchar(15);                                         
+16   begin                                                          
+17    select to_char(sysdate, 'YYYY-MM-DD') into cur_date from dual;
+18    return cur_date;                                              
+19   end print_date;                                                
+20  
+21  end;
+22  /
+
+패키지 본체가 생성되었습니다.
+
+그럼, 생성된 패키지내의 프로시저와 함수를 어떻게 사용하는지 보자.
+
+SQL> exec pkg_dbakorea.insert_test('dbakorea','강명규');
+
+PL/SQL 처리가 정상적으로 완료되었습니다.
+
+SQL> select * from test;
+
+ID         NAME
+---------- ----------
+maddog     강명규
+dbakorea   강명규
+
+SQL> select pkg_dbakorea.print_date() from dual;
+
+PKG_DBAKOREA.PRINT_DATE()
+---------------------------------------------------
+2002-09-26
+
+SQL> 
+
+
+
+
+오라클 매거진 영문판 2002 1월/2월호를 참고했습니다.
+
+프로시저에 비해 패키지가 왜 우월한가 의문을 가지고 따질 사람이 있을 수 있으므로 함 따져보자.
+
+모듈화
+애플리케이션 디자인 용이함
+Information Hiding
+추가된 기능성
+더 좋은 성능
+
+
+프로시저A는 프로시저B를 호출하는 코드를 가진다고 하자.
+그런데 프로시저B의 코드가 변경되면 어떻게 되는가?
+프로시저A는 프로시저B의 변경에 영향을 받으므로 재컴파일되어야 한다. 귀찮겠다.
+그럼, 패키지를 사용하면 어떻길래? 따지냐.. --; 이주일씨의 명복을 빕니다.
+
+프로시저A를 포함한 패키지PKG_A와 프로시저B를 가진 패키지PKG_B가 있고
+PKG_A는 PKG_B의 스펙에 대한 의존성을 가진다고 하자.
+이 경우에서, PKG_B의 스펙이나 인터페이스에 대한 변경이 아니라면 PKG_B의 BODY는 PKG_A에 상관없이 변경될 수 있다.
+
+SQL> create or replace procedure B
+  2  as
+  3  begin
+  4   null;
+  5  end;
+  6  /
+
+프로시저가 생성되었습니다.
+
+SQL> create or replace procedure A
+  2  as
+  3  begin
+  4   B;
+  5  end;
+  6  /
+
+프로시저가 생성되었습니다.
+
+SQL> 
+
+
+위에서 보듯, 프로시저A는 프로시저B를 호출하고 있다. 즉, 의존성을 가지고 있겠다.
+당연히, 프로시저B를 먼저 생성한 다음 프로시저A를 생성해야 한다. 반대로 해볼까?
+
+
+SQL> drop procedure B;
+
+프로시저가 삭제되었습니다.
+
+SQL> drop procedure A;
+
+프로시저가 삭제되었습니다.
+
+SQL> create or replace procedure A
+  2  as
+  3  begin
+  4   B;
+  5  end;
+  6  /
+
+경고: 프로시저 생성시 컴파일 오류가 발생했습니다.
+
+SQL> drop procedure a;
+
+프로시저가 삭제되었습니다.
+
+SQL> 
+
+
+위에서 보듯이 안된다.
+그럼.. 무엇을 말하려고? 음.. 패키지는 그렇지 않다는 것이다.
+
+
+SQL> create or replace package pkg_a
+  2  as
+  3   procedure a;
+  4  end;
+  5  /
+
+패키지가 생성되었습니다.
+
+SQL> create or replace package pkg_b
+  2  as
+  3   procedure b;
+  4  end;
+  5  /
+
+패키지가 생성되었습니다.
+
+SQL> 
+
+
+위에서 패키지에 대한 스펙을 생성했다.
+스펙의 생성순서는 상관이 없고 서로 의존성도 가지지 않는다.
+그럼 패키지 body를 생성해 보자.
+
+SQL> create or replace package body pkg_a
+  2  as
+  3   procedure a
+  4   is
+  5   begin
+  6    pkg_b.b;
+  7   end;
+  8  end;
+  9  /
+
+패키지 본체가 생성되었습니다.
+
+SQL> create or replace package body pkg_b
+  2  as
+  3   procedure b
+  4   is
+  5   begin
+  6    null;
+  7   end;
+  8  end;
+  9  /
+
+패키지 본체가 생성되었습니다.
+
+
+설명 필요없겠다. 위에서 보듯 생성순서는 상관이 없다.
+패키지A에 있는 프로시저A는 패키지B의 프로시저B를 호출하고 있지만,
+이 시점에서 패키지B의 프로시저B는 존재하지 않는다. 하지만, 상관없다는 것을 알 수 있다.
+다시 말하면, 패키지의 스펙에 의존하지만, 패키지의 body에는 의존하지 않음을 알 수 있다.
+
+
+SQL> col object_type format a15
+SQL> col object_name format a10
+SQL> col status format a10
+SQL> select object_type, object_name, status
+  2  from user_objects
+  3  where status = 'INVALID'
+  4  order by object_type, object_name;
+
+선택된 레코드가 없습니다.
+
+SQL> 
+
+
+그럼 실제 프로시저와 패키지가 변경해서 위에서 말한 내용이 사실인지 확인해 보자.
+
+
+SQL> create or replace procedure B
+  2  as
+  3  begin
+  4   null;
+  5  end;
+  6  /
+
+프로시저가 생성되었습니다.
+
+SQL> create or replace procedure A
+  2  as
+  3  begin
+  4   B;
+  5  end;
+  6  /
+
+프로시저가 생성되었습니다.
+
+SQL> create or replace procedure b
+  2  as
+  3  begin
+  4   null;
+  5  end;
+  6  /
+
+프로시저가 생성되었습니다.
+
+SQL> select object_type, object_name, status
+  2  from user_objects
+  3  where status = 'INVALID'
+  4  order by object_type, object_name;
+
+OBJECT_TYPE     OBJECT_NAM STATUS
+--------------- ---------- ----------
+PROCEDURE       A          INVALID
+
+SQL> create or replace package body pkg_b
+  2  as
+  3   procedure b
+  4   is
+  5   begin
+  6    null;
+  7   end;
+  8  end;
+  9  /
+
+패키지 본체가 생성되었습니다.
+
+SQL> select object_type, object_name, status
+  2  from user_objects
+  3  where status = 'INVALID'
+  4  order by object_type, object_name;
+
+OBJECT_TYPE     OBJECT_NAM STATUS
+--------------- ---------- ----------
+PROCEDURE       A          INVALID
+
+SQL> 
+
+위에서 보듯이 프로시저는 변경에 대해 민감하고(?), 패키지는 둔하다.
+고로 패키지가 더 flexible하다 할 수 있겠다.
+
+
+
+================================================================
+oracel sign
+
+SELECT SIGN(1+1), SIGN(1-1), SIGN(1-5)   FROM DUAL;
+
+결과
+            1           0        -1
+
+================================================================
+oracle 날짜 함수
+
+# 날짜계산
+select months_between(sysdate,to_date('2002-12-22','yyyy-mm-
+dd')) 
+-- months_between(A,B) = A-B/30
+--select add_months(sysdate,4) -- 특정일의 달수 더한 날
+--select next_day(sysdate,'friday') -- 특정일의 다음주 요일
+--select last_day(sysdate) -- 특정일의 해당 월의 마지막 날
+--select round(sysdate,'dd') -- 특정일의 반올림(오후면 다음날..)
+--select trunc(sysdate,'ww') -- 특정일의 전주 토요일(해당 전주의 마지막 날)에해당하는 날짜
+--select trunc(sysdate,'D') -- 특정일의 주 일요일(해당 주의 첫째 날)에해당하는 날짜
+
+from dual
+ 
+
+/* 어제 */ 날짜칼럼 BETWEEN TRUNC(SYSDATE-1) AND TRUNC(SYSDATE-1)+0.99999421
+/* 오늘 */ 날짜칼럼 BETWEEN TRUNC(SYSDATE) AND TRUNC(SYSDATE) + 0.99999421
+/* 내일 */ 날짜칼럼 BETWEEN TRUNC(SYSDATE+1) AND TRUNC(SYSDATE+1)+0.99999421
+/* 금주 */ 날짜칼럼 BETWEEN TRUNC(SYSDATE+1)-TO_CHAR(SYSDATE,'D') 
+                        AND TRUNC(SYSDATE+1)-TO_CHAR(SYSDATE,'D')+6.99999421
+/* 차주 */ 날짜칼럼 BETWEEN TRUNC(SYSDATE+8)-TO_CHAR(SYSDATE, 'D') 
+                        AND TRUNC(TRUNC(SYSDATE)+14.99999421)-TO_CHAR(SYSDATE, 'D')
+/* 금월 */ 날짜칼럼 BETWEEN TRUNC(SYSDATE+1)-TO_CHAR(SYSDATE,'DD') 
+                        AND TRUNC(LAST_DAY(SYSDATE))+0.99999421
+/* 전월 */ 날짜칼럼 BETWEEN TRUNC(ADD_MONTHS(SYSDATE,-1)+1)-TO_CHAR(SYSDATE,'DD') 
+                        AND TRUNC(LAST_DAY(ADD_MONTHS(SYSDATE, -1)))+0.99999421
+/* 차월 */ 날짜칼럼 BETWEEN ADD_MONTHS(TRUNC(SYSDATE),1)-TO_CHAR(SYSDATE,'DD')+1 
+                        AND LAST_DAY(ADD_MONTHS(TRUNC(SYSDATE),1)+0.99999421)
+
+
+
+
+# 특정일 까지의 간격을 년, 개월, 일로 표현하기
+
+SELECT 
+TRUNC(MONTHS_BETWEEN(SYSDATE, TO_DATE('19970101', 'YYYYMMDD'))/12) "년", 
+TRUNC(MONTHS_BETWEEN(SYSDATE, TO_DATE('19970101', 'YYYYMMDD')) - 
+TRUNC(MONTHS_BETWEEN(SYSDATE, TO_DATE('19970101', 'YYYYMMDD'))/12) * 12) "개월", 
+TRUNC((MONTHS_BETWEEN(SYSDATE,TO_DATE('19970101', 'YYYYMMDD')) - 
+TRUNC(MONTHS_BETWEEN(SYSDATE, TO_DATE('19970101', 'YYYYMMDD')))) * 30.5) "일" 
+FROM DUAL;
+
+
+
+
+# 당월의 주차 구하기..
+SELECT 
+'20040511' as "날짜" 
+, ceil((to_number(substrb('20040511', -2, 2)) + 7 - to_number(TO_CHAR(TO_DATE('20040511','YYYYMMDD'),'D')))/7) as "월별 주차" 
+from dual; 
+
+
+ 
+
+# 시간 계산 SQL 
+SELECT TRUNC(TO_DATE('20010502223443','YYYYMMDDHH24MISS')-TO_DATE('20010501213344','YYYYMMDDHH24MISS')) || ' day ' || 
+       TRUNC(MOD((TO_DATE('20010502223443','YYYYMMDDHH24MISS')-TO_DATE('20010501213344','YYYYMMDDHH24MISS')),1)*24) || ' hour ' || 
+       TRUNC(MOD((TO_DATE('20010502223443','YYYYMMDDHH24MISS')-TO_DATE('20010501213344','YYYYMMDDHH24MISS'))*24,1)*60) || ' minute ' || 
+       TRUNC(ROUND(MOD((TO_DATE('20010502223443','YYYYMMDDHH24MISS')-TO_DATE('20010501213344','YYYYMMDDHH24MISS'))*24*60,1)*60)) || ' sec ' 
+       " Time Interval " 
+FROM DUAL ;
+
+
+
+
+
+
+
+?TO_CHAR(날짜,'포맷'): 날짜를 문자열로 바꾼다. 
+
+?TO_DATE(문자열,'포맷'):문자열을 날짜로 ex> TO_DATE('97-10-14',' -----') 
+
+?ADD_MONTHS(날짜,n):현재 날짜에 n개월수를 더한다. 
+
+?MONTHS_BETWEEN(날짜1,날짜2):두 날짜의 개월수의 차를 구한다. 
+
+?LAST_DAY(날짜):그 달의 마지막 날짜를 구한다. 
+
+?NEXT_DAY(날짜,'요일'):날짜로 부터 다음에 나오는 요일은 며칠인가 
+
+?next_day(sysdate,'금요일') 
+
+?날짜 + n : 날짜에다 n 일을 더한다. 
+
+?포맷: 
+
+?yy : 년도를 2자리로 
+
+?yyyy : 년도를 4자리로 
+
+?year : 영어 철자로 표시 
+
+?mm :월을 표시(01-12) 
+
+?mon :월을 표시(DES....):약자로 나온다. 
+
+?month:월을 표시(1월,2월,....혹은 ,DESEMBER) 
+
+?d:일을 표시(주에 대한 일) 
+
+?dd:일을 표시 (월에 대한 일) 
+
+?ddd :일을 표시 (년에 대한 일) 
+
+?Q: 분기를 구한다. 
+
+?DAY :요일 (월요일) 
+
+?DY  :요일(월) 
+
+?HH & HH12 :시간을 12시간제로 
+
+?HH24 :24시간제로 
+
+?MI:분 
+
+?SS:초 
+
+?AM & PM & A.M & P.M:12시간제 일때 오전 오후를 표시 
+
+?접미사로 사용하는 포맷 
+
+?TH:서수로 표시 ex> 4 -> DD ->4 
+
+?4-> DDTH -> 4TH 
+
+?SP:철자로 표시 ex> 4 ->DDSP -> FOUR 
+
+?SPTH & THSP  ex> 4 -> DDSPTH -> FOURTH 
+
+?근무한 년월 수 ex> column "근무년수" Format a 14; 
+
+
+
+위의 내용을 참고하면 된다. 
+
+
+
+
+
+날짜함수를 사용하는 쿼리문의 예제 
+
+현재날짜에 하루를 더하는 값. 
+SELECT to_char(SYSDATE+1, 'yyyy-MM-dd') FROM DUAL 
+
+현재날짜에 20개월을 더하는 값 
+SELECT to_char(ADD_MONTHS(SYSDATE, 20),'yyyy-MM-dd')  FROM DUAL) GC_ENDDT 
+
+여기에서 20은 컬럼명에 따라 변환될 수 있다. 
+
+===============================================================
+replace 함수
+===============================================================
+
+example:
+
+replace('123123tech', '123'); would return 'tech' 
+replace('123tech123', '123'); would return 'tech' 
+replace('222tech', '2', '3'); would return '333tech' 
+replace('0000123', '0'); would return '123' 
+replace('0000123', '0', ' '); would return '    123' 
+
+===============================================================
+instr 함수
+===============================================================
+
+instr('Tech on the net', 'e') would return 2; the first occurrence of 'e' 
+instr('Tech on the net', 'e', 1, 1) would return 2; the first occurrence of 'e' 
+instr('Tech on the net', 'e', 1, 2) would return 11; the second occurrence of 'e' 
+instr('Tech on the net', 'e', 1, 3) would return 14; the third occurrence of 'e' 
+instr('Tech on the net', 'e', -3, 2) would return 2. 

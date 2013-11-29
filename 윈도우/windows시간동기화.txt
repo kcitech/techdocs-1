@@ -1,0 +1,4 @@
+
+net time /setsntp:time.bora.net
+
+w32tm /once

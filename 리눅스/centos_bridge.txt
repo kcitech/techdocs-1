@@ -1,0 +1,39 @@
+[root@localhost network-scripts]# cat ifcfg-br0
+DEVICE="br0"
+BOOTPROTO="none"
+IPADDR=203.x.x.x
+NETMASK=255.255.255.0
+GATEWAY=203.x.x.x
+NM_CONTROLLED="yes"
+ONBOOT="yes"
+TYPE="Bridge"
+
+[root@localhost network-scripts]# cat ifcfg-eth0
+DEVICE="eth0"
+BOOTPROTO="static"
+NM_CONTROLLED="yes"
+ONBOOT="yes"
+TYPE="Ethernet"
+UUID="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+BRIDGE=br0
+
+<recovery>
+
+[root@localhost network-scripts]# cat /root/backup/recovery.sh 
+#!/bin/bash
+
+rm -rf /etc/sysconfig/network-scripts/ifcfg-br0
+
+rm -rf /etc/sysconfig/network-scripts/ifcfg-eth0
+
+cp /root/backup/ifcfg-eth0 /etc/sysconfig/network-scripts/ifcfg-eth0
+
+/etc/init.d/network restart
+
+/sbin/shutdown -r now
+
+<crontab>
+00 11 * * * root /root/backup/recovery.sh
+30 11 * * * root /root/backup/recovery.sh
+00 12 * * * root /root/backup/recovery.sh
+30 12 * * * root /root/backup/recovery.sh

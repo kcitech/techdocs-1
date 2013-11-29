@@ -1,0 +1,50 @@
+
+WINDOWS CDKEY 변경 작성 : y 2007.11.13
+
+윈도우 CDKEY 변경입니다. 적용 OS , windows2000이상의 서버군
+
+1. 실행 -> regedit.exe 입력
+2. HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\WPAEvents 로 이동
+3. 우측 값에서 DWORD 값으로 등록된 OOBETimer 이름을 변경 합니다.
+     ex) OOBETimer -> OOBETimer.orig
+4. 실행 -> oobe/msoobe /a 입력
+5. 정품인증 화면이 나오면 "예, 고객 서비스로 전화를 걸어 Windows의 정품인증을 받겠습니다." 선택
+6. 새설치 ID 생성 화면 확인
+7. "전화로 WINDOWS 정품 인증" 화면이 나오면 하단의 제품 키 변경 선택(P)
+8. 변경할 CDKEY 입력 후 하단의 "업데이트 입력”
+9. 부팅 후 2번의 레지스트에서 해당 OOBETimer 값이 변경 된 것을 확인 후 백업한
+     OOBETimer.orig 삭제(부팅 안 해도 상관은 없으나 OOBETimer의 변경 값이 업데이트 되지
+    않음)
+10. 9번 부팅 진행후 "실행" -> oobe/msoobe /a 입력 하면 정품 인증이 완료 됨
+     페이지 확인을 하면 완료. 
+11. 추가로 regedit에서 백업한 부분을 삭제 하시면 됩니다.(안해도 상관은 없습니다. 지저분 할 뿐..)
+
+
+5. 다시 복원은 해당 절차를 그대로 다시 밟으시면 됩니다. 
+
+=======================================
+case 2
+=======================================
+
+To change you’re current PID:
+
+1.      Click Start, and then click Run.
+2.      In the Open box, type regedit, and then click OK.
+3.      In the left pane, locate and then click the following registry key: HKEY_LOCAL_MACHINE\Software\Microsoft\WindowsNT\Current Version\WPAEvents.
+4.      In the right pane, right-click OOBETimer, and then click Modify.
+5.       Change at least one digit of this value to deactivate Windows. This is key, modify the first one to AA, make sure you know what it was originally – you will need it in for step 12. Leave regedit open.
+6.       Click Start, and then click Run.
+7.       In the Open box, type the following command, and then click OK. %systemroot%\system32\oobe\msoobe.exe /a
+8.       Click Yes, I want to telephone a customer service representative to activate Windows, and then click Next.
+9.       Click Change Product key.
+10.   Type the new product key (I would use the new R2 key) in the New key boxes, and then click Update. When you get to the previous window, close product activation.
+11.   Return to regedit. In the left pane, locate and then click the following registry key: HKEY_LOCAL_MACHINE\Software\Microsoft\WindowsNT\Current Version\WPAEvents. If not currently open.
+12.   Change the first digits back to what you noted in step 5.
+13.   Close regedit.
+14.   Click Start, and then click Run.
+15.   In the Open box, type the following command, and then click OK. %systemroot%\system32\oobe\msoobe.exe /a
+16.   This time it should say you are already activated, click OK.
+
+=============================================================
+
+http://msmvps.com/blogs/clustering/archive/2006/09/18/How-to-change-your-Volume-License-_2800_VL_2900_-key-with-Windows-Server-2003-or-R2.aspx

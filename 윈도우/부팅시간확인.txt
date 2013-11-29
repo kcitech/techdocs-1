@@ -1,0 +1,11 @@
+
+1.net stats srv
+
+2.pstools
+   > http://technet.microsoft.com/en-us/sysinternals/bb896649.aspx
+   
+3.uptime
+   > http://support.microsoft.com/kb/555737
+   > http://technet.microsoft.com/en-us/library/cc751311.aspx
+   
+   

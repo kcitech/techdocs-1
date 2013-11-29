@@ -1,0 +1,49 @@
+[ centos4 x86_64 ]
+
+mysql은 rpm환경이다.
+
+1. source설치
+   # cd /usr/local/src/httpd-2.0.52
+   # ./configure --prefix=/usr/local/httpd-2.0.52 --enable-mods-shared=all   
+   # make && make install
+
+2. php
+   일반적인 php컴파일시 gd관련, xml관련 에러가 발생한다.
+   /usr/lib64에 있는 관련 파일을 찾지못해서이며, bug이다.
+   이 버그에 대해서는 php.net에서 별도로 패치된 것이 없으며,
+   5버전대의 개발버전에서는 fix된 것으로 되어 있다.(cvs버전)
+   (최신 5버전대도 아직 버그 있음)
+   rpm버전에서는 해당 config파일을 lib64패치를 해서 빌드를 한다.
+   php소스 컴파일을 하게 되면 미리 전처리가 필요하다.
+
+   # ln -s /usr/include /opt/include
+   # ln -s /usr/lib64 /opt/lib64
+
+   # ./configure  --prefix=/usr/local/php-4.4.2 \
+                  --with-config-file-path=/usr/local/php-4.4.2/etc \
+                  --with-mysql=/opt --with-apxs2=/usr/local/httpd-2.0.52/bin/apxs \
+                  --with-gd --with-freetype-dir --with-png-dir=/opt --with-jpeg-dir=/opt \
+                  --with-zlib-dir --enable-exif --enable-gd-native-ttf \
+                  --enable-track-vars --enable-sockets --with-iconv \
+                  --enable-sysvsem --enable-sysvshm --with-dom --with-xml --with-expat-dir=/opt \
+                  --enable-magic-quotes --enable-safe-mode --enable-ftp --enable-mbstring \
+                  --with-zlib --enable-force-cgi-redirect --disable-debug --enable-pic --disable-rpath \
+                  --enable-inline-optimization --with-bz2 --with-gettext --with-gmp --with-pcre-regex \
+                  --enable-bcmath --enable-discard-path --enable-yp --enable-wddx --enable-dbx \
+                  --enable-dio --enable-mcal --enable-calendar
+
+      아래 옵션에서 dir을 /opt로 지정해야 함.
+      --with-mysql=/opt, --with-png-dir=/opt, --with-jpeg-dir=/opt, --with-expat-dir=/opt
+
+   # make && make install
+
+3. mysql
+   mysql은 i386계열과 같이 하면 되지만, x86_64에서는 
+   my.cnf에서 init_connect 옵션을 해줘도 
+   먹히지 않는다.
+   소스에서 아래와 같이 db connect하는 부분이 있으면, 아래와 같이 추가한다.
+
+   $connect=mysql_connect("localhost","root","");
+   mysql_query("set names euckr");  <-- 추가
+
+나머지는 일반적으로 함.

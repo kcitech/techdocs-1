@@ -1,0 +1,119 @@
+
+1. mssql.so
+특정 모듈이 현재 서비스되고 있는 php버전에 맞춘 것이 없다면
+동적 모듈로 만들어 사용하는 것을 기준으로 합니다.
+
+2. tdsver
+이게 뭐냐하면 freetds 설치시 tdsver로 버전을 설정할 수 있는데,
+이것이 버전에 따라 특징이 있습니다.
+
+첨부 문서 맨 아래에 기재되어 있는데, 대략 적어보면
+4.2(디폴트)는 varchar 255까지만 지원을 해서
+이보다 긴 필드의 내용은 잘리는 것이 특징입니다.
+따라서 7.0을 사용해야 하는데, 이 버전은 한글이 깨지기
+때문에 client charset이라는 파라미터를 freetds.conf에 추가해야
+한다는 점입니다.
+
+mssql.so모듈 생성과 같은 방법은 oci8 모듈등 php소스에서
+지원하는 모듈을 동적으로 생성,추가할때 유용한 방법입니다.
+
+ php-mssql도 동적으로 컴파일한 것을
+rpm패키지화 한 것 뿐이므로, php버전과 동일한 php-mssql을
+찾을 수 없다면 동적으로 컴파일하는 것이 맞습니다.
+
+참조하시기 바랍니다.
+
+끝.
+
+>
+> CentOS 4.x 에서 php-mssql 설치 방법입니다.
+>
+> 확인 후 참고 부탁드립니다.
+>
+> --------------------------------------------------
+>
+> [root@localhost ~]# cd /usr/local/src/
+>
+> [root@localhost src]# cat /etc/redhat-release
+> CentOS release 4.5 (Final)
+>
+> [root@localhost src]# rpm -q php
+> php-4.3.9-3.22.9
+>
+> [root@localhost src]# wget http://mirror.centos.org/centos-4/4.5/updates/SRPMS/php-4.3.9-3.22.9.src.rpm
+> --17:26:48--  http://mirror.centos.org/centos-4/4.5/updates/SRPMS/php-4.3.9-3.22.9.src.rpm
+>            => `php-4.3.9-3.22.9.src.rpm'
+> Resolving mirror.centos.org... 216.7.183.116
+> Connecting to mirror.centos.org|216.7.183.116|:80... connected.
+> HTTP request sent, awaiting response... 200 OK
+> Length: 4,959,988 (4.7M) [application/x-rpm]
+>
+> 100%[====================================>] 4,959,988    311.31K/s    ETA 00:00
+>
+> 17:27:05 (297.93 KB/s) - `php-4.3.9-3.22.9.src.rpm' saved [4959988/4959988]
+>
+> [root@localhost src]# rpm -i php-4.3.9-3.22.9.src.rpm
+>
+> [root@localhost src]# cd /usr/src/redhat/SPECS/
+>
+> [root@localhost src]# vi php.spec
+>
+> %define contentdir /var/www
+> %define with_oci8 %{?_with_oci8:1}%{!?_with_oci8:0}
+> %define with_mssql %{?_with_mssql:1}%{!?_with_mssql:0}  <- 패키지가 있으면 지원됨
+> %define with_mhash %{?_with_mhash:1}%{!?_with_mhash:0}
+>
+> %if %{with_mssql}
+> %package mssql
+> Group: Development/Languages
+> Requires: php = %{version}-%{release}, freetds  <- freedts 패키지가 필요함
+> Summary: A module for PHP applications that use MSSQL databases.
+> Provides: php_database
+> BuildRequires: freetds-devel
+>
+> %description mssql
+> The mssql package contains a dynamic shared object that will add
+> support for accessing MSSQL databases to PHP.
+> %endif
+>
+>
+> %{?_with_mssql:--with-mssql=shared} \
+>
+>
+>
+>
+>
+> [root@localhost src]# wget http://www.brassy.net/files/rpms/centos4/php-mssql-4.3.9-3.22.5.i386.rpm
+> --17:34:21--  http://www.brassy.net/files/rpms/centos4/php-mssql-4.3.9-3.22.5.i386.rpm
+>            => `php-mssql-4.3.9-3.22.5.i386.rpm'
+> Resolving www.brassy.net... 89.234.64.66
+> Connecting to www.brassy.net|89.234.64.66|:80... connected.
+> HTTP request sent, awaiting response... 200 OK
+> Length: 68,733 (67K) [application/x-redhat-package-manager]
+>
+> 100%[====================================>] 68,733         5.73K/s    ETA 00:00
+>
+> 17:34:32 (7.34 KB/s) - `php-mssql-4.3.9-3.22.5.i386.rpm' saved [68733/68733]
+>
+>
+> [root@localhost src]# rpm -ivh php-mssql-4.3.9-3.22.5.i386.rpm
+> 오류: Failed dependencies:
+>         freetds is needed by php-mssql-4.3.9-3.22.5.i386
+>         libsybdb.so.4 is needed by php-mssql-4.3.9-3.22.5.i386
+>         php = 4.3.9-3.22.5 is needed by php-mssql-4.3.9-3.22.5.i386
+>
+>
+> [root@localhost src]# wget ftp://ftp.ibiblio.org/pub/Linux/ALPHA/freetds/stable/redhat/RPMS/freetds-0.62.1-1.i586.rpm
+>
+> [root@localhost src]# rpm -ivh freetds-0.62.1-1.i586.rpm
+>
+>
+>
+> 다시 php-mssql 설치하면 됨.
+>
+> /etc/php.d/mssql.ini 가 생김
+>
+> 관련 링크 : http://www.brassy.net/2007/apr/using_mssql_php_centos_4_4
+>
+> -----------------------------------------------------------------------------------------------------
+

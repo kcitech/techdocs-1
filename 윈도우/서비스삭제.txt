@@ -1,0 +1,6 @@
+
+c:>sc delete 서비스명
+으로 하셔도 되고
+
+시작 -> regedit -> Hkey_local_machine\curruntcontrolset ,controlset001 , 002 등의 service 아래에서 보이시는 이상 서비스
+들을 삭제 하시면 되겠습니다.

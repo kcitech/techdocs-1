@@ -1,0 +1,30 @@
+
+<linux>
+# ps -ax | grep mysql
+
+# kill -9 
+
+# ./safe_mysqld --user=root --skip-grant-tables &
+or
+# ./mysqld_safe --user=root --skip-grant-tables &
+
+# ./mysql
+mysql> use mysql
+mysql> update user set password=password('비밀번호') where user='root';
+mysql> quit
+
+# ps -ax| grep mysql
+# kill -9 위 명령에서 나온 pid 값을 적어준다. (구분은 공백 " ")
+# ./safe_mysqld & 또는 /etc/init.d/mysqld start
+
+<windows>
+
+시작 - 제어판 - 관리도구 - 서비스 로 들어가셔서 MySQL 서비스를 중지 시킨다.
+cmd [명령 프롬프트] 를 실행한다.
+MySQL 이 설치된 디렉토리로 이동한다. ex> cd C:\Program File\MySQL\MySQL 5.0\bin
+mysqld.exe -u root -p --skip-grant-tables 실행
+mysql 실행
+mysql> use mysql
+mysql>UPDATE user SET Password = PASSWORD('비밀번호') WHERE user = 'root';
+quit
+서비스에서 MySQL 을 재 시작한다.

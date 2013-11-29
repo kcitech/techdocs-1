@@ -1,0 +1,40 @@
+
+관련패키지 : dovecot, sendmail, sendmail-devel, sendmail-cf
+
+dovecot)
+yum install devocot 시 libmysqlclient 관련 종속성이 걸려
+설치가 진행되지 않아, 다음과 같이 설치진행 하였습니다.
+
+#yum --enablerepo=centosplus install mysqlclient10
+mysqlclient14
+#yum install dovecot
+(postgresql-libs 자동 설치됨)
+
+설정파일 : /etc/dovecot.conf
+
+sendmail)
+외부와의 메일소통
+/etc/mail/sendmail.mc
+DAEMON_OPTIONS(`Port=smtp, Addr=127.0.0.1, Name=MTA\')dnl
+-->
+DAEMON_OPTIONS(`Port=smtp, Name=MTA\')dnl
+
+보내는메일 인증하기
+dnl TRUST_AUTH_MECH(`EXTERNAL DIGEST-MD5 CRAM-MD5 LOGIN
+PLAIN\')dnl
+dnl define(`confAUTH_MECHANISMS\', `EXTERNAL GSSAPI DIGEST-
+MD5 CRAM-MD5 LOGIN PLAIN\')dnl
+-->
+TRUST_AUTH_MECH(`EXTERNAL DIGEST-MD5 CRAM-MD5 LOGIN PLAIN\')
+dnl
+define(`confAUTH_MECHANISMS\', `EXTERNAL GSSAPI DIGEST-MD5
+CRAM-MD5 LOGIN PLAIN\')dnl
+
+#m4 /etc/mail/sendmail.mc > /etc/mail/sendmail.cf
+
+---------
+데몬 구동
+---------
+#/etc/init.d/dovecot stop|start
+#/etc/init.d/sendmail stop|start
+#/etc/init.d/saslauthd stop|start

@@ -1,0 +1,70 @@
+
+
+clamd-0.94.2-1.el5.rf
+clamav-0.94.2-1.el5.rf
+clamav-devel-0.94.2-1.el5.rf
+clamav-db-0.94.2-1.el5.rf
+
+/etc/freshclam.conf 에 다음과 같이 주석을 해제했습니다.
+DNSDatabaseInfo current.cvd.clamav.net
+NotifyClamd /etc/clamd.conf
+AllowSupplementaryGroups yes
+
+# /etc/init.d/clamd start
+Starting Clam AntiVirus Daemon: LibClamAV Warning:
+**************************************************
+LibClamAV Warning: *** The virus database is older than 7 days! ***
+LibClamAV Warning: *** Please update it as soon as possible. ***
+LibClamAV Warning:
+**************************************************
+[ OK ]
+
+
+위와 같이 데이터베이스가 오래되어 다음 명령으로 업데이트했습니다.
+
+# freshclam
+ClamAV update process started at Tue Dec 16 15:02:17 2008
+main.cvd is up to date (version: 49, sigs: 437972, f-level: 35, builder: sven)
+WARNING: getfile: daily-8684.cdiff not found on remote server (IP: 192.168.150.206)
+WARNING: getpatch: Can\'t download daily-8684.cdiff from db.kr.clamav.net
+WARNING: getfile: daily-8684.cdiff not found on remote server (IP: 192.168.150.206)
+WARNING: getpatch: Can\'t download daily-8684.cdiff from db.kr.clamav.net
+WARNING: getfile: daily-8684.cdiff not found on remote server (IP: 192.168.150.206)
+WARNING: getpatch: Can\'t download daily-8684.cdiff from db.kr.clamav.net
+WARNING: Incremental update failed, trying to download daily.cvd
+Downloading daily.cvd [100%]
+daily.cvd updated (version: 8764, sigs: 36119, f-level: 38, builder: guitar)
+Database updated (474091 signatures) from db.kr.clamav.net (IP: 192.168.150.206)
+Clamd successfully notified about the update.
+
+업데이트 후 clamd를 재시작했습니다.
+
+로그는 /var/log/clamav/freshclam.log 에 있습니다.
+
+
+다음과 같이 동작을 테스트했습니다.
+
+# telnet localhost 3310
+Trying 127.0.0.1...
+Connected to localhost.localdomain (127.0.0.1).
+Escape character is \'^]\'.
+PING
+PONG
+Connection closed by foreign host.
+
+# telnet localhost 3310
+Trying 127.0.0.1...
+Connected to localhost.localdomain (127.0.0.1).
+Escape character is \'^]\'.
+VERSION
+ClamAV 0.94.2/8764/Tue Dec 16 14:34:58 2008
+Connection closed by foreign host.
+[root@server ~]# freshclam
+ClamAV update process started at Tue Dec 16 15:04:26 2008
+main.cvd is up to date (version: 49, sigs: 437972, f-level: 35, builder: sven)
+daily.cvd is up to date (version: 8764, sigs: 36119, f-level: 38, builder: guitar)
+
+3시간 간격으로 clam 데이터베이스를 업데이트하도록 /etc/crontab 에 다음 내용을 설정했습니다.
+
+# clamav update
+0 6,12,18,24 * * * * root freshclam --quiet

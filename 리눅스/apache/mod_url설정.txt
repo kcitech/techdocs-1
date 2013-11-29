@@ -1,0 +1,95 @@
+
+==============================
+아파치한글파일인식
+==============================
+
+한글파일이 인식가능하도록
+다음 모듈을 설치 및 apache restart하였습니다.
+
+설치 모듈 : mod_url.so (mod_url-apache2-1.8.tar.bz2)
+
+설정은 다음과 같습니다.
+httpd.conf
+================================================
+LoadModule redurl_module modules/mod_url.so
+
+CheckURL On
+ServerEncoding EUC-KR
+ClientEncoding UTF-8
+
+===============================================
+
+아래 주소로 확인해보시기 바랍니다.
+
+http://www.SAMPLEDOMAIN.com/석양.jpg
+
+이미지 보여야 정상입니다.
+
+-------------------------------------------------------------------------------------------------------------------------------------
+
+
+기존에 mod_url이 설치되어 있었으나
+http://www.SAMPLE.DOMAIN/지식만들기.htm
+인식이 제대로 되지 않아 다시 설치하였습니다.
+
+source : http://kldp.net/frs/download.php/4238/mod_url-apache1-1.14.tar.bz2
+
+bzip2 설치
+# apt-get install bzip2
+
+기존 mod_url 삭제
+# vi /etc/apache/modules.conf
+LoadModule redurl_module /usr/lib/apache/1.3/mod_url.so
+
+CheckURL On
+ServerEncoding EUC-KR
+ClientEncoding UTF-8
+
+삭제
+
+mod_url 다시설치
+# cd /usr/local/src
+# bzip -d mod_url-apache1-1.14.tar.bz2
+# tar xf mod_url-apache1-1.14.tar
+# cd mod_url-apache1
+# apxs -c -i -a mod_url.c
+
+# vi /etc/apache/httpd.conf
+LoadModule redurl_module /usr/lib/apache/1.3/mod_url.so
+추가확인
+#AddModule mod_url.c --> 주석처리
+
+
+CheckURL On
+ServerEncoding EUC-KR
+ClientEncoding UTF-8
+
+추가
+
+# apachectl configtest
+Syntax OK
+
+# /etc/init.d/apache stop
+# /etc/init.d/apache start
+
+http://www.SAMPLE.DOMAIN/지식만들기.htm
+가 잘 뜸을 확인하였습니다.
+
+
+============================================
+case 2
+============================================
+
+한글파일도 인식하게끔 mod_url설치하였습니다.
+
+설정파일은 /etc/apache/modules.conf이며,
+다음 설정을 추가하였습니다.
+
+==========================================================
+LoadModule redurl_module /usr/lib/apache/1.3/mod_url.so
+< IfModule mod_url.c >
+CheckURL On
+ServerEncoding EUC-KR
+ClientEncoding UTF-8
+
+============================================================

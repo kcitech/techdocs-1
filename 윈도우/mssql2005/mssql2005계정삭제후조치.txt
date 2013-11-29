@@ -1,0 +1,47 @@
+
+administrator 접근을 삭제 하셨으며 sa 계정 접근도 막혀 있다 이야기 들었습니다.
+
+SQL 서버를 중지 시작 해야 하는 부분이 있사오니
+다음을 확인 하셔서 구성 진행을 해 보시기 바랍니다.
+
+고객님의 MSSQL 서버 접근 서버명:a6781e5bb81944f
+고객님의 BUILTIN\administrator 정보 : COMPANY\administrator
+고객님의 sql서버 서비스명 : mssqlserver
+
+수행진행
+
+실행 -> cmd
+
+1. c:>net stop mssqlserver
+2. c:>net start mssqlserver /m
+
+3. c:>sqlcmd -Sa6781e5bb81944f -A
+수행후 1> 로 표기가 안되고 접근이 안되 실 경우 1~2번 작업을
+반복 해 보시기 바랍니다. 혹은 조금 대기 후 다시 1,2번을
+수행해 보시기 바랍니다.
+
+4. 3번 수행후 1> 커맨드 로 떨어지면..
+
+1>CREATE LOGIN [COMPANY\administrator] FROM WINDOWS WITH
+DEFAULT_DATABASE=[master], DEFAULT_LANGUAGE=[한국어]
+2>EXEC
+sp_addsrvrolemember 'COMPANY\Administrator', 'sysadmin'
+3>EXIT
+
+5. c:>net stop mssqlserver
+6. c:>net start mssqlserver
+
+위와 같이 진행 하신 뒤 SSMS 를 수행 하셔서 windows
+로그인으로 접근 해 보시기 바랍니다.
+
+sysadmin 권한이 있다면 보안 로그인쪽에 system관련
+수행 권한 계정들이 보이실 것이며
+
+쿼리를 통해 master 계정에서 sa 계정의 중지 시작등의
+권한이 정상 동작 될 것입니다.
+
+ex)ALTER LOGIN sa DISABLE
+go
+
+위 부분으로도 해결이 안되신다면 SQL 재설치를 고려 하셔야
+할 것입니다.

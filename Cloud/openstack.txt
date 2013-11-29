@@ -1,0 +1,802 @@
+==================================================================================
+openstack-starter-guide-diablo
+==================================================================================
+
+---------------
+Cloud Computing
+---------------
+
+ Cloud computing is a computing model, where resources such as computing power,
+ storage, network and software are abstracted and provided as services on the 
+ Internet in a remotely accessible fashion.
+ Builling models for these services are generally similiar to the ones adopted
+ for public utilities. On-demand availability, ease of provisioning, dynamic 
+ and virtually infinite scalability are some of the key attributes of cloud computing.
+ 
+ An infrastructure setup using the cloud computing model is generally referred to
+ as the "cloud". The following are the broad categories of services avaiable on the cloud: 
+ 
+ The following are the board categories of services avaiable on the cloud:
+ - Infrastructure as a Service ( IaaS )
+ - Platform as a Service ( PaaS )
+ - Software as a Service ( SaaS )
+ 
+ Amazon Web Services(AWS) is one of the major players providing Iaas.
+ AWS have two popular services - Elastic Compute Cloud(EC2) and Simple Storage Service(S3), avaiable through web services.
+ 
+---------------
+OpenStack
+---------------
+ 
+ OpenStack is a collection of open source software projects that enterprises/servic 
+ providers can use to setup and run their cloud compute and storage infrastructure.
+ Rackspace and NASA are the key initial contributors to the stack. Rackspace contributed 
+ their "Cloud Files" platform(code) to power the Object Storage part of the OpenStack,
+ while NASA contributed their "Nebula" platform(code) to power the Compute part.
+ OpenStack consortium has managed to have more than 100 members including Canonical,
+ Dell, Citrix etc. in less than a year.
+ 
+ OpenStack makes its services avaiable through Amazon EC2/S3 compatible APIs and hence
+ the client tools written for AWS can be used with OpenStack as well.
+ 
+ There are 3 main service families under OpenStack
+  - Compute Infrastructure(Nova)
+  - Storage Infrastructure(Swift)
+  - Imaging Service(Glance)
+  
+ others
+ OpenStack is an open source cloud operating system that manages pools of compute,
+ storage and networking resources.
+ Currently made up five core projects, ...
+  
+-------------------------------------------
+Open Stack Compute Infrastructure ( Nova )
+-------------------------------------------
+ Nova is the Computing Fabric controller for the OpenStack Cloud. All activities needed
+ to support the life cycle of instances withinthe OpenStack cloud are handled by Nova.
+ This makes Nova a Management Platform that manages compute resources, networking,
+ authorization, and scalability needs of the OpenStack cloud. But, Nova does not provide
+ any virtualization capabilities by itself; instead, it uses libvirt APIs to interact with the
+ supported hypervisors. Nova exposes all its capabilities through a web services API that is
+ compatible with the EC2 API of Amazon Web Services.
+ 
+ Functions and Features:
+ - Instance life cycle management
+ - Management of compute resources
+ - Networking and Authorization
+ - REST-based API
+ - Asynchronous eventually consistent communication
+ - Hypervisor agnostic : support for xen, XenServer/XCP, KVM, UML, VMWare vSphere and Hyper-V
+ 
+ Components of OpenStack Compute
+  Nova Cloud Fabric is composed of the following major components:
+  - API Server ( nova-api )
+  - Message Queue ( rabbit-mq server)
+  - Compute Workers ( nova-compute )
+  - Network Controller ( nova-network )
+  - Volume Worker ( nova-volume )
+  - Scheduler ( nova-scheduler )
+  
+ [Img] 01_openstack_architecture.png
+ 
+-------------------------------------------
+OpenStack Storage Infrasturcture ( Swift )
+-------------------------------------------
+ Swift provides a distributed, eventually consistent virtual object store for OpenStack. Is is
+ analogous to Amazon Web Services - Simple Storage Service(S3). Swift is capable of storing
+ billions of objects distributed across nodes. Swift has built-in redundancy and failover
+ management and it capable of archiving and media streaming. It is extremely scalable inf
+ terms of both size ( Several petabytes ) and capacity(Number of objects).
+ 
+ Functions and Features
+ - Storage of large number of objects
+ - Storage of large sized objects
+ - Data Redundancy
+ - Archival capabilities - Work with large datasets
+ - Data container for virtual machines and cloud apps
+ - Media Streaming capabilities
+ - Secure storage of objects
+ - Backup and archival
+ - Extreme scalability
+ 
+ Components of Swift
+ - Swift Account
+ - Swift Container
+ - Swift Object
+ - Swift Proxy
+ - The RING
+ 
+-------------------------------------------
+OpenStack Imaging Service ( Glance )
+-------------------------------------------
+ OpenStack Imaging Service is a lookup and retrieval system for virtual machine images. It
+ can be configured to use any one of the following 3 storage backends:
+ - OpenStack Object Store to store images
+ - S3 storage directly
+ - S3 storage with Object Store as the intermediate for S3 access.
+ 
+ Functions and Features ( Glance )
+ - Provides imaging service
+ 
+ Components of OpenStack Imaging Service ( Glance )
+ - Glance-control
+ - Glance-registry
+ - 
+
+-------------------------------------------
+OpenStack Identity ( Keystone )
+-------------------------------------------
+
+-------------------------------------------
+OpenStack Dashboard ( Horizon )
+-------------------------------------------
+
+-------------------------------------------
+Installation and Configuration
+-------------------------------------------
+
+-------------------------------------------
+server1 ( eth0 10.10.10.2 / eth1 192.168.3.1 )
+- All components of OpenStack including nova-compute	
+-    eth0 - Public N/W, eth1 - Private N/W
+- IP eth0 - 10.10.10.2, eth1 - 192.168.3.1
+- server1.example.com
+- DNS 10.10.10.3
+- GW  10.10.10.1
+
+server2 ( eth0 10.10.10.3 / eth1 192.168.3.2 )
+- nova-compute
+-    eth0 - Public N/W, eth1 - Private N/W
+- IP eth0 - 10.10.10.3, eth1 - 192.168.3.2
+- server2.example.com
+- DNS 10.10.10.3
+- GW  10.10.10.1
+
+client1 ( eth0 10.10.10.4 )
+- Client
+-    eth0 - Public N/W
+- IP eth0 - 10.10.10.4
+- client.example.com
+- DNS 10.10.10.3
+- GW 10.10.10.1
+
+-------------------------------------------
+
+Server1
+ 
+Base OS
+ - Ubuntu Server 11.10 x86_64
+ - user: localadmin
+ - install openssh-server
+ - sudo apt-get update
+ - sudo apt-get upgrade
+ - sudo apt-get install -y bridge-utils
+   Reboot
+
+ Networking Configuration
+  - /etc/network/interfaces
+  
+    auto lo
+    iface lo inet loopback
+
+    auto eth0
+    iface eth0 inet static
+        address 10.10.10.2
+        netmask 255.255.255.0
+        broadcast 10.10.10.255
+        gateway 10.10.10.1
+        dns-nameservers 10.10.10.3
+
+    auto eth1
+    iface eth1 inet static
+        address 192.168.3.1
+        netmask 255.255.255.0
+        network 192.168.3.0
+        broadcast 192.168.3.255
+        
+  - sudo /etc/init.d/networking restart
+
+ NTP Server
+  - sudo apt-get install -y ntp
+  - sudo view /etc/ntp.conf
+   
+    server ntp.ubuntu.com
+    server 127.127.1.0
+    fudge 127.127.1.0 stratum 10
+    
+  - sudo /etc/init.d/ntp restart
+  
+  
+  Databases (MySQL, PostgreSQL, SQLite for Nova and Glance)
+  - MySQL
+     sudo apt-get install -y mysql-server (password : mygreatsecret)
+     sudo view /etc/mysql/my.cnf
+       bind-address = 0.0.0.0
+     sudo restart mysql
+ 
+ Glance
+  - sudo apt-get install -y glance
+    * Nova can use Glance service to manage Operating System images that it needs for bringing
+      up instances. Glance can use several types of storage backends such as filestore, s3 etc.
+      
+      The default config file at /etc/glance/glance.conf is good to use for a simple file store as
+      the storage backend. Glance can be configured to use other storage backends such as Swift.
+      
+      Glance uses sqlite as the default database backend. While sqlite offers a quick and easy
+      way to get started, for production use, you may consider a database such as MySQL or PostgreSQL
+
+   - Database Configuration
+   
+     MySQL
+     
+      sudo mysql -uroot -pmygreatsecret -e 'CREATE DATABASE glance;'
+      sudo mysql -uroot -pmygreatsecret -e 'CREATE USER glancedbadmin;'
+      sudo mysql -uroot -pmygreatsecret -e "GRANT ALL PRIVILEGES ON glance.* TO 'glancedbadmin'@'%' ;"
+      sudo mysql -uroot -pmygreatsecret -e "SET PASSWORD FOR 'glancedbadmin'@'%' = PASSWORD('glancesecret');"
+
+      sudo view /etc/glance/glance-registry.conf 
+        sql_connection = mysql://glancedbadmin:glancesecret@10.10.10.2/glance
+        
+      sudo restart glance-registry
+ 
+ Nova
+  - sudo apt-get install -y rabbitmq-server nova-common nova-doc python-nova nova-api 
+    nova-network nova-volume nova-objectstore nova-scheduler nova-compute
+    
+  - sudo apt-get install -y euca2ools
+  
+  - sudo apt-get install -y unzip
+  
+  - Database Configuration
+     MySQL
+      sudo mysql -uroot -pmygreatsecret -e 'CREATE DATABASE nova;'
+      sudo mysql -uroot -pmygreatsecret -e 'CREATE USER novadbadmin;'
+      sudo mysql -uroot -pmygreatsecret -e "GRANT ALL PRIVILEGES ON nova.* TO 'novadbadmin'@'%' ;"
+      sudo mysql -uroot -pmygreatsecret -e "SET PASSWORD FOR 'novadbadmin'@'%' = PASSWORD('novasecret');"
+
+
+ Image Management
+  Uploading to OpenStack ( server1의 /tmp 공간이 넉넉해야 함. 공간이 다 차면 euca-register시 failed_untared 등 오류 발생함 ) 
+   on client1
+    euca-bundle-image -i server.img    ==> ( client1 /tmp/에 이미지 분할하여 쌓임)
+    euca-upload-bundle -b mybucket -m /tmp/server.img.manifest.xml (==> server1의 /var/lib/nova/buckets/mybucket/아래에 이미지 분할하여 저장됨 
+    euca-register mybucket/server.img.manifest.xml 
+    
+    
+ * /etc/nova/nova.conf
+ --glance_api_servers=192.168.3.2:9292 ==> --glance_api_servers=192.168.3.1:9292
+    
+ * ERROR: trying to add VLAN #100 to IF -:br100:-  error: No such device
+   /etc/nova/nova.conf
+   --vlan_interface=br100  ==> --vlan_interface=eth0
+
+-------------------------------------------
+rackspace h/w spec
+-------------------------------------------
+
+http://www.referencearchitecture.org/hardware-specifications/
+  
+  
+==================================================================================
+openstack install and deploy manual - essex (2012.03.23 write)
+==================================================================================
+
+sudo apt-get install -y ntp
+sudo sed -i 's/server ntp.ubuntu.com/server ntp.ubuntu.com\nserver 127.127.1.0\nfudge 127.127.1.0 stratum 10/g' /etc/ntp.conf  
+sudo service ntp restart
+ 
+client
+ntpdate 'controllernode ip'
+hwclock -w
+ 
+<Installing and Configuration the identify Service>
+
+sudo apt-get install keystone
+sudo rm /var/lib/keystone/keystone.db
+
+sudo apt-get install python-mysqldb mysql-server
+sudo sed -i 's/127.0.0.1/0.0.0.0/g' /etc/mysql/my.cnf
+sudo service mysql restart 
+ 
+mysql -u root -p
+mysql> CREATE DATABASE keystone;
+mysql> GRANT ALL ON keystone.* TO 'keystone'@'%' IDENTIFIED BY 'yourpassword';
+mysql> quit
+
+sudo view /etc/keystone/keystone.conf
+sql_connection = mysql://keystone:yourpassword@localhost/keystone
+sudo service keystone restart
+sudo keystone-manage db_sync
+
+* ubuntu 11.10에서 keystone 옵션이 다름.. ( ubuntu 12.04 버전을 기다려서 진행해야 할듯.)
+
+==================================================================================
+openstack compute starter guide - diablo (2012.03.23 write)
+==================================================================================
+
+
+Caution: 
+I. open /dev/kvm: No such file or directory
+Could not initialize KVM, will disable KVM support [means your machine do not support VT]
+
+II. pci_add_option_rom: failed to find romfile "pxe-rtl8139.bin"
+You have to install kvm-pxe
+
+
+egrep '^flags.*(vmx|svm)' /proc/cpuinfo
+
+==================================================================================
+2012.04.02
+==================================================================================
+server1
+localadmin@server1:~$ sudo nova-manage db sync
+/usr/lib/python2.7/dist-packages/migrate/changeset/schema.py:124: MigrateDeprecationWarning: Passing a Column object to alter_column is deprecated. Just pass in keyword parameters instead.
+  MigrateDeprecationWarning
+
+
+Fix: failed to find romfile "pxe-rtl8139.bin"
+
+=> sudo apt-get install -y kvm-pxe
+
+==================================================================================
+client1 vm 설치후 네트워크 안될때 (아래 br0 추가)
+==================================================================================
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+        address 192.168.11.103
+        netmask 255.255.255.0
+        broadcast 192.168.11.255
+        gateway 192.168.11.1
+        dns-nameservers 168.126.63.1
+
+auth eth1
+iface eth1 inet static
+        address 192.168.3.3
+        netmask 255.255.255.0
+        network 192.168.3.0
+        broadcast 192.168.3.255
+
+auto br0
+iface br0 inet dhcp
+        bridge_ports eth0
+        bridge_stp off
+        bridge_fd 0
+        bridge_maxwait 0
+
+/etc/init.d/networking restart 
+
+
+==================================================================================
+localadmin@client1:~/test$ uec-publish-image amd64 serverfinal.img bucket1 실행시 
+WARNING: 'uec-publish-image' is now to 'cloud-publish-image'. Please update your tools or docsfailed to check for existing manifest
+==================================================================================
+
+http://forums.openstack.org/viewtopic.php?f=13&t=470&sid=72e06fc8ac7c5739b18d85a063e44c9d&start=10
+
+Hi,
+
+in case you stick to the Diablo Starter Guide, check the --glance_api_servers entry in your nova.conf file. I think there is an error in the guide, because the IP address there belongs to Server2. But this server only runs nova-compute. Instead, I guess it should be the address of the second nic (eth1) from Server1 which actually runs glance. So it has to be 192.168.3.1, not 192.168.3.2. Of course, you have to adjust this to your own network configuration.
+
+Furthermore, if you stick to the guide, you don't have Keystone installed. Therefore, you may have to add --use_deprecated_auth=1 to your nova.conf. This determines that you make use of the deprecated nova authentication system instead of Keystone.
+
+I hope this helps.
+
+==================================================================================
+euca-run-instances ami-00000003 -k mykey -t m1.tiny 
+이후
+euca-describe-instances 후 pending 상태가 오래될때 
+==================================================================================
+
+euca-reboot-instances i-00000001
+euca-describe-instances
+
+localadmin@client1:~/creds$ euca-describe-instances 
+RESERVATION	r-fvdlkay9	proj	default
+INSTANCE	i-00000001	ami-00000003	192.168.4.3	192.168.4.3	pending	mykey (proj, server2)	0		m1.tiny	2012-04-04T02:38:53Z	nova	ami-00000000	ami-00000000
+
+==================================================================================
+ESSEX
+==================================================================================
+
+</etc/keystone/keystone.conf>
+
+admin_token = 012345SECRET99TOKEN012345
+
+connection = mysql://keystone:password@192.168.3.2/keystone
+
+
+<create a default tenant>
+$ keystone --token 012345SECRET99TOKEN012345 --endpoint http://192.168.3.2:35357/v2.0 tenant-create --name openstackDemo --description "Default Tenant" --enabled true
++-------------+----------------------------------+
+|   Property  |              Value               |
++-------------+----------------------------------+
+| description | Default Tenant                   |
+| enabled     | True                             |
+| id          | f03d2e777ebe4ef8af48ea6cd1dd20f5 |
+| name        | openstackDemo                    |
++-------------+----------------------------------+
+
+<Create a default user named adminUser>
+$keystone --token 012345SECRET99TOKEN012345 --endpoint http://192.168.3.2:35357/v2.0 user-create --tenant_id f03d2e777ebe4ef8af48ea6cd1dd20f5 --name adminUser --pass secretword --enabled true
++----------+-------------------------------------------------------------------------------------------------------------------------+
+| Property |                                                          Value                                                          |
++----------+-------------------------------------------------------------------------------------------------------------------------+
+| email    | None                                                                                                                    |
+| enabled  | True                                                                                                                    |
+| id       | 30ad8a7e8ee44e14b5021a6c31297dab                                                                                        |
+| name     | adminUser                                                                                                               |
+| password | $6$rounds=40000$dgb2wPBRycfUGgUH$ktlkqPjOFzETXwRd.g6B7wOE2P.PeLDq/GTJaUzF10cxSwBW0V1VayGr7BmCW3QG1aRwAu2jff7beEdWCiRyR/ |
+| tenantId | f03d2e777ebe4ef8af48ea6cd1dd20f5                                                                                        |
++----------+-------------------------------------------------------------------------------------------------------------------------+
+
+<Create the default roles, admin and memberRole.>
+$ keystone --token 012345SECRET99TOKEN012345 --endpoint http://192.168.3.2:35357/v2.0 role-create --name admin
++----------+----------------------------------+
+| Property |              Value               |
++----------+----------------------------------+
+| id       | 3aba44d0fdf84a659a34539f74123cba |
+| name     | admin                            |
++----------+----------------------------------+
+
+$ keystone --token 012345SECRET99TOKEN012345 --endpoint http://192.168.3.2:35357/v2.0 role-create --name memberRole
++----------+----------------------------------+
+| Property |              Value               |
++----------+----------------------------------+
+| id       | b756e496568145e4b313915aef5c8228 |
+| name     | memberRole                       |
++----------+----------------------------------+
+
+<Grant the admin role to the adminUser user in the openstackDemo tenant with "user-role-add".>
+$keystone --token 012345SECRET99TOKEN012345 --endpoint http://192.168.3.2:35357/v2.0 user-role-add --user 30ad8a7e8ee44e14b5021a6c31297dab --tenant_id f03d2e777ebe4ef8af48ea6cd1dd20f5 --role 3aba44d0fdf84a659a34539f74123cba
+
+<Create a Service Tenant. This tenant contains all the services that we make known to the service catalog.>
+$keystone --token 012345SECRET99TOKEN012345 --endpoint http://192.168.3.2:35357/v2.0 tenant-create --name service --description "Service Tenant" --enabled true
++-------------+----------------------------------+
+|   Property  |              Value               |
++-------------+----------------------------------+
+| description | Service Tenant                   |
+| enabled     | True                             |
+| id          | 5efe0ce0947241b5b31e306e9f269111 |
+| name        | service                          |
++-------------+----------------------------------+
+
+<Create a Glance Service User in the Service Tenant. You'll do this for any service you add to be in the Keystone service catalog.>
+$keystone --token 012345SECRET99TOKEN012345 --endpoint http://192.168.3.2:35357/v2.0 user-create --tenant_id 5efe0ce0947241b5b31e306e9f269111 --name glance --pass glance --enabled true
++----------+-------------------------------------------------------------------------------------------------------------------------+
+| Property |                                                          Value                                                          |
++----------+-------------------------------------------------------------------------------------------------------------------------+
+| email    | None                                                                                                                    |
+| enabled  | True                                                                                                                    |
+| id       | c475eb1ffbb240b199b689d5a2067c9b                                                                                        |
+| name     | glance                                                                                                                  |
+| password | $6$rounds=40000$b8jv/CBOBC7DuGZs$1BgRgzFB6mIYb4p2UW4S39uilXduT2dN0gJbkkTBnQwbolIkQVjdDrrvmUzTsdcdrQh/4xPwFLT8WCkC7Jtq80 |
+| tenantId | 5efe0ce0947241b5b31e306e9f269111                                                                                        |
++----------+-------------------------------------------------------------------------------------------------------------------------+
+
+<Grant the admin role to the glance user in the service tenant.>
+$keystone --token 012345SECRET99TOKEN012345 --endpoint http://192.168.3.2:35357/v2.0 user-role-add --user c475eb1ffbb240b199b689d5a2067c9b --tenant_id 5efe0ce0947241b5b31e306e9f269111 --role 3aba44d0fdf84a659a34539f74123cba
+
+<Create a Nova Service User in the Service Tenant.>
+$keystone --token 012345SECRET99TOKEN012345 --endpoint http://192.168.3.2:35357/v2.0 user-create --tenant_id 5efe0ce0947241b5b31e306e9f269111 --name nova --pass nova --enabled true
++----------+-------------------------------------------------------------------------------------------------------------------------+
+| Property |                                                          Value                                                          |
++----------+-------------------------------------------------------------------------------------------------------------------------+
+| email    | None                                                                                                                    |
+| enabled  | True                                                                                                                    |
+| id       | 38f5a1fe53ad41a1ae958260ff1352ba                                                                                        |
+| name     | nova                                                                                                                    |
+| password | $6$rounds=40000$TTsKlMs1.gQvkiAv$Ggwd9eohYR8hnaEbWfvZKak8U.blMeL5a7wZbdWKDRI1RyC9Gxht3W..b/SB4oo0nj21rxGhPpHIKle2NBPRZ0 |
+| tenantId | 5efe0ce0947241b5b31e306e9f269111                                                                                        |
++----------+-------------------------------------------------------------------------------------------------------------------------+
+
+<Grant the admin role to the nova user in the service tenant.>
+$keystone --token 012345SECRET99TOKEN012345 --endpoint http://192.168.3.2:35357/v2.0 user-role-add --user 38f5a1fe53ad41a1ae958260ff1352ba --tenant_id 5efe0ce0947241b5b31e306e9f269111 --role 3aba44d0fdf84a659a34539f74123cba
+
+<Create an EC2 Service User in the Service Tenant.>
+$keystone --token 012345SECRET99TOKEN012345 --endpoint http://192.168.3.2:35357/v2.0 user-create --tenant_id 5efe0ce0947241b5b31e306e9f269111 --name ec2 --pass ec2 --enabled true
++----------+-------------------------------------------------------------------------------------------------------------------------+
+| Property |                                                          Value                                                          |
++----------+-------------------------------------------------------------------------------------------------------------------------+
+| email    | None                                                                                                                    |
+| enabled  | True                                                                                                                    |
+| id       | 31a7d44e87c54495bb740ada6992a37d                                                                                        |
+| name     | ec2                                                                                                                     |
+| password | $6$rounds=40000$5baU7Uh2ED7Xs1h4$IOZzKOtvEtzqfNhWdJGkvCWolPJ9vwbtOI30zgGAxMSc35MK9a/Qk3Y3qdRId7G8xlERWh0datgLNc.8qUmbt0 |
+| tenantId | 5efe0ce0947241b5b31e306e9f269111                                                                                        |
++----------+-------------------------------------------------------------------------------------------------------------------------+
+
+<Grant the admin role to the ec2 user in the service tenant.>
+$keystone --token 012345SECRET99TOKEN012345 --endpoint http://192.168.3.2:35357/v2.0 user-role-add --user 31a7d44e87c54495bb740ada6992a37d --tenant_id 5efe0ce0947241b5b31e306e9f269111 --role 3aba44d0fdf84a659a34539f74123cba
+
+--Defining Services--
+keystone  --token 012345SECRET99TOKEN012345 --endpoint http://192.168.3.2:35357/v2.0 service-create --name=nova     --type=compute  --description="Nova Compute Service"
++-------------+----------------------------------+
+|   Property  |              Value               |
++-------------+----------------------------------+
+| description | Nova Compute Service             |
+| id          | 8e890a3861954374a7124b7fd30451d7 |
+| name        | nova                             |
+| type        | compute                          |
++-------------+----------------------------------+
+
+keystone  --token 012345SECRET99TOKEN012345 --endpoint http://192.168.3.2:35357/v2.0 service-create --name=ec2      --type=ec2      --description="EC2 Compatibility Layer"
++-------------+----------------------------------+
+|   Property  |              Value               |
++-------------+----------------------------------+
+| description | EC2 Compatibility Layer          |
+| id          | a8efe66f8f004e1680c851b226ba97d9 |
+| name        | ec2                              |
+| type        | ec2                              |
++-------------+----------------------------------+
+
+keystone  --token 012345SECRET99TOKEN012345 --endpoint http://192.168.3.2:35357/v2.0 service-create --name=glance   --type=image    --description="Glance Image Service"
++-------------+----------------------------------+
+|   Property  |              Value               |
++-------------+----------------------------------+
+| description | Glance Image Service             |
+| id          | f64ad1353f104c478bf78032795a7f84 |
+| name        | glance                           |
+| type        | image                            |
++-------------+----------------------------------+
+
+keystone  --token 012345SECRET99TOKEN012345 --endpoint http://192.168.3.2:35357/v2.0 service-create --name=volume   --type=image    --description="Volume Service"
++-------------+----------------------------------+
+|   Property  |              Value               |
++-------------+----------------------------------+
+| description | Volume Service                   |
+| id          | b6996ff331e246478fda61a4c48a7096 |
+| name        | volume                           |
+| type        | image                            |
++-------------+----------------------------------+
+
+keystone  --token 012345SECRET99TOKEN012345 --endpoint http://192.168.3.2:35357/v2.0 service-create --name=keystone --type=identity --description="Keystone Identity Service"
++-------------+----------------------------------+
+|   Property  |              Value               |
++-------------+----------------------------------+
+| description | Keystone Identity Service        |
+| id          | 944f5d21fa5043e28466d22c99d6bc18 |
+| name        | keystone                         |
+| type        | identity                         |
++-------------+----------------------------------+
+
+<the nova service endpoint>
+keystone --token 012345SECRET99TOKEN012345 --endpoint http://192.168.3.2:35357/v2.0 endpoint-create \
+                       --region RegionOne \
+                       --service_id=8e890a3861954374a7124b7fd30451d7 \
+                       --publicurl http://192.168.3.2:8774/v2 \
+                       --adminurl http://192.168.3.2:8774/v2 \
+                       --internalurl http://192.168.3.2:8774/v2
+
++-------------+----------------------------------+
+|   Property  |              Value               |
++-------------+----------------------------------+
+| adminurl    | http://192.168.3.2:8774/v2       |
+| id          | 2d244df580da4fab8ece68417016d0c5 |
+| internalurl | http://192.168.3.2:8774/v2       |
+| publicurl   | http://192.168.3.2:8774/v2       |
+| region      | RegionOne                        |
+| service_id  | 8e890a3861954374a7124b7fd30451d7 |
++-------------+----------------------------------+
+
+<the image service endpoint>
+keystone --token 012345SECRET99TOKEN012345 --endpoint http://192.168.3.2:35357/v2.0 endpoint-create \
+                       --region RegionOne \
+                       --service_id=f64ad1353f104c478bf78032795a7f84 \
+                       --publicurl http://192.168.3.2:9292/v1 \
+                       --adminurl http://192.168.3.2:9292/v1 \
+                       --internalurl http://192.168.3.2:9292/v1
+
++-------------+----------------------------------+
+|   Property  |              Value               |
++-------------+----------------------------------+
+| adminurl    | http://192.168.3.2:9292/v1       |
+| id          | 11ccb7db655b479cb0f5cc36066131a8 |
+| internalurl | http://192.168.3.2:9292/v1       |
+| publicurl   | http://192.168.3.2:9292/v1       |
+| region      | RegionOne                        |
+| service_id  | f64ad1353f104c478bf78032795a7f84 |
++-------------+----------------------------------+
+
+<the volume service endpoint>
+keystone --token 012345SECRET99TOKEN012345 --endpoint http://192.168.3.2:35357/v2.0 endpoint-create \
+                       --region RegionOne \
+                       --service_id=b6996ff331e246478fda61a4c48a7096 \
+                       --publicurl http://192.168.3.2:8776/v1 \
+                       --adminurl http://192.168.3.2:8776/v1 \
+                       --internalurl http://192.168.3.2:8776/v1
+
++-------------+----------------------------------+
+|   Property  |              Value               |
++-------------+----------------------------------+
+| adminurl    | http://192.168.3.2:8776/v1       |
+| id          | 4acaf89332e54f1b9c778cd863cb2725 |
+| internalurl | http://192.168.3.2:8776/v1       |
+| publicurl   | http://192.168.3.2:8776/v1       |
+| region      | RegionOne                        |
+| service_id  | b6996ff331e246478fda61a4c48a7096 |
++-------------+----------------------------------+
+
+<the ec2 compatibility>
+keystone --token 012345SECRET99TOKEN012345 --endpoint http://192.168.3.2:35357/v2.0 endpoint-create \
+                       --region RegionOne \
+                       --service_id=a8efe66f8f004e1680c851b226ba97d9 \
+                       --publicurl http://192.168.3.2:8773/services/Cloud \
+                       --adminurl http://192.168.3.2:8773/services/Admin \
+                       --internalurl http://192.168.3.2:8773/services/Cloud
+                       
++-------------+----------------------------------------+
+|   Property  |                 Value                  |
++-------------+----------------------------------------+
+| adminurl    | http://192.168.3.2:8773/services/Admin |
+| id          | 76728df8325943d4b4f98e8c455d5b1b       |
+| internalurl | http://192.168.3.2:8773/services/Cloud |
+| publicurl   | http://192.168.3.2:8773/services/Cloud |
+| region      | RegionOne                              |
+| service_id  | a8efe66f8f004e1680c851b226ba97d9       |
++-------------+----------------------------------------+
+                       
+<the identity service endpoint>
+keystone --token 012345SECRET99TOKEN012345 --endpoint http://192.168.3.2:35357/v2.0 endpoint-create \
+                       --region RegionOne \
+                       --service_id=944f5d21fa5043e28466d22c99d6bc18 \
+                       --publicurl http://192.168.3.2:35357/v2.0 \
+                       --adminurl http://192.168.3.2:5000/v2.0 \
+                       --internalurl http://192.168.3.2:35357/v2.0
+
++-------------+----------------------------------+
+|   Property  |              Value               |
++-------------+----------------------------------+
+| adminurl    | http://192.168.3.2:5000/v2.0     |
+| id          | 1532fa305a3449cda1c411e04fd2fedf |
+| internalurl | http://192.168.3.2:35357/v2.0    |
+| publicurl   | http://192.168.3.2:35357/v2.0    |
+| region      | RegionOne                        |
+| service_id  | 944f5d21fa5043e28466d22c99d6bc18 |
++-------------+----------------------------------+
+
+
+<Verifying the Identity Service Installation>
+curl -d '{"auth": {"tenantName": "adminTenant", "passwordCredentials":{"username": "adminUser", "password": "secretword"}}}' -H "Content-type: application/json" http://192.168.3.2:35357/v2.0/tokens | python -mjson.tool
+
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   363    0   252  100   111   1640    722 --:--:-- --:--:-- --:--:--  1647
+{
+    "access": {
+        "serviceCatalog": {}, 
+        "token": {
+            "expires": "2012-04-08T23:32:16Z", 
+            "id": "2f1c22a3666447d98b147a7180e4c36d"
+        }, 
+        "user": {
+            "id": "30ad8a7e8ee44e14b5021a6c31297dab", 
+            "name": "adminUser", 
+            "roles": [], 
+            "roles_links": [], 
+            "username": "adminUser"
+        }
+    }
+}
+
+curl -d '{"auth": {"tenantName": "openstackDemo", "passwordCredentials":{"username": "adminUser", "password": "secretword"}}}' -H "Content-type: application/json" http://192.168.3.2:35357/v2.0/tokens | python -mjson.tool
+
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  1515    0  1402  100   113   8468    682 --:--:-- --:--:-- --:--:--  8496
+{
+    "access": {
+        "serviceCatalog": [
+            {
+                "endpoints": [
+                    {
+                        "adminURL": "http://192.168.3.2:8776/v1", 
+                        "internalURL": "http://192.168.3.2:8776/v1", 
+                        "publicURL": "http://192.168.3.2:8776/v1", 
+                        "region": "RegionOne"
+                    }
+                ], 
+                "endpoints_links": [], 
+                "name": "volume", 
+                "type": "image"
+            }, 
+            {
+                "endpoints": [
+                    {
+                        "adminURL": "http://192.168.3.2:8774/v2", 
+                        "internalURL": "http://192.168.3.2:8774/v2", 
+                        "publicURL": "http://192.168.3.2:8774/v2", 
+                        "region": "RegionOne"
+                    }
+                ], 
+                "endpoints_links": [], 
+                "name": "nova", 
+                "type": "compute"
+            }, 
+            {
+                "endpoints": [
+                    {
+                        "adminURL": "http://192.168.3.2:8773/services/Admin", 
+                        "internalURL": "http://192.168.3.2:8773/services/Cloud", 
+                        "publicURL": "http://192.168.3.2:8773/services/Cloud", 
+                        "region": "RegionOne"
+                    }
+                ], 
+                "endpoints_links": [], 
+                "name": "ec2", 
+                "type": "ec2"
+            }, 
+            {
+                "endpoints": [
+                    {
+                        "adminURL": "http://192.168.3.2:5000/v2.0", 
+                        "internalURL": "http://192.168.3.2:35357/v2.0", 
+                        "publicURL": "http://192.168.3.2:35357/v2.0", 
+                        "region": "RegionOne"
+                    }
+                ], 
+                "endpoints_links": [], 
+                "name": "keystone", 
+                "type": "identity"
+            }
+        ], 
+        "token": {
+            "expires": "2012-04-08T23:35:24Z", 
+            "id": "ccf845e2e8f040b68d06fa6f24afa0ee", 
+            "tenant": {
+                "description": "Default Tenant", 
+                "enabled": true, 
+                "id": "f03d2e777ebe4ef8af48ea6cd1dd20f5", 
+                "name": "openstackDemo"
+            }
+        }, 
+        "user": {
+            "id": "30ad8a7e8ee44e14b5021a6c31297dab", 
+            "name": "adminUser", 
+            "roles": [
+                {
+                    "id": "3aba44d0fdf84a659a34539f74123cba", 
+                    "name": "admin"
+                }
+            ], 
+            "roles_links": [], 
+            "username": "adminUser"
+        }
+    }
+}
+
+
+sudo glance -I adminUser -K PASSWORD -T openstackDemo -N http://192.168.3.2:5000/v2.0 add name="tty-linux-kernel" disk_format=aki container_format=aki < ttylinux-uec-amd64-12.1_2.6.35-22_1-vmlinuz
+
+==================================================================================
+glance issue
+==================================================================================
+배포판 설정파일 그대로 사용. 문서의 paste_deploy 추가하면 안됨. 
+
+정상적으로 가동됐을때 로그
+sudo tail -f /var/log/glance/api.log
+
+2012-04-09 17:58:45 651     INFO [eventlet.wsgi.server] Starting single process server
+
+
+view ~/openrc
+
+export OS_USERNAME=adminUser
+export OS_TENANT_NAME=openstackDemo
+export OS_PASSWORD=....99
+export OS_AUTH_URL=http://192.168.3.2:5000/v2.0/
+export OS_REGION_NAME=RegionOne
+
+source ~/openrc
+
+sudo glance add name="tty-linux-kernel" disk_format=aki container_format=aki < ttylinux-uec-amd64-12.1_2.6.35-22_1-vmlinuz
+
+
+
+==================================================================================
+Installing OpenStack Essex-4 on Ubuntu 12.04 ("Precise Pangolin")
+==================================================================================
+
+http://www.hastexo.com/resources/docs/installing-openstack-essex-4-ubuntu-1204-precise-pangolin/step-1-prepare-your-system

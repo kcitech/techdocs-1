@@ -1,0 +1,15 @@
+#!/bin/sh
+DIR=/home/backup/conf
+head=7
+tail=8
+
+while [ $head -ge 1 ]
+do
+        /bin/mv $DIR/conf.tar.gz.$head $DIR/conf.tar.gz.$tail
+        head=`expr $head - 1`
+        tail=`expr $tail - 1`
+done
+
+/bin/tar cvfz $DIR/conf.tar.gz /etc /root/bin
+/bin/mv -f $DIR/conf.tar.gz $DIR/conf.tar.gz.1
+chmod 700 $DIR/*

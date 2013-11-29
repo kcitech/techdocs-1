@@ -1,0 +1,214 @@
+정말 간만에 일과 관련된 포스팅 되겠다.
+사실 오라클은 업무용으로 설정되어 있는 녀석들만 쓰다보니 설정이라든지 관리에 대해서 주인장 역시 초보와 마찬가지인 상황이었는데, 갑작스레 이녀석이 다시 주인장의 인생에 태클을 걸어오는 바람에 최초의 9i 설치 포스팅후 다시 설치로 돌아간 포스팅 되겠다.
+
+
+사실 시도는 oracle 11g r2를 가지고 시도했었고, 현재시점에서 최신버젼은 11g r2이다. 하지만, 설치상에 오류를 만났고, 주인장에게 주어진 시간도 시간이거니와, 아무리해도 안되는 부분(ㅠ,.ㅠ)이 생겨서 급하게 11g r1으로 변경한 케이스이다.
+
+
+우선 기쁜소식은 9i때 처럼 gui환경에서 인스톨러 띄우는것이 그닥 어렵지 않아졌다는것. 게다가 지긋지긋하던 link에러도 주인장의 설치 방법에서는 나오지 않았다는 것이나. 역시나 오라클은 배신을 하지않고, 설치과정에서 사람 진을 빼먹는 프로그램임을 다시 한번 느끼게 되었다.
+
+
+설치 오에스는 centos 5.4 server gui 로 sun virtual box에서 설치.
+우선 메모리 설정부분에서 1024 이상으로 설치 해야 한다, 오라클이 물리적 메모리 크기로1024를 요구 하기 때문인데, 이것보다는 약간 크게 잡도록 한다. (요즈음 메모리야 1기가 이상이잖아요~~ 왜들 이러세요 메모리 증설 할때 1G 올린다고 큰맘 먹는 사람들처럼~)
+
+
+원격에서 X-window환경을 위하여 원격지 컴퓨터에 Xming 설치후 VM에 접근하여 x-window어플리케이션이 동작하는지 확인후 진행하였다.
+
+
+우선 설치전에 해야 할것들이 있다.
+사실 주인장은 이부분에서 많이 감동을 먹었는데, 이부분에서 뭔가 잘못되더라도 인스톨러에서 체크를 해준다는것. 예전에는 이러한 체크없이 인스톨러가 에러메시지를 뿜으면서 종료를 강요했었었다.
+
+
+계정 설정.
+#(당연하지만, 이게 앞에 있으면 root shell)
+#groupadd oinstall
+#groupadd dba
+#useradd -m -g oinstall -G dba oracle
+#passwd oracle.
+
+
+계정 설정은 끝. 다음은 커널 인자들을 설정해야 한다.
+#vi /etc/sysctl.conf
+- 이하 파일 내용
+kernel.shmall = 2097152
+kernel.shmmax = 2147483648
+kernel.sem = 250 32000 100 128
+fs.file-max = 6815744
+fs.aio-max-nr = 1048576
+net.ipv4.ip_local_port_range = 1024 65000
+net.core.rmem_default = 4194304
+net.core.rmem_max = 4194304
+net.core.wmem_default = 262144
+net.core.wmem_max = 1048576
+- 파일 편집 끝.
+
+
+#/sbin/sysctl -p
+로 설정된 값을 확인한다. 이 값들은 인스톨러에 의해서 체크 되므로, 숫자에 너무 민감하지 않아도 된다.
+
+
+계정 제한.
+#vi /etc/security/limits.conf
+- 이하 파일내용
+oracle        soft        nproc        2047
+oracle        hard       nproc        16384
+oracle        soft        nofile         1024
+oracle        hard       nofile         65536
+- 파일 편집 끝.
+
+
+#vi /etc/pam.d/login
+- 이하 파일내용
+session        required        /lib/security/pam_limits.so
+
+- 파일 편집 끝.
+
+
+필요 프로그램 설치
+오라클 설치를 위해서 필요한 프로그램들을 설치한다. 각각의 설치는 yum을 이용한다.
+
+-install gcc-3.4.6
+-install glibc-devel-2.3.4
+-install glibc-headers-2.3.4
+#yum install gcc
+
+
+-install gcc-c++-3.4.6
+-install libstdc++-devel-3.4.6
+#yum install gcc-c++
+
+
+-install compat-libstdc++-33-3.2.3
+#yum install compat-libstdc++-33
+
+
+-install elfutils-libelf-devel-0.97
+#yum install elfutils-libelf-devel
+
+
+-install libaio-devel-0.3.105
+#yum install libaio-devel	
+
+
+-install sysstat-5.0.5
+#yum install sysstat
+
+
+-install unixODBC-2.2.11
+#yum install unixODBC
+
+
+-install unixODBC-devel-2.2.11
+#yum install unixODBC-devel
+
+
+-install pdksh-5.2.14
+#yum install pdksh
+
+
+호스트 설정.
+오라클 인스톨러가 네트워크 설정 마법사를 이용할때 필요하다. 자신의 아이피를 호스트 파일에 등록시키면 되는데, 한마디로 hostname을 이용해서 얻은 호스티명으로 핑을 던졌을때 자신의 아피가 나오면 오케이 (어째 더 힘든가..ㅡㅡㅋ)
+#vi /etc/hosts
+
+
+설치
+다운로드 받은 오라클 설치 파일을 압축해제하고, 실행권한과 소유권한을 준후 설치를 시작한다.
+설치는 오라클 계정으로 접속해서 진행한다. 이예제에서는 /download 디렉토리에 오라클 설치파일을 두었다.
+
+
+#cd /download
+#unzip linux-11gR1-database_1013.zip
+#chown -R orcle.oinstall ./database
+
+
+인스톨러 시작.
+#xhost +
+새로운 putty창을 열고 오라클 계정으로 로그인 후 인스톨러 구동.
+$(아시다 시피 이것은 사용자 계정 shell)
+$cd /download/database
+$./runInstaller
+
+
+인스톨러를 이용한 설치진행.
+- 이부분은 거의 대부분을 default로 진행 했다. 뭐 특별히 설명을 안해도 될정도로 잘되어 있기는 하지만, 이부분에서 ORACLE_HOME 환경변수라든지 나오는 정보에 대해서는 메모를 해두는것이 좋을듯 하다.
+
+
+설치 종료후 점검.
+설치가 완료된 상태에서는 데이터 베이스도 올라와 있고 모든것이 잘되는 듯 싶지만, 주인장의 경우 설치된 VM을 리부팅 하고나면 완전히 이야기가 달라졌다. 이후 상황은 주인장에게만 나타났을수도 있는 과정으로 VM을 리부팅하고나서 oracle계정으로 접속, 오라클사에서 제공하는 클라이언트인 sqldeveloper를 이용하여 접속이 되는 과정까지 이다.
+
+
+환경변수 설정.
+오라클 계정의 환경변수를 설정해준다.
+$vi .bash_profile
+- 이하 파일내용
+ORACLE_BASE=/home/oracle/app/oracle
+export ORACLE_BASE
+ORACLE_HOME=$ORACLE_BASE/product/11.1.0/db_1
+export ORACLE_HOME
+ORACLE_SID=orcl
+export ORACLE_SID
+PATH=$PATH:$ORACLE_HOME/bin
+- 파일내용 끝.
+
+
+오라클 DB 시작.
+리스너를 시작한다.
+
+$lsnrctl start
+오라클 sqlplus 프롬프트로 접근.
+$sqlplus /nolog
+SQL>(아시다 시피 오라클 sqlplus 프롬프트입니다.)
+SQL>connect orcl as sysdba
+password :
+- 기본으로 설치 했기 때문에 기본 데이터 베이스가 orcl로 되어 있는 상태.
+SQL>startup (시작)
+SQL>shutdown immediate (종료)
+
+
+오라클 db를 시작하고 원격지에서 접근이 되는지 확인하면 되겠다.
+
+
+헌데 여기서부터 주인장의 구글 삽질기가 시작되니. startup을 시키기 위해 명령을 내리고 엔터키를 치는 순간 나타나는 메시지 게다가 하나를 해결하면 또 나타나고 또 나타나고... 결국 각 메시지 에 대해서 아래와 같이 처리하여, 원격지에서 접속 성공.
+
+
+-ora-01078 failure in processing system parameters
+$cp /home/oracle/app/oracle/product/11.1.0/db_1/dbs/init.ora \ /home/oracle/app/oracle/product/11.1.0/db_1/dbs/initORCL.ora (한줄에 쓰기)
+$vi initORCL.ora
+-파일 내용 시작
+db_name=orcl
+-파일 내용 끝.
+
+
+-ora-00371 not enough shared pool memory
+
+$vi initORCL.ora
+-파일 내용 시작
+shared_pool_size = 102341017
+-파일 내용 끝.
+
+
+-ora-00205 error in identifying control file
+$vi initORCL.ora
+-파일 내용 시작
+control_files=(/home/oracle/app/oradata/orcl/control01.ctl, \ /home/oracle/app/oracle/oradata/orcl/control02.ctl, \ /home/oracle/app/oracle/oradata/orcl/control03.ctl) (한줄에 쓰기)
+-파일 내용 끝.
+
+
+-ora-00201 control file version 11.1.0.0.0 incompatible with ORACLE version
+$vi initORCL.ora
+-파일 내용 시작
+compatible = 11.1.0.0.0
+-파일 내용 끝.
+
+
+결국은 initORCL.ora 파일 문제 였던것. 이 예제에서 사용된 path등은 기본설치를 했다는 가정에서 쓰여졌으므로 설치 위치를 조정한 사람은 알아서 수정해야 한다.
+
+
+이렇게해서 우야둥둥 오라클은 설치.
+
+
+ps. 끼아악...포스팅 해놓고 보니 9i 설치할때 포스팅이 무려 3년 전이네요 @,.@ 그동안 난 뭘 한거쥐..ㅠ,.ㅠ
+
+
+--------------------------
+http://blog.naver.com/PostView.nhn?blogId=ecross&logNo=150047437022

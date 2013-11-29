@@ -1,0 +1,717 @@
+reference
+-- http://www.howtoforge.com/mysql_database_replication_p2
+
+Good Reference
+-- http://sapphire.egloos.com/3853709
+
+
+1. master, slave 설정
+
+-. master(192.168.3.153)
+# vi /etc/my.cnf
+log-bin
+server-id = 1
+
+or
+# vi /etc/my.cnf
+log-bin = /var/log/mysql/mysql-bin.log
+binlog-do-db=exampledb
+server-id=1
+
+master DB 접속계정 추가
+master mysql> grant replication slave on *.* to slave_svr@192.168.3.154 identified by 'PASSWD';
+
+-. slave(192.168.3.154)
+# vi /etc/my.cnf
+server-id = 2
+master-host = '192.168.3.153'
+master-port = 3306
+master-user = 'slave_svr'
+master-password = 'PASSWD'
+
+or
+# vi /etc/my.cnf
+server-id=2
+master-host=192.168.0.100
+master-user=slave_user
+master-password=secret
+master-connect-retry=60
+replicate-do-db=exampledb
+
+
+153 DB 를 154번 서버로 hot백업 하였습니다.(db 중지후 rsync이용)
+
+2. 테스트 및 확인
+154번 서버에 APM 설치 후 웹데이터도 옮겨온 상태입니다.
+http://svr.DOMAIN.SAMPLE (192.168.3.154 - 테스트용 도메인)
+접속시 154번의 웹소스에서 154번 DB를 불러오도록 되어 있습니다.
+153번 서버에서 회원가입 후 http://svr.DOMAIN.SAMPLE에 정상적으로
+회원 접속됨을 확인하였습니다.
+고객님 께서도 다시한번 테스트 해 보시기 바랍니다.
+(154번 소스 수정부분도 다시확인필요 - dbconn등)
+
+
+3. 장애복구
+예) 두서버중 master서버가 잘못되었을때 재시작(또는 리부팅) 할경우
+기존 같이 마스터의 mysqld restart 하시면 replication 이 원할하지 않을 수 있습니다.(master에 영향은 없음)
+
+-. 마스터 서버를 재시작 한다고 가정
+mysql1의 mysql/data/ 의 mysql1-bin.* 지움
+mysql1의 mysqld 시작
+mysql2 mysql > stop slave;
+mysql2 mysql > stop reset;
+mysql2 mysql > stop start;
+
+-. master 장애시 슬래이브 서버를 마스터용으로 사용 가능
+/usr/local/mysql-4.0.27/mysqld_safe --skip-slave-start &
+(replication 미적용후 구동됨)
+
+이 후 기존 마스터 복구시 slave 데이터를 마스터로 복구 하시면됩니다.
+
+데이터 이동시에는 쓰기가 이뤄지면 안되므로 DB 중지나 lock을 걸어 놓으셔야 합니다.
+
+중요) 그리고 현재 관계가 master-slave 관계이기 때문에 slave DB
+에는 쓰기가 이뤄져서는 안됩니다.(읽기만 해야됨) slave 레코드
+가 입력되면 duplication 에러로 관계가 되지 않습니다.
+
+4. 현재 설정된 db 상태 및 로그
+- master
+mysql> show master status;
++------------+----------+--------------+------------------+
+| File | Position | Binlog_do_db | Binlog_ignore_db |
++------------+----------+--------------+------------------+
+| db-bin.001 | 5084636 | | |
++------------+----------+--------------+------------------+
+1 row in set (0.00 sec)
+
+mysql> show processlist \\G;
+*************************** 1. row ***************************
+Id: 1
+User: system user
+Host:
+db: NULL
+Command: Connect
+Time: 192
+State: Waiting for master to send event
+Info: NULL
+*************************** 2. row ***************************
+Id: 2
+User: system user
+Host:
+db: NULL
+Command: Connect
+Time: 192
+State: Has read all relay log; waiting for the I/O slave
+thread to update it
+Info: NULL
+*************************** 3. row ***************************
+Id: 5
+User: root
+Host: localhost
+db: mysql
+Command: Query
+Time: 0
+State: NULL
+Info: show processlist
+3 rows in set (0.00 sec)
+
+ERROR:
+No query specified
+
+
+-. slave
+mysql> show slave status;
++---------------+-------------+-------------+---------------+-
+----------------+---------------------+-----------------------
+--+---------------+-----------------------+------------------
++-------------------+-----------------+---------------------+-
+-----------+------------+--------------+---------------------
++-----------------+
+| Master_Host | Master_User | Master_Port | Connect_retry |
+Master_Log_File | Read_Master_Log_Pos |
+Relay_Log_File | Relay_Log_Pos |
+Relay_Master_Log_File | Slave_IO_Running | Slave_SQL_Running
+| Replicate_do_db | Replicate_ignore_db | Last_errno |
+Last_error | Skip_counter | Exec_master_log_pos |
+Relay_log_space |
++---------------+-------------+-------------+---------------+-
+----------------+---------------------+-----------------------
+--+---------------+-----------------------+------------------
++-------------------+-----------------+---------------------+-
+-----------+------------+--------------+---------------------
++-----------------+
+| 192.168.3.153 | slave_svr | 3306 | 60 |
+db-bin.001 | 5100437 | localhost-relay-
+bin.001 | 5100474 | |
+Yes | Yes |
+| | 0 | |
+0 | 5100437 | 5100474 |
++---------------+-------------+-------------+---------------+-
+----------------+---------------------+-----------------------
+--+---------------+-----------------------+------------------
++-------------------+-----------------+---------------------+-
+-----------+------------+--------------+---------------------
++-----------------+
+1 row in set (0.00 sec)
+
+# cat localhost.localdomain.err
+100101 9:37:00 Slave SQL thread initialized, starting
+replication in log \'FIRST\' at position 0, relay
+log \'./localhost-relay-bin.001\' position: 4
+100101 9:37:00 Slave I/O thread: connected to
+master \'slave_svr@192.168.3.153:3306\', replication started
+in log \'FIRST\' at position 4
+
+※ master-slave 관계는 master의 bin-log를 slave에서 가져와서
+기록하는 방식입니다.
+master는 영향이 거의 없으며 언제든지 관계를 해제할 수 있습니
+다.
+
+
+=====================================================================
+slave 서버에서 
+show slave status 시 아래와 같은 오류가 발생할때
+
+Error 'Duplicate entry '6' for key 1' on query. Default database: ......
+=====================================================================
+
+simple solution 1>
+-----------------
+#mysql -u root -p
+mysql> show slave status \G;
+
+Slave_IO_Running: Yes
+Slave_SQL_Running: No
+
+You will see from that the Slave_SQL_Running is set to No, indicating that the replication is broken.
+
+To repair the replication, here are the steps that you can try:
+
+mysql>SLAVE STOP;
+mysql>SET GLOBAL SQL_SLAVE_SKIP_COUNTER = 1;
+mysql>SLAVE START;
+mysql>SHOW SLAVE STATUS \G
+
+simple solution 2>
+-----------------
+on /etc/my.cnf
+
+add this line under [mysqld]:
+
+slave-skip-errors=1062
+
+Then restart mysql.
+
+fully solution 3>
+-----------------
+One of the most important procedure in setting up master-slave replication on Mysql database successfully is to have a consistent dump or backup of database(s) from the master server by locking all tables during mysqldump so write access is not possible.
+
+master log file and log position will be taken from the master and configure it on the slave server. But it’s not always good times. There are some bad times too. And one of it is sudden stop of your slave and no longer synching with the master database.
+
+I’ll give you a scenario. Before the replication starts, my slave server has an existing database named “flt”. Then you setup your replication without any problems and all goes well. Then one time, somebody created a database server named “flt” on the master server with a different tables or structure. Then that might confuse now the mysql process. You can see errors like cannot create database etc..
+
+Another common problem also are duplicate entries caused by inconsistent backups that was restored on the slave server.
+
+To check, inspect your mysqld.logs for errors, something like
+
+#less /var/log/mysqld.log
+
+100318  5:34:46 [ERROR] Slave: Error ‘Duplicate entry ‘flt-2010-01-30′ for key 1′ on query. Default database: ‘fltdb’. Query: ‘INSERT INTO flt_tracking(keyword,requested_date,request_count,flt_id) VALUES (‘flt’,’2010-01-30”)’, Error_code: 1062
+
+On mysql prompt ,try to check the status of the slave by:
+
+#mysql -u root -p
+mysql> show slave status \G;
+
+Slave_IO_Running: Yes
+Slave_SQL_Running: No
+
+You will see from that the Slave_SQL_Running is set to No, indicating that the replication is broken.
+
+To repair the replication, here are the steps that you can try:
+
+mysql> SLAVE STOP;
+mysql>SET GLOBAL SQL_SLAVE_SKIP_COUNTER = 1;
+mysql>SLAVE START;
+mysql>SHOW SLAVE STATUS \G
+
+mysql> show slave status \G
+*************************** 1. row ***************************
+Slave_IO_State: Waiting for master to send event
+Master_Host: 10.10.10.10
+Master_User: slaveuser
+Master_Port: 3306
+Connect_Retry: 60
+Master_Log_File: FLT-bin.000058
+Read_Master_Log_Pos: 470394670
+Relay_Log_File: mysqld-relay-bin.000004
+Relay_Log_Pos: 123918387
+Relay_Master_Log_File:FLT-bin.000058
+Slave_IO_Running: Yes
+Slave_SQL_Running: Yes
+Replicate_Do_DB:
+Replicate_Ignore_DB:
+Replicate_Do_Table:
+Replicate_Ignore_Table:
+Replicate_Wild_Do_Table:
+Replicate_Wild_Ignore_Table:
+Last_Errno: 0
+Last_Error:
+Skip_Counter: 0
+Exec_Master_Log_Pos: 123918248
+Relay_Log_Space: 5839136723
+Until_Condition: None
+Until_Log_File:
+Until_Log_Pos: 0
+Master_SSL_Allowed: No
+Master_SSL_CA_File:
+Master_SSL_CA_Path:
+Master_SSL_Cert:
+Master_SSL_Cipher:
+Master_SSL_Key:
+Seconds_Behind_Master:0
+1 row in set (0.00 sec)
+
+As appeared above, Slave_IO_Running is Yes and Slave_SQL_Running is now set to Yes. Slave State is waiting for master to send Event.
+
+From the mysqld log file, a similar output such as this will appear
+
+100318 23:15:45 [Note] Slave SQL thread initialized, starting replication in log ‘FLT-bin.000058′ at position 603115919, relay log ‘./mysqld-relay-bin.000001′ position: 4
+100318 23:15:45 [Note] Slave I/O thread: connected to master ‘slaveuser@10.10.10.10:3306′,  replication started in log ‘FLT-bin.000051′ at position 603115919
+
+If you still have duplicate entries, just rerun the process. But how if are too many and doing all over again is quite stupid already. Then you have an option to put the skip errors to mysql configuration
+
+on /etc/my.cnf
+
+add this line under [mysqld]:
+
+slave-skip-errors=1062
+
+Then restart mysql.
+
+----------------------------------
+mysql replication reference
+----------------------------------
+http://dev.kthcorp.com/2012/03/23/what-is-mysql-replication/
+http://dev.kthcorp.com/2012/04/12/what-is-mysql-replication-2-configuration/
+http://dev.kthcorp.com/2012/05/04/what-is-mysql-replication-part-3/
+
+---------------------------------
+mysql repllication 
+---------------------------------
+http://www.hya.kr/index.php?page_no=22&mode=view&wr_id=112
+
+MySQL 버전이 서로 다를 경우, 높은 버전은 Slave만 가능하다.
+ 
+테스트 시스템은 둘다 컴파일설치
+
+Master MySQL 5.0.27         IP : 192.168.0.10    마스터에는 기존에 돌아가던 db 데이타가 몇개 있다고 가정.
+ 
+Slave MySQL 5.1.34           IP : 192.168.0.20    슬래이브는 완전 새로설치 했다고 가정.
+
+ 
+▶마스터 서버  설정
+ 
+우선 my.cnf 파일을 복사하고 편집한다.
+ 
+cp /usr/local/mysql/share/mysql/my-small.cnf /etc/my.cnf
+ 
+vi /etc/my.cnf
+ 
+----------------------------------------------------------------------------------------------------
+ 
+server-id       = 1                                  1로 셋팅해준다.
+log-bin=mysql-bin                                원래 앞에 주석(#) 처리가 되어있는데 주석을 삭제한다. 로깅파일명 설정
+ 
+----------------------------------------------------------------------------------------------------
+ 
+ 
+ 
+mysql 접속후 그리고 슬레이브에서 접속할 계정을 만들어준다.
+ 
+mysql> GRANT REPLICATION SLAVE ON *.* TO 'repl'@'%' IDENTIFIED BY '비번';
+
+(%대신 IP주소를 넣으면 그 IP로부터 접속하는 slave에 대해서만 접속을 허용하겠다는 의미)
+ 
+ 
+ 
+mysql>FLUSH TABLES WITH READ LOCK;
+mysql> show master status;
++------------------+----------+--------------+------------------+
+| File             | Position | Binlog_Do_DB | Binlog_Ignore_DB |
++------------------+----------+--------------+------------------+
+| mysql-bin.000003 |       98 |              |                  |                  
++------------------+----------+--------------+------------------+
+1 row in set (0.00 sec)
+ 
+ 
+ 
+마스터 서버의 db데이타를 덤프한다.
+
+/usr/local/mysql/bin/mysqldump -uroot -p --all-databases > all_db(덤프할이름).sql
+ 
+한개의 디비만 할려면 해당디비만 덤프
+ 
+ 
+ 
+mysql>UNLOCK TABLES;
+ 
+ 
+ 
+전체 덤프뜬 파일을 슬레이브 서버에 복사한다. scp를 쓰던 ftp로올리던 그건 마음대로.
+ 
+ 
+ 
+/usr/local/mysql/bin/mysqladmin -uroot -p shutdown    
+
+/usr/local/mysql/bin/mysqld_safe &
+
+ 
+ 
+▶슬레이브 서버 설정
+
+
+우선 my.cnf 파일을 복사하고 편집한다.
+ 
+cp /usr/local/mysql/share/mysql/my-small.cnf /etc/my.cnf
+ 
+vi /etc/my.cnf
+ 
+--------------------------------------------------------
+ 
+server-id=2                                 2로바꿔준다
+replicate-do-db='DB명'               전체 디비를 설정할려면 이줄은 삭제, 한개의 디비만 리플리케이션 시킬려면 디비명을 적는다.
+ 
+--------------------------------------------------------
+ 
+마스터에서 전체 덤프뜬 파일을 복구한다.
+ 
+/usr/local/mysql/bin/mysql -uroot -p < all_db(덤프할이름).sql
+ 
+ 
+ 
+mysql>CHANGE MASTER TO
+       ->MASTER_HOST='192.168.0.10',
+       ->MASTER_USER='repl',
+       ->MASTER_PORT=3306,
+       ->MASTER_PASSWORD='패스워드',
+      ->MASTER_LOG_FILE='mysql-bin.000003',           마스터의 상태보기 명령어에서 나온 파일명을 적어준다.
+      ->MASTER_LOG_POS=98;                                      마스터의 상태보기 명령에서 나온 포지션을 적어준다.
+ 
+ 
+ 
+/usr/local/mysql/bin/mysqladmin -uroot -p shutdown    
+
+/usr/local/mysql/bin/mysqld_safe &
+ 
+ 
+ 
+mysql> SHOW SLAVE STATUS;
+ 
+--------------------------------------------------------------------
+ 
+*************************** 1. row ***************************
+               Slave_IO_State: Waiting for master to send event
+                  Master_Host: 192.168.0.10
+                  Master_User: repl
+                  Master_Port: 3306
+                Connect_Retry: 60
+              Master_Log_File: mysql-bin.000003
+          Read_Master_Log_Pos: 98
+               Relay_Log_File: db-relay-bin.000003
+                Relay_Log_Pos: 243
+        Relay_Master_Log_File: mysql-bin.000003
+             Slave_IO_Running: Yes
+            Slave_SQL_Running: Yes
+              Replicate_Do_DB: 
+          Replicate_Ignore_DB: 
+           Replicate_Do_Table: 
+       Replicate_Ignore_Table: 
+      Replicate_Wild_Do_Table: 
+  Replicate_Wild_Ignore_Table: 
+                   Last_Errno: 0
+                   Last_Error: 
+                 Skip_Counter: 0
+          Exec_Master_Log_Pos: 98
+              Relay_Log_Space: 395
+              Until_Condition: None
+               Until_Log_File: 
+                Until_Log_Pos: 0
+           Master_SSL_Allowed: No
+           Master_SSL_CA_File: 
+           Master_SSL_CA_Path: 
+              Master_SSL_Cert: 
+            Master_SSL_Cipher: 
+               Master_SSL_Key: 
+        Seconds_Behind_Master: 0
+Master_SSL_Verify_Server_Cert: No
+                Last_IO_Errno: 0
+                Last_IO_Error: 
+               Last_SQL_Errno: 0
+               Last_SQL_Error: 
+1 row in set (0.00 sec)
+ 
+-----------------------------------------------------------------------
+ 
+mysql> start slave;
+ 
+ 
+ 
+ 
+ 
+▶ 마스터 슬래이브 설정확인
+ 
+ 
+ 
+마스터 mysql > SHOW PROCESSLIST\G
+ 
+-------------------------------------------------------------------------
+*************************** 1. row ***************************
+     Id: 5
+   User: repl
+   Host: 192.168.0.20:62634
+     db: NULL
+Command: Binlog Dump
+   Time: 1361
+  State: Has sent all binlog to slave; waiting for binlog to be updated
+   Info: NULL
+*************************** 2. row ***************************
+     Id: 7
+   User: root
+   Host: localhost
+     db: NULL
+Command: Query
+   Time: 0
+  State: NULL
+   Info: show processlist
+2 rows in set (0.00 sec)
+ 
+-------------------------------------------------------------------------
+
+ 
+슬래이브 mysql > SHOW PROCESSLIST\G
+ 
+-------------------------------------------------------------------------
+ 
+*************************** 1. row ***************************
+     Id: 1
+   User: system user
+   Host: 
+     db: NULL
+Command: Connect
+   Time: 1409
+  State: Has read all relay log; waiting for the slave I/O thread to update it
+   Info: NULL
+*************************** 2. row ***************************
+     Id: 2
+   User: system user
+   Host: 
+     db: NULL
+Command: Connect
+   Time: 1409
+  State: Waiting for master to send event
+   Info: NULL
+*************************** 3. row ***************************
+     Id: 6
+   User: root
+   Host: localhost
+     db: NULL
+Command: Query
+   Time: 0
+  State: NULL
+   Info: SHOW PROCESSLIST
+3 rows in set (0.00 sec)
+ 
+---------------------------------------------------------------------------
+
+ 
+테스트
+ 
+ 
+ 
+아무이상이없으면 마스터 서버의 데이타 하나를 지워보자 그럼 슬레이브의 데이타도 똑같이 지워진다.ㅋㅋ
+ 
+ 
+ 
+참고
+ 
+ 
+ 
+MySQL 데몬(서비스)를 재 시작하면 slave는 자동으로 시작된다.(my.cnf에 옵션 skip-slave-start이 있으면 자동 시작 안한다.)
+
+
+-----------------------
+mysql replication 장애 처리 
+-----------------------
+
+mysql replication 진행도중 slave서버의  error-log 파일내용을 확인한 후 대처법
+
+ 에러유형-4) - 2010년 5월 3일 추가
+
+100503  8:41:05 [ERROR] Error reading packet from server: log event entry exceeded max_allowed_packet; Increase max_allowed_packet on master ( server_errno=1236)
+100503  8:41:05 [ERROR] Got fatal error 1236: 'log event entry exceeded max_allowed_packet; Increase max_allowed_packet on master' from master when reading data from binary log
+100503  8:41:05 [Note] Slave I/O thread exiting, read up to log 'binlog.021419', position 196980
+ 
+
+해결1)  master서버의 max_allowed_packet 값이 작을 경우 문제가 발생할수 있다.
+
+          - my.cnf파일을 수정해 준후 데몬을 재시작한다.
+
+          - 데몬 재시작이 힘들경우 쉘 상에서 값을 변경한다.
+
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or g.
+Your MySQL connection id is 11443092
+Server version: 5.0.45-log MySQL Community Server (GPL)
+Type 'help;' or 'h' for help. Type 'c' to clear the buffer.
+
+mysql> SET GLOBAL max_allowed_packet = 1024*1024*100;
+
+mysql> SET SESSION max_allowed_packet = 1024*1024*100;
+
+해결2) master서버의 max_allowed_packet값이 충분히 큰데 위와 같은 오류가 발생할 경우..
+
+        - 먼저 master서버의 binlog파일을 확인해본다.
+
+mysqlbinlog  binlog.021419 | more
+--중략--"># at 196800
+#100503  7:16:31 server id 1  end_log_pos 196827  Xid = 3282913394
+COMMIT/*!*/;
+# at 196827
+#100503  7:16:31 server id 1  end_log_pos 138  Query thread_id=235254463 exec_time=0 error_code=0
+SET TIMESTAMP=1272838591/*!*/;
+Update tablename Set count0/*!*/;
+# at 196965
+#100503  7:16:31 server id 1  end_log_pos 196992  Xid = 3282913395
+COMMIT/*!*/;
+# at 196992
+#100503  7:16:31 server id 1  end_log_pos 133  Query thread_id=232937265 exec_time=0 error_code=0
+SET TIMESTAMP=1272838591/*!*/;
+Update tablename Set size = 295976960/*!*/;
+# at 197125
+
+        - 확인 결과 196980 위치가 존재하지 않는다.
+
+        - master_log_pos를 다음값으로 변경하면 끝.
+
+ 
+
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or g.
+Your MySQL connection id is 11443092
+Server version: 5.0.45-log MySQL Community Server (GPL)
+Type 'help;' or 'h' for help. Type 'c' to clear the buffer.
+
+mysql> stop slave;
+
+mysql> change master to master_log_pos = 196992;
+
+mysql> start slave;
+
+ 
+
+에러유형-3) 2010.01.30 추가
+
+100130 12:57:07 [ERROR] Slave: Error ''SQL 구문에 오류가 있습니다.' 에러 같읍니다. ('' 명령어 라인 1)' on query. Default database: 'dbname'. Query: 'UPDATE PARTNER_CNT SET .... WHERE ...', Error_code: 1064
+100130 12:57:07 [ERROR] Error running query, slave SQL thread aborted. Fix the problem, and restart the slave SQL thread with "SLAVE START". We stopped at log 'binlog.007704' position 70234030
+
+해결) 키값이 중복되어 슬레이브에서 쿼리가 실행되지 못하고 있는것이다.
+
+        정상적인 리플리케이션에서는 문제가 없지만 갑작스런 서버 다운, 네트워크 단절이 발생했을 경우 위와  같은 오류가 발생한다.
+
+        아래 명령을 입력하여 해결 할 수 있다.      
+
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or g.
+Your MySQL connection id is 11443092
+Server version: 5.0.45-log MySQL Community Server (GPL)
+Type 'help;' or 'h' for help. Type 'c' to clear the buffer.
+
+mysql> stop slave;
+
+mysql> SET GLOBAL SQL_SLAVE_SKIP_COUNTER=1;
+
+mysql> start slave;  
+
+ 
+
+ 
+
+ 에러유형-1)
+
+100122  0:22:44 [ERROR] Error reading packet from server: Lost connection to MySQL server during query ( server_errno=2013)
+100122  0:22:44 [Note] Slave I/O thread: Failed reading log event, reconnecting to retry, log 'binlog.017528' position 90025355
+100122  0:22:48 [Note] Slave: connected to master 'xxxxxx@아이피',replication resumed in log 'binlog.017528' at position 90025355
+
+ 
+
+ 
+
+해결) master서버와의 연결이 끊어지면 위와 같은 오류 메세지를 출력하고 리플리케이션이 중지된다.
+
+        master서버가 정상적으로 돌아왔다면 slave 서버에 mysql을 접속한후 아래 명령을 입력한다.
+
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or g.
+Your MySQL connection id is 11443092
+Server version: 5.0.45-log MySQL Community Server (GPL)
+Type 'help;' or 'h' for help. Type 'c' to clear the buffer.
+
+mysql> stop slave;
+
+mysql> start slave;
+
+ 
+
+에러유형-2)
+
+ 100122  1:35:56 [Note] Slave I/O thread killed while reading event
+100122  1:35:56 [Note] Slave I/O thread exiting, read up to log 'binlog.017530', position 33231841
+100122  1:36:05 [Note] Slave SQL thread initialized, starting replication in log 'binlog.017528' at position 195, relay log '/db/slave_log/relay_log.002684' position: 90005865
+100122  1:36:05 [ERROR] Error in Log_event::read_log_event(): 'Event too big', data_len: 811157539, event_type: 0
+100122  1:36:05 [ERROR] Error reading relay log event: slave SQL thread aborted because of I/O error
+100122  1:36:05 [ERROR] Slave: Could not parse relay log event entry. The possible reasons are: the master's binary log is corrupted (you can check this by running 'mysqlbinlog' on the binary log), the slave's relay log is corrupted (you can check this by running 'mysqlbinlog' on the relay log), a network problem, or a bug in the master's or slave's MySQL code. If you want to check the master's binary log or slave's relay log, you will be able to know their names by issuing 'SHOW SLAVE STATUS' on this slave. Error_code: 0
+100122  1:36:05 [ERROR] Error running query, slave SQL thread aborted. Fix the problem, and restart the slave SQL thread with "SLAVE START". We stopped at log 'binlog.017528' position 195
+100122  1:36:05 [Note] Slave I/O thread: connected to master 'xxxx@아이피',  replication started in log 'binlog.017530' at position 33231841
+ 
+
+해결) slave서버가 갑작스럽게 다운 되었을때 로그 파일이 깨져서 위와 같은 오류가 발생한다.
+
+        위 에러로그에서는 relay_log.002684 로그에서 중지 되었다.
+
+        slave_log가 쌓이는 디렉토리( /db/slave_log/)에  relay_log.002685 파일이 있는지 확인후 아래 명령을 입력한다.
+
+ 
+
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or g.
+Your MySQL connection id is 11443092
+Server version: 5.0.45-log MySQL Community Server (GPL)
+Type 'help;' or 'h' for help. Type 'c' to clear the buffer.
+
+mysql> stop slave;
+
+mysql> CHANGE MASTER TO relay_log_file='/db/slave_log/relay_log.002685', relay_log_pos=0;
+
+mysql> start slave;
+
+--------------------------------------------------------
+mysql replication master 중지후, 다시 살릴때
+--------------------------------------------------------
+
+on master 
+ - mysql데몬 중지
+
+on slave 
+ - mysql.log 에 master 연결 오류출력됨
+ 
+on master
+ - mysql데몬 시작
+ 
+on slave
+ - slave stop;
+ - slave start;
+ - mysql.log 확인 및 master mysql에 데이타 입력후 확인  
+
+ 
+

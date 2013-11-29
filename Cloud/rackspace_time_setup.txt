@@ -1,0 +1,44 @@
+======================================================
+on rackspace centos 
+======================================================
+
+echo 1 > /proc/sys/xen/independent_wallclock
+
+ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
+
+시간 확인
+rdate -p zero.bora.net
+
+synchronize
+rdate -s zero.bora.net
+
+======================================================
+tools
+======================================================
+yum install system-config-date
+
+system-config-date
+
+======================================================
+tools
+======================================================
+tzselect
+
+======================================================
+references
+======================================================
+http://www.rackspace.com/knowledge_center/comment/1365
+http://www.linode.com/wiki/index.php/Configure_Timezone
+
+======================================================
+references(on centos )
+======================================================
+
+[root@ynflower ~]# cat /etc/sysconfig/clock 
+ZONE="Asia/Seoul"
+UTC=false
+ARC=false
+
+
+
+

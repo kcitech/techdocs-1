@@ -1,0 +1,26 @@
+
+php.ini에 php_flag 기능이 없을경우 추가하는 방법
+
+cp php.ini /home/we/php_ini/
+
+<VirtualHost x.x.x.x>
+    ServerName     www.x.x.x
+    ServerAlias    x.x.x
+    ServerAdmin    support@x.x.x
+    DocumentRoot   /home/we/www
+    ErrorLog       /var/log/xxx/x.x.x-error.log
+    CustomLog      /var/log/apache/x.x.x-access.log combined env=!image
+
+    User           we
+    Group          we
+    suPHP_UserGroup          we we
+
+    suPHP_ConfigPath /home/we/php_ini # 이부분 추가
+
+    ThrottlePolicy Volume 20G 1d
+    <Location /web-traffic>
+    SetHandler throttle-me
+    </Location>
+</VirtualHost>
+
+4. 아파치 재시작

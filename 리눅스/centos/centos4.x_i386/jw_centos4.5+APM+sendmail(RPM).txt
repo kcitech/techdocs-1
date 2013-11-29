@@ -1,0 +1,161 @@
+------------------
+1. after install
+------------------
+SELinux disable
+패키지
+    Development Tool
+    X Software Development 
+    Legacy Software Development
+
+/etc/ssh/sshd_config
+Protocol 2
+
+/etc/sysconfig/i18n
+LANG="ko_KR.eucKR"
+
+/etc/initscript
+ulimit -Hn 65536
+ulimit -Sn 65536
+eval exec "$4"
+
+/etc/sysctl.conf
+net.ipv4.tcp_syncookies=1
+
+/etc/crontab
+0 1 * * * root /usr/bin/rdate -s time.bora.net && /sbin/clock -w
+
+yum -y update
+
+yum -y remove wget lynx
+
+mv /usr/bin/curl /usr/bin/curl_AAAA
+mv /usr/bin/curl-config /usr/bin/curl-config_AAAA
+
+------------------
+2. APM(rpm)
+------------------
+centos4.5
+httpd - 2.0.52-32.ent.centos4
+php - 4.3.9-3.22.5
+mysql -2.6.9-55.ELsmp
+
+centos4.5 (--enablerepo=centosplus)
+httpd - 2.0.59-1.el4s1.5.el4.c
+php - 5.1.6-3.el4s1.5
+mysql - 5.0.27-1.el4.centos
+
+yum list "*httpd*" "*php*" "*mysql*"
+
+yum -y install httpd httpd-devel 
+                 php php-devel php-domxml php-imap php-mbstring php-mysql php-pear php-xmlrpc
+                 mysql mysql-server mysql-devel
+                 "Image*"
+
+yum -y install --enablerepo=centosplus httpd httpd-devel 
+                 php php-devel php-imap php-mbstring php-mysql php-pear php-xmlrpc
+                 mysql mysql-server mysql-devel
+                 "Image*"
+
+<IfModule prefork.c>
+    ServerLimit 256 -> 1024
+    MaxClients 256 -> 512
+<IfModule>
+
+KeepAlive Off
+AddDefaultCharset EUC-KR
+
+/etc/php.ini
+register_globals = Off -> On
+allow_url_fopen = On
+upload_max_filesize=2M
+max_execution_time=30 -> 60
+memory_limit=8M -> 20M
+
+/etc/httpd/conf.d/php.conf
+AddType application/x-httpd-php .php .html .htm
+Directory index.php index.html index.htm
+
+/etc/my.cnf
+[mysqld]
+datadir=/home/mysql-data
+old_passwords=1                               --> 4.1.x이상 버전에서 필요
+init_connect="set names euckr"          --> 4.1.x이상 버전에서 필요
+default-character-set=euckr
+
+[client]
+default-character-set=euckr
+
+------------------
+3. sendmail + dovecot
+------------------
+centos 3.x --> sendmail + imapd, pop3
+
+yum list "*sendmail*" "*dovecot*"
+
+yum -y install sendmail sendmail-devel sendmail-cf dovecot
+
+<== yum -y install --enablereps=centosplus mysqlclient14
+
+/etc/mail/local-host-names
+도메인
+
+외부와의 메일소통
+/etc/mail/sendmail.mc
+DAEMON_OPTIONS(`Port=smtp, Addr=127.0.0.1, Name=MTA')dnl 
+--> 
+DAEMON_OPTIONS(`Port=smtp, Name=MTA')dnl
+
+보내는메일 인증하기
+dnl TRUST_AUTH_MECH(`EXTERNAL DIGEST-MD5 CRAM-MD5 LOGIN PLAIN')dnl
+dnl define(`confAUTH_MECHANISMS', `EXTERNAL GSSAPI DIGEST-MD5 CRAM-MD5 LOGIN PLAIN')dnl
+-->
+TRUST_AUTH_MECH(`EXTERNAL DIGEST-MD5 CRAM-MD5 LOGIN PLAIN')dnl
+define(`confAUTH_MECHANISMS', `EXTERNAL GSSAPI DIGEST-MD5 CRAM-MD5 LOGIN PLAIN')dnl
+
+m4 /etc/mail/sendmail.mc > /etc/mail/sendmail.cf
+
+/etc/dovecot.conf
+Protocols = imap pop3
+
+/etc/init.d/sendmail start
+/etc/init.d/dovecot start
+/etc/init.d/saslauthd start
+
+/var/spool/mail 아래 메일 계정 위치
+
+proftpd.conf
+
+timesGMT off
+UseReverseDNS off
+IdentLookups off
+
+
+
+[root@localhost htdocs]# cd /var/log
+[root@localhost log]# ls -lhd dmesg
+-rw-r--r-- 1 root root 20K 10월 31 23:31 dmesg
+[root@localhost log]# ls -lhd lastlog
+-rw-r--r-- 1 root root 143K 11월  1 03:32 lastlog
+[root@localhost log]# ls -lhd wtmp
+-rw-rw-r-- 1 root utmp 35K 11월  1 03:48 wtmp
+[root@localhost log]# ls -lhd yum.log
+-rw-r--r-- 1 root root 13K 11월  1 04:02 yum.log
+[root@localhost log]# chmod o-r dmesg lastlog wtmp yum.log
+[root@localhost log]# ls -lhd /
+drwxr-xr-x 23 root root 4.0K 10월 31 23:31 /
+[root@localhost log]# chmod 701 /
+[root@localhost log]# ls -lhd /
+drwx-----x 23 root root 4.0K 10월 31 23:31 /
+
+[root@localhost log]# ls -lhd /proc
+dr-xr-xr-x 107 root root 0 10월 31 23:30 /proc
+[root@localhost log]# chmod 700 /proc
+[root@localhost log]# ls -lhd /proc
+drwx------ 107 root root 0 10월 31 23:30 /proc
+
+[root@localhost log]# ls -lhd /usr/src
+drwxr-xr-x 3 root root 4.0K 11월  1 01:32 /usr/src
+[root@localhost log]# ls -lhd /usr/local/src
+drwxr-xr-x 5 root root 4.0K 11월  1 03:48 /usr/local/src
+[root@localhost log]# chmod 700 /usr/src/ /usr/local/src
+

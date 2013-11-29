@@ -1,0 +1,110 @@
+펌 : http://junichel.tistory.com/92
+
+
+2009년 7월 10일을 기준으로 XpressEngine의 저장소가 분리되면서 이전의 svn을 통한 설치가 조금 번거롭게 되었다. 뭐, 어찌보면 더 효율적으로 관리할 수 있게 되었으니 불만은 없다.
+
+여기 설치법을 간단히 적어놓는다.
+
+1 core 부분만 설치
+
+svn co http://svn.xpressengine.net/xe/sandbox public_html/xe
+chmod 707 public_html/xe
+
+뒤의 'public_html/xe' 부분은 자신이 설치할 경로로 고친다. 이하 문서에도 마찬가지이다.
+기본적인 core는 여기서 끝이다. 물론 core만 사용하는 경우는 극히 드물 것이므로 아래 모듈 설치부분을 봐주길 바란다.
+
+2 모듈 설치
+원하는 모듈을 설치하면 된다. 꼭 모든 모듈을 설치할 필요가 없다. 필요한 모듈만 설치하는 것이 게시판 동작속도를 향상시킨다.
+
+2.1 board  설치
+
+svn co http://svn.xpressengine.net/board/modules/board public_html/xe/modules/board
+
+2.2 cafe 설치
+실제 내가 설치해본 것은 board다. 나머지들은 다른 모듈을 설치해보면서 이와 같이 하면 된다고 생각해서 적는다.
+
+svn co http://svn.xpressengine.net/cafe/modules/homepage public_html/xe/modules/homepage
+svn co http://svn.xpressengine.net/cafe/widgets/site_info public_html/xe/widgets/site_info
+
+2.3 planet 설치
+
+svn co http://svn.xpressengine.net/planet/modules/planet public_html/xe/modules/planet
+svn co http://svn.xpressengine.net/planet/addons/planet_bookmark public_html/xe/addons/planet_bookmark
+svn co http://svn.xpressengine.net/planet/addons/planet_todo public_html/xe/addons/planet_todo
+svn co http://svn.xpressengine.net/planet/widgets/planet_document public_html/xe/widgets/planet_document
+
+2.4 textyle 설치
+
+svn co http://svn.xpressengine.net/textyle/sandbox/textyle public_html/xe/modules/textyle
+svn co http://svn.xpressengine.net/textyle/sandbox/dreditor public_html/xe/modules/dreditor
+svn co http://svn.xpressengine.net/textyle/sandbox/material public_html/xe/modules/material
+
+2.5 textylehub 설치
+
+svn co http://svn.xpressengine.net/textyle/sandbox/textylehub public_html/xe/modules/textylehub
+
+2.6 issuetracker 설치
+
+svn co http://svn.xpressengine.net/issuetracker/trunk/modules/issuetracker public_html/xe/modules/issuetracker
+
+더보기
+
+
+3 업데이트를 위하여.
+svn의 장점중 하나는 쉬운 업데이트가 아니겠는가. 
+각 디렉토리에 직접 가서 external link를 만드는 방법도 있지만, 난 주로 그냥 간단한 스크립트를 만들어 놓는다. 
+
+3.0 external link
+external link를 만들기 위해서는 해당 경로로 이동해서 
+
+svn propedit svn:externals .
+
+명령을 내리고 링크 설정을 해주면 된다. 예를 들자면 board 의 경우 modules 로 이동해서 위 명령을 내리고 
+
+board http://svn.xpressengine.net/board/modules/board
+
+라고 적어주면 되는 것이다. 이후 업데이트는 board를 따로 업데이트 하지 않고 board가 포함된 core부분만 하면 된다.
+하지만 개인적, 정책적인 사유로 external link를 사용하지 않는 사람을 위해 아래 각각 업데이트를 적어놓는다.
+
+3.1 core 부분
+
+svn up public_html/xe
+
+3.2 board
+
+svn up public_html/xe/modules/board
+
+3.3 cafe
+
+svn up public_html/xe/modules/homepage
+svn up public_html/xe/widgets/site_info
+
+3.4 planet
+
+svn up public_html/xe/modules/planet
+svn up public_html/xe/addons/planet_bookmark
+svn up public_html/xe/addons/planet_todo
+svn up public_html/xe/widgets/planet_document
+﻿
+3.4 textyle
+
+svn up public_html/xe/modules/textyle
+svn up public_html/xe/modules/dreditor
+svn up public_html/xe/modules/material
+
+3.5 textylehub
+
+svn up public_html/xe/modules/textylehub
+
+3.6 issuetracker
+
+svn up public_html/xe/modules/issuetracker
+
+더보기
+
+
+
+여기까지하면 파일과 관련된 것은 다 끝났다. 이제 XpressEngine이 설치된 위치로 접속해 나머지 기본적인 설치를 하면 된다.
+
+설치 해본 결과, core와 board모듈만 설치했을 때, 전체 파일을 다운받아 설치했을 때보다 훨씬 가볍게 느껴진다.
+    

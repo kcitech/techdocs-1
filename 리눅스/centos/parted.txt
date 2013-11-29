@@ -1,0 +1,30 @@
+
+
+2T이상일때는 fdisk로는 안되고,
+parted라는 명령어를 사용해야 합니다.
+
+간단한 예는 다음과 같습니다.
+
+# parted /dev/sdb
+(parted) mklabel gpt
+(parted) print
+Disk geometry for /dev/sdb: 0.000-2288754.000 megabytes
+Disk label type: gpt
+Minor Start End Filesystem
+Name Flags
+
+(parted) mkpart
+Partition type? [primary]? <- 엔터
+File system type? [ext2]? ext3 <- ext3
+Start? 1 <- 1부터
+End? 2288754 <- 2288754메가 까지
+(parted) print
+
+(parted) quit
+
+# mkfs.ext3 /dev/sdb1
+
+참고 사이트)
+1.http://www.superuser.co.kr/home/lecture/?leccode=10966
+(5번 예제를 보시면 이해가 쉬우실겁니다.)
+2.http://www.gnu.org/software/parted

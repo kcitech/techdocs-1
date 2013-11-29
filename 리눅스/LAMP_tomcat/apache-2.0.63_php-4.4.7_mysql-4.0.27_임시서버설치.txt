@@ -1,0 +1,63 @@
+
+패키지(보내주신 URL참조)
+ - mysql-4.0.27 (datadir=/home/mysql-data)
+ - apache-2.0.63
+ - php-4.4.7
+ - zendoptimizer-3.3.3
+ - sendmail / dovecot
+ - proftpd-1.3.1-1.el4.rf.i386.rpm
+ 
+ 컴파일옵션
+ mysql-4.0.27
+ ./configure --prefix=/usr/local/mysql-4.0.27 
+  --with-charset=euc_kr 
+  --enable-thread-safe-client
+
+ apache-2.0.63
+ ./configure --prefix=/usr/local/httpd-2.0.63 
+  --enable-mods-shared=all 
+  --enable-ssl 
+  -with-ssl
+
+ php-4.4.7
+ './configure' '--prefix=/usr/local/php-4.4.7' 
+ '--with-config-file-path=/usr/local/php-4.4.7/etc' 
+ '--with-apxs2=/usr/local/httpd-2.0.63/bin/apxs' 
+ '--with-mysql=/usr/local/mysql-4.0.27' 
+ '--with-gd' 
+ '--with-freetype-dir' 
+ '--with-png-dir' 
+ '--with-jpeg-dir' 
+ '--with-zlib-dir' 
+ '--enable-exif' 
+ '--enable-gd-native-ttf' 
+ '--enable-track-vars' 
+ '--enable-sockets' 
+ '--with-iconv' 
+ '--enable-sysvsem' 
+ '--enable-sysvshm' 
+ '--with-dom' 
+ '--with-xml' 
+ '--with-expat-dir=/usr' 
+ '--enable-magic-quotes' 
+ '--enable-safe-mode' 
+ '--enable-ftp' 
+ '--enable-mbstring' 
+ '--with-zlib' 
+ '--enable-force-cgi-redirect' 
+ '--disable-debug' 
+ '--enable-pic' 
+ '--disable-rpath' 
+ '--enable-inline-optimization'
+ '--with-bz2' 
+ '--with-gettext' 
+ '--with-gmp' 
+ '--with-pcre-regex' 
+ '--enable-bcmath' 
+ '--enable-discard-path' 
+ '--enable-yp' 
+ '--enable-wddx' 
+ '--enable-dbx' 
+ '--enable-dio' 
+ '--enable-mcal' 
+ '--enable-calendar'

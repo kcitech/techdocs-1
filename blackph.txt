@@ -1,0 +1,14 @@
+
+http://code.google.com/hosting/
+
+search : blackph
+
+==> http://code.google.com/p/blackph/
+
+
+Command-line access
+Use this command to anonymously check out the latest project source code:
+
+# Non-members may check out a read-only working copy anonymously over HTTP.
+svn checkout http://blackph.googlecode.com/svn/trunk/ blackph-read-only 
+

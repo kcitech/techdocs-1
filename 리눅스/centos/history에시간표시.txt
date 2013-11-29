@@ -1,0 +1,12 @@
+
+[root@localhost]# vi /etc/profile 
+### 적당한 위치에 아래라인 추가
+HISTTIMEFORMAT="%Y-%m-%d_%H:%M:%S\ "
+export HISTTIMEFORMAT
+
+### 저장하고 나와서 적용을 위한 로그아웃후 재접속해서 확인
+[root@localhost]# history
+996  2007-05-17_15:18:22\ vi /etc/profile
+997  2007-05-17_15:18:22\ history
+998  2007-05-17_15:18:22\ exit
+999  2007-05-17_15:18:23\ history

@@ -1,0 +1,2 @@
+
+# arp -s gateway_ip gateway_mac_address

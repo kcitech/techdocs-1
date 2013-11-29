@@ -1,0 +1,39 @@
+-----------------------------------
+http://openrbl.org
+-----------------------------------
+
+Processing query for 192.168.23.170. Please wait ...  
+
+Completewhois.Com Whois Server, Version 0.91a33, compiled on May 28, 2006
+Please see http://www.completewhois.com/help.htm for command-line options
+Use of this server and any information obtained here is allowed only
+if you follow our policies at http://www.completewhois.com/policies.htm
+
+[OTHER (rbl.completewhois.com) whois information for 192.168.23.170 ]
+ Listed in country-rirdata: KR -  Korea, Republic of (South)
+ Not listed in sbl.spamhaus.org
+ Not listed in xbl.spamhaus.org
+ Not listed in bl.spamcop.net
+ Not listed in spews-level1
+ Not listed in spews-level2
+ Not listed in dnsbl.sorbs.net
+ Not listed in dnsbl.ahbl.org
+ Not listed in ircbl.ahbl.org
+ Not listed in dnsbl-1.uceprotect.net
+ Not listed in dnsbl-2.uceprotect.net
+ Not listed in dnsbl-3.uceprotect.net
+ Listed in list.dsbl.org: 192.168.23.170 --> Single-stage open SMTP relay or HTTP Proxy. Please see http://dsbl.org/listing?192.168.23.170
+ Not listed in multihop.dsbl.org
+ Not listed in unconfirmed.dsbl.org
+ Not listed in auto.dnsbl.njabl.org
+ Not listed in data.dnsbl.njabl.org
+ Not listed in cbl.abuseseat.org
+ Not listed in dnsbl.wpbl.pc9.org
+ Not listed in virbl.dnsbl.bit.nl
+ Not listed in lists.spam.sux.com
+ Not listed in no-more-funn.moensted.dk
+ Not listed in blacklist.spambag.org
+ Not listed in clients.spamlists.tqmcube.com
+ Not listed in dynamic.spamlists.tqmcube.com
+ Not listed in relays.spamlists.tqmcube.com
+ Not listed in asiaspam.spamlists.tqmcube.com

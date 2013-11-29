@@ -1,0 +1,166 @@
+
+
+오류 1.
+oracle-instantclient-basic 패키지를 설치하면
+/usr/lib/oracle/10.2.0.3/client/lib 등의 디렉터리가 생성됩니다.
+제일 하단의 environment에서 ORACLE_HOME이 /app/oracle/product/10.2.0/db 로 표시되는데,
+이 디렉터리는 oracle엔진을 설치할때의 전형적인 디렉터리이며,
+실제로는 /usr/lib/oracle/10.2.0.3/client로 표시되어야 합니다.
+
+오류 2.
+dbx에서 oci8이 표시된다고 하나,
+실제로는 oci항목이 따로 보여야 합니다.(아래 참조 및 문서 참조)
+dbx에서만 보이면 oci함수 오류(지원하지 않는 함수)가 발생할 겁니다.
+
+oci8
+OCI8 Support 	enabled
+Revision 	$Revision: 1.183.2.13 $
+Oracle Version 	no value
+Compile-time ORACLE_HOME 	no value
+Libraries Used 	no value
+
+결론.
+웹서버와 오라클 데이타베이스서버가 서로 분리되어 있고,
+웹서버에 apm 이 rpm으로 설치되어 있으며, 오라클 연동을 하기 위해서는
+웹서버에 다음과 같은 방법으로 설치해야 합니다.
+
+1. oracle client 설치 및 apache, php 재컴파일
+    웹서버에 oracle client를 설치하고, php컴파일시 --with-oci8옵션을 줘서 컴파일하는 방법
+
+2. oracle client설치 및 oci8.so모듈만 동적으로 생성
+   웹서버에 oracle client를 설치하고, php에서 oci8.so만 동적으로 생성하는 방법.
+
+3. oracle instantclient설치해서 oci8.so모듈 동적 생성
+    oracle client 설치 안해도 됨.
+
+4. oracle instantclient설치해서 apache, php 재컴파일
+   oracle client 설치 안해도 됨
+
+3번이 제일 간편하겠네요..문서도 3번 방법으로 작성한 것입니다.
+
+끝.
+
+>
+> CentOS 4.x에서 PHP 4.3.9 버전에 Oracle 연동을 위한 php-oci8 를 설치하는 방법입니다.
+>
+> 업무에 참고 부탁드립니다.
+>
+> -------------------------------------------------------------------------------------
+>
+> http://www.oracle.com/technology/software/tech/oci/instantclient/htdocs/linuxsoft.html
+> 위 링크에서
+> oracle-instantclient-basic-10.2.0.3-1.i386.rpm
+> oracle-instantclient-devel-10.2.0.3-1.i386.rpm
+> 다운로드
+>
+> http://ftp.freshrpms.net/pub/freshrpms/redhat/testing/EL4/oracle/i386/
+> 위 링크에서
+> php-oci8-4.3.9-3.el4.i386.rpm
+> 다운로드
+>
+> [root@USER src]# rpm -ivh oracle-instantclient-basic-10.2.0.3-1.i386.rpm
+> 준비 중...                  ########################################### [100%]
+>    1:oracle-instantclient-ba########################################### [100%]
+>
+> [root@USER src]# rpm -ivh oracle-instantclient-devel-10.2.0.3-1.i386.rpm
+> 준비 중...                  ########################################### [100%]
+>    1:oracle-instantclient-de########################################### [100%]
+>
+> [root@USER src]# rpm -ivh php-oci8-4.3.9-3.el4.i386.rpm
+> 경고: php-oci8-4.3.9-3.el4.i386.rpm: V3 DSA signature: NOKEY, key ID e42d547b
+> 오류: Failed dependencies:
+>         libclntsh.so.10.1 is needed by php-oci8-4.3.9-3.el4.i386
+>
+> [root@USER src]# find / -name libclntsh.so.10.1
+> /app/oracle/product/10.2.0/db/lib/libclntsh.so.10.1
+> /usr/lib/oracle/10.2.0.3/client/lib/libclntsh.so.10.1
+>
+> [root@USER src]# vi /etc/ld.so.conf
+> /usr/lib/oracle/10.2.0.3/client/lib  <- 추가
+>
+> [root@USER src]# ldconfig
+>
+> [root@USER src]# rpm -ivh php-oci8-4.3.9-3.el4.i386.rpm --nodeps
+> 경고: php-oci8-4.3.9-3.el4.i386.rpm: V3 DSA signature: NOKEY, key ID e42d547b
+> 준비 중...                  ########################################### [100%]
+>    1:php-oci8               ########################################### [100%]
+>
+> [root@USER src]# $ORACLE_HOME
+> -bash: /app/oracle/product/10.2.0/db: is a directory
+> [root@USER src]# vi /etc/profile
+>
+> [root@USER src]# cd /usr/lib/oracle/10.2.0.3/client/lib/
+> [root@USER lib]# ls
+> libclntsh.so       libnnz10.so  libocci.so.10.1  libocijdbc10.so
+> libclntsh.so.10.1  libocci.so   libociei.so      ojdbc14.jar
+>
+> [root@USER src]# vi /etc/sysconfig/httpd
+> LD_LIBRARY_PATH=export ORACLE_HOME=/app/oracle/product/10.2.0/db; export LD_LIBRARY_PATH
+> TNS_ADMIN=/usr/lib/oracle/10.2.0.3/client/lib; export TNS_ADMIN
+>
+>
+> 아파치 재시작
+>
+> 웹에서 AAAAtest.php 페이지에서 oracle, oci8 검색하여 확인
+>
+> dbx
+> dbx support 	enabled
+> dbx version 	1.0.0
+> supported databases 	MySQL ODBC PostgreSQL Microsoft SQL Server FrontBase Oracle 8 (oci8) Sybase-CT
+>
+> Environment
+> LD_LIBRARY_PATH 	:/app/oracle/product/10.2.0/db/lib:/app/oracle/product/10.2.0/db/network/lib:/home/common/lib
+> ORACLE_SID 	ibase
+>
+> ORA_NLS33 	/app/oracle/product/10.2.0/db/ocommon/nls/admin/data
+> ORACLE_HOME 	/app/oracle/product/10.2.0/db
+>
+>
+> 위와 같은 식으로 확인
+>
+>
+> 감사합니다.
+
+
+================================
+case 2
+================================
+
+
+[oracle client 다운로드]
+# cd /usr/local/src
+oracle-instantclient11.2-basic-11.2.0.1.0-1.i386.rpm
+oracle-instantclient11.2-devel-11.2.0.1.0-1.i386.rpm
+
+[PHP Oracle extension 패키지 다운로드]
+oci8-1.4.1.tgz
+
+[설치]
+# rpm -ivh oracle-instantclient11.2-basic-11.2.0.1.0-1.i386.rpm
+# rpm -ivh oracle-instantclient11.2-devel-11.2.0.1.0-1.i386.rpm
+# tar xfz oci8-1.4.1.tgz
+# cd phpize
+# ./configure --with-php-config=/usr/bin/php-config --with-oci8=shared,instantclient,/usr/lib/oracle/11.2/client/lib
+# make && make install
+
+[PATH 설정]
+# vi /etc/sysconfig/httpd
+# oracle clien add -20100412
+ORACLE_HOME="/usr/lib/oracle/11.2/client"
+LD_LIBRARY_PATH="/usr/lib/oracle/11.2/client/lib"
+NLS_LANG=AMERICAN_AMERICA.KO16KSC5601
+TNS_ADMIN=/etc/httpd/conf
+export ORACLE_HOME LD_LIBRARY_PATH NLS_LANG TNS_ADMIN
+
+TNS_ADMIN : oracle연동을 위한 tnsnames.ora위치입니다.
+
+
+[php extension 설정]
+# vi /etc/php.ini
+extension=oci8.so
+# /etc/init.d/httpd restart
+
+[oci8 설정확인]
+http://192.168.192.192/test.php
+
+

@@ -1,0 +1,92 @@
+sendmail 설치 -> postfix rebuild -> postfix 설치 -> sendmail 제거
+
+
+1. mysql
+   /usr/local/mysql-4.1.11 compile 설치
+
+2. symbolic 링크
+   -. /usr/lib
+      libmysqlclient.so -> libmysqlclient.so.14.0.0
+      libmysqlclient.so.14 -> libmysqlclient.so.14.0.0
+      libmysqlclient.so.14.0.0 -> /usr/local/mysql-4.1.11/lib/mysql/libmysqlclient.so.14.0.0
+      
+      libmysqlclient_r.so -> libmysqlclient_r.so.14.0.0
+      libmysqlclient_r.so.14 -> libmysqlclient_r.so.14.0.0
+      libmysqlclient_r.so.14.0.0 -> /usr/local/mysql-4.1.11/lib/mysql/libmysqlclient_r.so.14.0.0
+
+      mysql -> /usr/local/mysql-4.1.11/lib/mysql
+
+   -. /usr/include
+       mysql -> /usr/local/mysql-4.1.11/include/mysql
+
+
+   -. /etc/ld.so.conf에 /usr/lib/mysql추가
+
+   
+3. MySQL-python 설치  -->  ok
+    # python setup.py build
+    # python setup.py install
+
+4. postfix 2.0.18 src.rpm설치 후 rebuild
+   spec파일에서  mysql, mysql-devel 삭제.
+   rpm설치시 libmysqlclient.so.14 의존성 에러  -> nodeps로 설치
+
+5. courier-authlib
+   일반 유저로 rebuild해야하고, tar.bz2로 압축되어 있기 때문에
+   해당 패키지를 압축해제 한 후 spec파일 수정후 다시 압축했다.
+   spec에서 mysql-devel 삭제 후 rebuild
+   courier-authlib-mysql rpm설치시 의존성 에러  --> nodeps로 설치
+
+6. pam_mysql
+   pam_myqsl-0.5사용
+   (symbolic링크 있으므로 Makefile수정없이 compile)
+
+7. mail db 생성
+
+8. postfix 환경 설정.
+
+9. courier-imap 환경설정.
+
+   -. authdaemonrc
+      # cd /etc/authlib
+      authdaemonrc 내용확인.
+        authmodulelist="authmysql"
+        authmodulelistorig="authmysql"
+
+   -. imapd
+      # cd /usr/lib/courier-imap/etc
+      imapd 내용확인
+        IMAPDSTART=YES
+
+   -. pop3d
+      # cd /usr/lib/courier-imap/etc
+      pop3d 내용확인
+        POP3DSTART=YES
+
+10. authmysqlrc 환경설정.
+
+    # cd /etc/authlib
+    # vi  authmysqlrc
+
+11. cyrus-sasl start 스크립트 수정.
+
+12. start script 설정
+    # cd /usr/lib/courier-imap/etc
+    # vi pop3d-ssl
+      POP3DSSLSTART=NO
+      POP3_STARTTLS=NO
+
+    # vi imapd-ssl
+      IMAPDSSLSTART=NO
+      IMAPDSTARTTLS=NO
+
+    # vi mail.start
+      ======================================
+      /etc/rc.d/init.d/postfix start
+      /etc/rc.d/init.d/courier-authlib start
+      /etc/rc.d/init.d/courier-imap start
+      /etc/rc.d/init.d/saslauthd start
+      ======================================
+
+끝.
+

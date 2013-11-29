@@ -1,0 +1,682 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!-- saved from url=(0033)http://ioriy2k.pe.kr/archives/656 -->
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="ko-KR"><head profile="http://gmpg.org/xfn/11"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	
+
+<!-- Meta Images -->
+	<link rel="shortcut icon" href="http://ioriy2k.pe.kr/favicon.ico" type="image/x-icon">	
+<!-- Title and External Script Integration -->
+			<title>Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기 : System 설정 | Ioriy2k's Knowledgebase</title>
+		
+<!-- Stylesheets -->
+
+	<link rel="stylesheet" href="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/style.css" type="text/css" media="screen">	
+	<style type="text/css">
+
+
+
+
+
+
+
+
+
+	
+
+
+
+</style>
+	
+
+<!-- Wordpress Stuff -->
+	<meta name="generator" content="WordPress 2258"> <!-- leave this for stats -->
+	<link rel="pingback" href="http://ioriy2k.pe.kr/wordpress/xmlrpc.php">
+	 <!-- This makes the comment box appear where the ‘reply to this comment’ link is -->
+	
+<!-- Modules w/ Javascript -->	
+					<!-- IE -->
+<!--[if lt IE 8]>
+	<script src="http://ie7-js.googlecode.com/svn/version/2.0(beta3)/IE8.js" type="text/javascript"></script>
+<![endif]-->
+
+<!--[if IE 6]>
+	<script src="http://ioriy2k.pe.kr/wordpress/wp-content/themes/iblog/core/js/belatedpng.js"></script>
+	<script>
+	  DD_belatedPNG.fix('.pngbg, a.home, #nav,.searchform .left, .searchform .right, .searchform .s, .fcol_pad img, .fbox img, #respond h3, #cred.pagelines a, .post .date, .headerimage, #sidebar div ul li a');
+	 </script>	
+	<style>
+		#header #blogtitle .sheen {display: none;height: 1px;}
+		#featurenav a span.nav_thumb span.nav_overlay {background: transparent;display:none}
+		 #nav ul li {background: transparent}
+		.fbox {overflow:hidden}
+	</style>
+<![endif]-->	
+
+<!-- Font Replacement -->
+  			
+	<link rel="alternate" type="application/rss+xml" title="Ioriy2k&#39;s Knowledgebase » Feed" href="http://ioriy2k.pe.kr/feed">
+<link rel="alternate" type="application/rss+xml" title="Ioriy2k&#39;s Knowledgebase » Comments Feed" href="http://ioriy2k.pe.kr/comments/feed">
+<link rel="alternate" type="application/rss+xml" title="Ioriy2k&#39;s Knowledgebase » Ubuntu Lucid Lynx(10.04)에서 Oracle 11g Release 2 설치하기 : 1. System 설정 답글 피드" href="http://ioriy2k.pe.kr/archives/656/feed">
+<link rel="stylesheet" id="google-ajax-translation-css" href="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/google-ajax-translation.css" type="text/css" media="screen">
+<!--[if lte IE 7]>
+<link rel='stylesheet' id='ie7-style-css'  href='http://ioriy2k.pe.kr/wordpress/wp-content/themes/iblog/css/ie7.css?ver=3.1' type='text/css' media='all' />
+<![endif]-->
+<link rel="stylesheet" id="codecolorer-css" href="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/codecolorer.css" type="text/css" media="screen">
+<script type="text/javascript" async="" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/ga.js"></script><script type="text/javascript" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/l10n.js"></script>
+<script type="text/javascript" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/jquery.js"></script>
+<script type="text/javascript" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/prototype.js"></script>
+<script type="text/javascript" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/wp-scriptaculous.js"></script>
+<script type="text/javascript" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/effects.js"></script>
+<script type="text/javascript" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/lightbox-resize.js"></script>
+<script type="text/javascript" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/comment-reply.js"></script>
+<link rel="wlwmanifest" type="application/wlwmanifest+xml" href="http://ioriy2k.pe.kr/wordpress/wp-includes/wlwmanifest.xml"> 
+<link rel="index" title="Ioriy2k&#39;s Knowledgebase" href="http://ioriy2k.pe.kr/">
+<link rel="start" title="Build OpenOffice.Org 2.0.2 on Win32 (Part 1)" href="http://ioriy2k.pe.kr/archives/13">
+<link rel="prev" title="Ubuntu에서 iPhone으로 녹음한 음성 메모를 mp3로 변환하자 : Sound Converter" href="http://ioriy2k.pe.kr/archives/609">
+<link rel="next" title="Ubuntu Lucid Lynx(10.04)에서 Oracle 11g Release 2 설치하기 : 2. Download &amp; Install" href="http://ioriy2k.pe.kr/archives/712">
+<link rel="shortlink" href="http://bit.ly/dv8bRI">
+
+<!-- All in One SEO Pack 1.6.13.2 by Michael Torbert of Semper Fi Web Design[465,557] -->
+<meta name="description" content="Ubuntu Lucid Lynx(10.04)에서 Oracle 11g Release 2 를 설치하는 방법 중 첫번째로 System을 설정하는 방법에 대해서 정리했습니다.">
+<meta name="keywords" content="ubuntu,lucidlynx,oracle,11g,setup,install,우분투,오라클,설정,설치,db,데이타베이스,linux">
+<link rel="canonical" href="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase.htm">
+<!-- /all in one seo pack -->
+<script type="text/javascript" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/anti-captcha-0.2.js.php"></script>
+
+	<!-- begin lightbox scripts -->
+	<script type="text/javascript">
+    //<![CDATA[
+    document.write('<link rel="stylesheet" href="http://ioriy2k.pe.kr/wordpress/wp-content/plugins/lightbox-2/Themes/White/lightbox.css" type="text/css" media="screen" />');
+    //]]>
+    </script><link rel="stylesheet" href="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/lightbox.css" type="text/css" media="screen">
+	<!-- end lightbox scripts -->
+
+<!-- Protected by WP-SpamFree v2.1.1.2 :: JS BEGIN -->
+<script type="text/javascript" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/wpsf-js.php"></script> 
+<!-- Protected by WP-SpamFree v2.1.1.2 :: JS END -->
+
+	<style type="text/css">.recentcomments a{display:inline !important;padding:0 !important;margin:0 !important;}</style>
+<link type="text/css" rel="stylesheet" href="chrome-extension://cpngackimfmofbokmjmljamhdncknpmg/style.css"><script type="text/javascript" charset="utf-8" src="chrome-extension://cpngackimfmofbokmjmljamhdncknpmg/page_context.js"></script></head>
+<body class="single single-post postid-656 single-format-standard" screen_capture_injected="true">
+
+<div id="page" class="fix">
+  <div id="wrapper" class="fix">
+    <div id="header" class="fix">
+			      		<h1 id="blogtitle"><a href="http://ioriy2k.pe.kr/"><span class="sheen"></span>Ioriy2k's Knowledgebase</a></h1>
+	      		<div id="blogdescription">ioriy2k의 잡다한 지식 저장소</div>
+
+				<!-- iphone icons -->
+	<div class="icons">
+
+								<div class="nav-icon">
+				<a href="http://ioriy2k.pe.kr/feed"><img class="pngbg" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/rss.png" alt="icon"></a>
+			</div>
+									
+			
+									
+					
+							</div>
+<!-- /end iphone icons -->	
+	</div><!-- /header -->
+	<div id="nav" class="fix">
+	<ul class="fix homebutton">
+		<li class="page_item navfirst">
+		
+			<a class="home" href="http://ioriy2k.pe.kr/" title="Home" style="background-image: url(&#39;http://ioriy2k.pe.kr/wordpress/wp-content/themes/iblog/images/home-icon-trans.png&#39;);">
+				Home	
+			</a>
+		</li>
+	</ul>
+			<div class="mnav dropdown fix"><ul><li class="page_item page-item-140"><a href="http://ioriy2k.pe.kr/about" title="About me">About me</a></li></ul></div>
+				<form method="get" class="searchform" action="http://ioriy2k.pe.kr/">
+	<span class="left"></span>
+		<input type="text" value="Search" name="s" class="s" onfocus="if (this.value == &#39;Search&#39;) {this.value = &#39;&#39;;}" onblur="if (this.value == &#39;&#39;) {this.value = &#39;Search&#39;;}">
+	<span class="right"></span>
+	<input type="submit" class="searchsubmit" value="Go">
+</form>
+	<div class="clear"></div>
+</div><!-- /nav -->
+
+	<div id="container" class="fix ">
+		<!-- Code for subnav if pages have parents.. -->
+
+<div id="maincontent">
+<div id="content">
+
+	 			<div class="post-nav"> <span class="previous"><a href="http://ioriy2k.pe.kr/archives/609" rel="prev">Ubuntu에서 iPhone으로 녹음한 음성 메모를 mp3로 변환하자 : Sound Converter</a></span> <span class="next"><a href="http://ioriy2k.pe.kr/archives/712" rel="next">Ubuntu Lucid Lynx(10.04)에서 Oracle 11g Release 2 설치하기 : 2. Download &amp; Install</a></span></div>
+	
+		<!-- ioriy2k : Google adsense section targeting -->
+	<!-- google_ad_section_start -->
+		
+	<div class="postwrap fix">
+	
+		<div class="post-656 post type-post status-publish format-standard hentry category-database category-linux-just-for-fun tag-db tag-linux tag-lucidlynx tag-oracle tag-ubuntu" id="post-656">
+				
+			<div class="copy fix">		
+				
+										
+					<div class="post-header fix post-nothumb">
+						<div class="post-title-section fix">
+							<div class="post-title fix">
+								<h2><a href="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase.htm" rel="bookmark" title="Permanent Link to Ubuntu Lucid Lynx(10.04)에서 Oracle 11g Release 2 설치하기 : 1. System 설정">Ubuntu Lucid Lynx(10.04)에서 Oracle 11g Release 2 설치하기 : 1. System 설정</a></h2>
+
+								<div class="metabar">
+									<em>
+									On 2010/09/24, 
+									in <a href="http://ioriy2k.pe.kr/category/database" title="Database의 글 모두 보기" rel="category tag">Database</a>, <a href="http://ioriy2k.pe.kr/category/linux-just-for-fun" title="Linux, Just For Fun의 글 모두 보기" rel="category tag">Linux, Just For Fun</a>, 
+									by ioriy2k																		</em>
+								</div>
+							</div>
+						</div>
+						<!--/post-title -->
+
+						
+	<!-- ioriy2k : Begin Adsense code -->
+		<table cellspacing="2">
+	<tbody><tr>
+	<td>
+	<script type="text/javascript"><!--
+	google_ad_client = "pub-0306123902322516";
+	/* Blog Post Top 300x250, 09. 12. 5 */
+	google_ad_slot = "1275784035";
+	google_ad_width = 300;
+	google_ad_height = 250;
+	//-->
+	</script>
+	<script type="text/javascript" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/show_ads.js">
+	</script><script src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/show_ads_impl.js"></script><script src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/expansion_embed.js"></script><script src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/test_domain.js"></script><script>google_protectAndRun("ads_core.google_render_ad", google_handleError, google_render_ad);</script><ins style="display:inline-table;border:none;height:250px;margin:0;padding:0;position:relative;visibility:visible;width:300px"><ins id="google_ads_frame1_anchor" style="display:block;border:none;height:250px;margin:0;padding:0;position:relative;visibility:visible;width:300px"><iframe allowtransparency="true" frameborder="0" height="250" hspace="0" id="google_ads_frame1" marginheight="0" marginwidth="0" name="google_ads_frame" scrolling="no" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/ads(1).htm" style="left:0;position:absolute;top:0" vspace="0" width="300"></iframe></ins></ins>
+	</td>
+	<td>
+	<script type="text/javascript"><!--
+	google_ad_client = "pub-0306123902322516";
+	/* Blog Post Top 300x250, 09. 12. 5 */
+	google_ad_slot = "1275784035";
+	google_ad_width = 300;
+	google_ad_height = 250;
+	//-->
+	</script>
+	<script type="text/javascript" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/show_ads.js">
+	</script><script src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/show_ads_impl.js"></script><script>google_protectAndRun("ads_core.google_render_ad", google_handleError, google_render_ad);</script><ins style="display:inline-table;border:none;height:250px;margin:0;padding:0;position:relative;visibility:visible;width:300px"><ins id="google_ads_frame2_anchor" style="display:block;border:none;height:250px;margin:0;padding:0;position:relative;visibility:visible;width:300px"><iframe allowtransparency="true" frameborder="0" height="250" hspace="0" id="google_ads_frame2" marginheight="0" marginwidth="0" name="google_ads_frame" scrolling="no" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/ads(2).htm" style="left:0;position:absolute;top:0" vspace="0" width="300"></iframe></ins></ins>
+	</td>
+	</tr>
+	</tbody></table>
+		<!-- ioriy2k : End Adsense code -->
+						
+					</div>				
+			
+			</div>
+						  	
+				<div class="copy fix">
+										<div class="textcontent">
+						<div class="translate_block" style="">
+<a class="translate_translate" id="translate_button_post-656" lang="ko" xml:lang="ko" href="javascript:show_translate_popup('ko', 'post', 656);">[번역]</a><img src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/transparent.gif" id="translate_loading_post-656" class="translate_loading" style="display: none;" width="16" height="16" alt="">
+</div>
+<div id="content_div-656">
+<blockquote><p>
+<strong>NOTICE</strong> : Ubuntu 최신판인 Maverick Meerkat(10.10)에서도 설정 가능합니다. 테스트 완료. (2010-11-10)
+</p></blockquote>
+<p><img class="alignleft size-full wp-image-671" title="oracle11g" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/oracle11g.png" alt="" width="160" height="39" style="margin-top:5px"></p>
+<p><strong>Oracle Database</strong>는 Oracle에서 개발한 <strong>관계형 Database</strong>로 금융권과 일반 기업, 공공기관, 심지어 우리나라에서는 초등학교 학내전산망에까지 사용됩니다. (초등학교에 얼마나 많은 DB 처리량이 필요하길래.. 대표적인 예산 낭비 행정이죠. ㅎㅎ Mysql로도 충분한 것을..) 뛰어난 안정성과 Performance로 가장 널리 사용되는 Database인 Oracle은 <strong>Windows, Linux, Unix 계열 Server에서 사용</strong>할 수 있습니다. </p>
+<p>Oracle Database에서 공식적으로 지원하는 Linux 배포판은 Asianux Server, Red Hat Enterprise Linux(RHEL), SUSE Linux Enterprise Server입니다. 최신 Release인 <strong>Oracle 11g Release 2에서 지원하는 배포판</strong>을 자세히 열거하면 아래와 같습니다.</p>
+<ul>
+<li>Asianux Server 3 SP2</li>
+<li>Oracle Enterprise Linux 4 Update 7</li>
+<li>Oracle Enterprise Linux 5 Update 2</li>
+<li>Red Hat Enterprise Linux 4 Update 7</li>
+<li>Red Hat Enterprise Linux 5 Update 2</li>
+<li>SUSE Linux Enterprise Server 10 SP2</li>
+<li>SUSE Linux Enterprise Server 11</li>
+</ul>
+<p>물론 공식적으로 지원하지 않는 Linux 배포판이라도 설치 및 구동이 가능합니다. 이번 Post에서는 Ubuntu Lucid Lynx(10.04)에서 Oracle 11g Relase 2를 설치하는 방법을 알아보도록 하겠습니다. <strong>각 명령어는 사용자가 자기의 계정에서 작업한다는 것을 전제</strong>로 하고 작성하였습니다. 설명이 조금 길어서 내용을 나눠서 Post하니 마지막 Post까지 기다려주세요. <img src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/icon_smile.gif" alt=":)" class="wp-smiley"><br>
+<span id="more-656"></span></p>
+<h3>1. 필수 Package 설치</h3>
+<p>Oracle Database를 설치하기 위해서 설치하는데 사용되는 필수 Package를 설치합니다. Gnome Terminal을 띄워서 다음과 같이 입력합니다.</p>
+<div class="codecolorer-container bash mac-classic" style="overflow:auto;white-space:nowrap;width:90%;"><table cellspacing="0" cellpadding="0"><tbody><tr><td class="line-numbers"><div>1<br></div></td><td><div class="bash codecolorer">$ <span class="kw2">sudo</span> <span class="kw2">apt-get</span> <span class="kw2">install</span> <span class="kw2">unzip</span> build-essential x11-utils rpm ksh lsb-rpm libaio1</div></td></tr></tbody></table></div>
+<h3>2. libstdc++5 설치</h3>
+<p>libstdc++ Package는 GNU Standard C++ Library로서 GCC와 같은 GNU의 Compiler로 Compile한 Application을 위한 Runtime Library입니다. Ubuntu Lucid Lynx는 libstdc++6가 설치되어 있는데 Oracle Database에서는 libstdc++5를 사용합니다. Lucid Lynx의 Repository에서는 libstdc++5를 지원하지 않으므로 다음과 같은 방법으로 libstdc++5를 설치합니다.</p>
+<ul>
+<li><strong>64bit</strong> OS일 경우
+<div class="codecolorer-container bash mac-classic" style="overflow:auto;white-space:nowrap;width:90%;"><table cellspacing="0" cellpadding="0"><tbody><tr><td class="line-numbers"><div>1<br>2<br>3<br>4<br></div></td><td><div class="bash codecolorer">$ <span class="kw2">wget</span> http:<span class="sy0">//</span>mirrors.kernel.org<span class="sy0">/</span>ubuntu<span class="sy0">/</span>pool<span class="sy0">/</span>universe<span class="sy0">/</span>g<span class="sy0">/</span>gcc-<span class="nu0">3.3</span><span class="sy0">/</span>libstdc++<span class="nu0">5</span>_3.3.6-17ubuntu1_amd64.deb<br>
+$ dpkg-deb <span class="re5">-x</span> libstdc++<span class="nu0">5</span>_3.3.6-17ubuntu1_amd64.deb libstdc++<br>
+$ <span class="kw2">sudo</span> <span class="kw2">cp</span> libstdc++<span class="sy0">/</span>usr<span class="sy0">/</span>lib<span class="sy0">/</span>libstdc++.so.5.0.7 <span class="sy0">/</span>usr<span class="sy0">/</span>lib<span class="sy0">/</span><br>
+$ <span class="kw2">sudo</span> <span class="kw2">ln</span> <span class="re5">-s</span> <span class="sy0">/</span>usr<span class="sy0">/</span>lib<span class="sy0">/</span>libstdc++.so.5.0.7 <span class="sy0">/</span>usr<span class="sy0">/</span>lib<span class="sy0">/</span>libstdc++.so.5</div></td></tr></tbody></table></div>
+</li>
+<li><strong>32bit</strong> OS일 경우
+<div class="codecolorer-container bash mac-classic" style="overflow:auto;white-space:nowrap;width:90%;"><table cellspacing="0" cellpadding="0"><tbody><tr><td class="line-numbers"><div>1<br>2<br>3<br>4<br></div></td><td><div class="bash codecolorer">$ <span class="kw2">wget</span> http:<span class="sy0">//</span>security.ubuntu.com<span class="sy0">/</span>ubuntu<span class="sy0">/</span>pool<span class="sy0">/</span>universe<span class="sy0">/</span>i<span class="sy0">/</span>ia32-libs<span class="sy0">/</span>ia32-libs_2.7ubuntu6.1_amd64.deb<br>
+$ dpkg-deb <span class="re5">-x</span> ia32-libs_2.7ubuntu6.1_amd64.deb ia32-libs<br>
+$ <span class="kw2">sudo</span> <span class="kw2">cp</span> ia32-libs<span class="sy0">/</span>usr<span class="sy0">/</span>lib<span class="sy0">/</span>libstdc++.so.5.0.7 <span class="sy0">/</span>usr<span class="sy0">/</span>lib<span class="sy0">/</span><br>
+$ <span class="kw2">sudo</span> <span class="kw2">ln</span> <span class="re5">-s</span> <span class="sy0">/</span>usr<span class="sy0">/</span>lib<span class="sy0">/</span>libstdc++.so.5.0.7 <span class="sy0">/</span>usr<span class="sy0">/</span>lib<span class="sy0">/</span>libstdc++.so.5</div></td></tr></tbody></table></div>
+</li>
+</ul>
+<h3>3. Group과 계정 생성하기</h3>
+<p>Oracle을 설치하고 사용하기 위한 Group과 계정을 생성합니다. 다음과 같이 Terminal에서 입력합니다.</p>
+<div class="codecolorer-container bash mac-classic" style="overflow:auto;white-space:nowrap;width:90%;"><table cellspacing="0" cellpadding="0"><tbody><tr><td class="line-numbers"><div>1<br>2<br>3<br>4<br>5<br></div></td><td><div class="bash codecolorer">$ <span class="kw2">sudo</span> addgroup oinstall<br>
+$ <span class="kw2">sudo</span> addgroup dba<br>
+$ <span class="kw2">sudo</span> useradd <span class="re5">-g</span> oinstall <span class="re5">-G</span> dba <span class="re5">-d</span> <span class="sy0">/</span>home<span class="sy0">/</span>oracle <span class="re5">-s</span> <span class="sy0">/</span>bin<span class="sy0">/</span><span class="kw2">bash</span> <span class="re5">-m</span> oracle<br>
+$ <span class="kw2">sudo</span> <span class="kw2">passwd</span> oracle<br>
+$ <span class="kw2">sudo</span> <span class="kw2">chown</span> oracle:dba <span class="sy0">/</span>home<span class="sy0">/</span>oracle <span class="re5">-R</span></div></td></tr></tbody></table></div>
+<h3>4. Symbolic Link 설정하기</h3>
+<p>설치 Program에서 사용하는 일부 Program의 경로가 달라서 문제가 발생할 수 있기 때문에 설치 Program이 인식할 수 있는 Directory로 Symbolic Link를 걸어줍니다.</p>
+<div class="codecolorer-container bash mac-classic" style="overflow:auto;white-space:nowrap;width:90%;"><table cellspacing="0" cellpadding="0"><tbody><tr><td class="line-numbers"><div>1<br>2<br>3<br></div></td><td><div class="bash codecolorer">$ <span class="kw2">sudo</span> <span class="kw2">ln</span> <span class="re5">-s</span> <span class="sy0">/</span>usr<span class="sy0">/</span>bin<span class="sy0">/</span><span class="kw2">awk</span> <span class="sy0">/</span>bin<span class="sy0">/</span><span class="kw2">awk</span><br>
+$ <span class="kw2">sudo</span> <span class="kw2">ln</span> <span class="re5">-s</span> <span class="sy0">/</span>usr<span class="sy0">/</span>bin<span class="sy0">/</span>rpm <span class="sy0">/</span>bin<span class="sy0">/</span>rpm<br>
+$ <span class="kw2">sudo</span> <span class="kw2">ln</span> <span class="re5">-s</span> <span class="sy0">/</span>usr<span class="sy0">/</span>bin<span class="sy0">/</span><span class="kw2">basename</span> <span class="sy0">/</span>bin<span class="sy0">/</span><span class="kw2">basename</span></div></td></tr></tbody></table></div>
+<h3>5. Kernel 변수 설정</h3>
+<p>Oracle Database는 DB의 안정성과 Performance를 위해서 System의 자원을 많이 사용합니다. 그래서 기본적인 Linux Kernel 설정으로는 DB를 운용하는데 문제가 있습니다. 그래서 다음과 같이 Kernel 변수를 설정해 줍니다. Lucid Lynx에서는 Kernel 변수를 설정하는 File을 /etc/sysctl.d에 관련된 Application 별로 저장하고 적용할 수 있습니다. 이렇게 설정해 놓으면 차후 배포판이 Upgrade되거나 관련 Package가 Update될 때 설정이 변경되는 문제를 해결할 수 있습니다.</p>
+<div class="codecolorer-container bash mac-classic" style="overflow:auto;white-space:nowrap;width:90%;"><table cellspacing="0" cellpadding="0"><tbody><tr><td class="line-numbers"><div>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br></div></td><td><div class="bash codecolorer">$ <span class="kw2">sudo</span> <span class="kw2">vi</span> <span class="sy0">/</span>etc<span class="sy0">/</span>sysctl.d<span class="sy0">/</span><span class="nu0">30</span>-oracle.conf<br>
+<br>
+fs.file-max = <span class="nu0">6815744</span><br>
+fs.aio-max-nr = <span class="nu0">1048576</span><br>
+kernel.shmall = <span class="nu0">2097152</span><br>
+kernel.shmmax = <span class="nu0">2147483648</span><br>
+kernel.shmmni = <span class="nu0">4096</span><br>
+kernel.sem = <span class="nu0">250</span> <span class="nu0">32000</span> <span class="nu0">100</span> <span class="nu0">128</span><br>
+net.core.rmem_default = <span class="nu0">4194304</span><br>
+net.core.rmem_max = <span class="nu0">4194304</span><br>
+net.core.wmem_default = <span class="nu0">1048576</span><br>
+net.core.wmem_max = <span class="nu0">1048576</span><br>
+net.ipv4.ip_local_port_range = <span class="nu0">9000</span> <span class="nu0">65535</span><br>
+<br>
+$ <span class="kw2">sudo</span> service procps start</div></td></tr></tbody></table></div>
+<h3>6. Resource Limit 설정</h3>
+<p>Oracle DB를 위해서 System의 보안정책으로 묶여있는 자원설정을 변경합니다. oracle 계정에 한하여 최대 Process 수와 최대 열 수 있는 File Descripter 수를 설정합니다. Ubuntu Lucid Lynx에서는 /etc/security/limits.d 에서 각 Application에 대한 Limit 설정을 할 수 있습니다. Terminal에서 다음과 같이 입력합니다.</p>
+<div class="codecolorer-container bash mac-classic" style="overflow:auto;white-space:nowrap;width:90%;"><table cellspacing="0" cellpadding="0"><tbody><tr><td class="line-numbers"><div>1<br>2<br>3<br>4<br>5<br>6<br></div></td><td><div class="bash codecolorer">$ <span class="kw2">sudo</span> <span class="kw2">vi</span> <span class="sy0">/</span>etc<span class="sy0">/</span>security<span class="sy0">/</span>limits.d<span class="sy0">/</span>oracle.conf<br>
+<br>
+oracle soft nproc <span class="nu0">2047</span><br>
+oracle hard nproc <span class="nu0">16383</span><br>
+oracle soft nofile <span class="nu0">1023</span><br>
+oracle hard nofile <span class="nu0">65535</span></div></td></tr></tbody></table></div>
+<h3>7. /etc/redhat-release 생성</h3>
+<p>Oracle 설치 Program이 System을 Redhat Linux로 인식할 수 있도록 다음과 같이 redhat-release 파일을 생성합니다.</p>
+<div class="codecolorer-container bash mac-classic" style="overflow:auto;white-space:nowrap;width:90%;"><table cellspacing="0" cellpadding="0"><tbody><tr><td class="line-numbers"><div>1<br>2<br></div></td><td><div class="bash codecolorer">$ <span class="kw2">sudo</span> <span class="kw2">vi</span> <span class="sy0">/</span>etc<span class="sy0">/</span>redhat-release<br>
+Red Hat Linux Release <span class="nu0">4</span></div></td></tr></tbody></table></div>
+<h3>8. 설치 Directory 생성</h3>
+<p>Oracle Database가 설치될 Directory를 미리 생성합니다. Oracle 계정에서 해당 Directory를 생성하지 못하기 때문에 Root 권한으로 미리 만들어 놓습니다.</p>
+<div class="codecolorer-container bash mac-classic" style="overflow:auto;white-space:nowrap;width:90%;"><table cellspacing="0" cellpadding="0"><tbody><tr><td class="line-numbers"><div>1<br>2<br>3<br>4<br></div></td><td><div class="bash codecolorer">$ <span class="kw2">sudo</span> <span class="kw2">mkdir</span> <span class="sy0">/</span>opt<span class="sy0">/</span>oracle<br>
+$ <span class="kw2">sudo</span> <span class="kw2">chown</span> oracle:dba <span class="sy0">/</span>opt<span class="sy0">/</span>oracle<br>
+$ <span class="kw2">sudo</span> <span class="kw2">mkdir</span> <span class="sy0">/</span>opt<span class="sy0">/</span>oraInventory<br>
+$ <span class="kw2">sudo</span> <span class="kw2">chown</span> oracle:oinstall <span class="sy0">/</span>opt<span class="sy0">/</span>oraInventory</div></td></tr></tbody></table></div>
+<h3>9. oracle 계정을 위한 환경변수 설정</h3>
+<p>이제 System 설정의 마지막입니다. Home Directory의 <strong>.bashrc에 마지막 부분</strong>에 생성한 oracle 계정에 적용할 환경변수를 추가합니다.</p>
+<div class="codecolorer-container bash mac-classic" style="overflow:auto;white-space:nowrap;width:90%;"><table cellspacing="0" cellpadding="0"><tbody><tr><td class="line-numbers"><div>1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br></div></td><td><div class="bash codecolorer">$ <span class="kw2">su</span> - oracle<br>
+$ <span class="kw2">vi</span> ~<span class="sy0">/</span>.bashrc<br>
+<br>
+<span class="kw3">export</span> <span class="re2">ORACLE_BASE</span>=<span class="sy0">/</span>opt<span class="sy0">/</span>oracle<br>
+<span class="kw3">export</span> <span class="re2">ORACLE_HOME</span>=<span class="re1">$ORACLE_BASE</span><span class="sy0">/</span>product<span class="sy0">/</span>11.2.0<span class="sy0">/</span>db_1<br>
+<span class="kw3">export</span> <span class="re2">ORACLE_SID</span>=orcl11<br>
+<span class="kw3">export</span> <span class="re2">LD_LIBRARY_PATH</span>=<span class="re1">$LD_LIBRARY_PATH</span>:<span class="re1">$ORACLE_HOME</span><span class="sy0">/</span>lib<br>
+<span class="kw3">export</span> <span class="re2">PATH</span>=<span class="re1">$PATH</span>:<span class="re1">$ORACLE_HOME</span><span class="sy0">/</span>bin</div></td></tr></tbody></table></div>
+<h3>10. 마치면서.. </h3>
+<p>Oracle Database를 설치하기 위한 기본적인 설정 및 필수 Package 설치는 모두 마쳤습니다. 이제 Oracle을 Download 받고 Installer를 사용해서 설치하는 것과 Ubuntu에서 편리하게 Oracle을 사용하기 위한 설정들을 하면 설치는 마무리 될 것입니다. <strong>다음 Post</strong>에서는 <strong>Oracle을 Installer를 사용해서 설치하는 방법</strong>을 알아보겠습니다.</p>
+  
+<div class="wp_license">
+<p><a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/2.0/kr/"><img src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/88x31.png" alt="Creative Commons Attribution-NonCommercial-NoDerivs 2.0 Korea" class="alignleft" style="margin-top:4px;">
+</a>This work  is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/2.0/kr/">Creative Commons Attribution-NonCommercial-NoDerivs 2.0 Korea</a>.</p>
+</div></div>
+
+
+<h3>Related posts:</h3><ol><li><a href="http://ioriy2k.pe.kr/archives/815" rel="bookmark" title="Permanent Link: Ubuntu Lucid Lynx(10.04)에서 Oracle 11g Release 2 설치하기 : 3. Tips">Ubuntu Lucid Lynx(10.04)에서 Oracle 11g Release 2 설치하기 : 3. Tips</a></li>
+<li><a href="http://ioriy2k.pe.kr/archives/712" rel="bookmark" title="Permanent Link: Ubuntu Lucid Lynx(10.04)에서 Oracle 11g Release 2 설치하기 : 2. Download &amp; Install">Ubuntu Lucid Lynx(10.04)에서 Oracle 11g Release 2 설치하기 : 2. Download &amp; Install</a></li>
+<li><a href="http://ioriy2k.pe.kr/archives/906" rel="bookmark" title="Permanent Link: Oracle 11g Release 2가 설치된 Ubuntu에서 Pro*C Compile하기">Oracle 11g Release 2가 설치된 Ubuntu에서 Pro*C Compile하기</a></li>
+<li><a href="http://ioriy2k.pe.kr/archives/1221" rel="bookmark" title="Permanent Link: Ubuntu Maverick Meerkat(10.10)에서 Alt + PrtSc으로 Screenshot을 얻을 수 없는 경우">Ubuntu Maverick Meerkat(10.10)에서 Alt + PrtSc으로 Screenshot을 얻을 수 없는 경우</a></li>
+<li><a href="http://ioriy2k.pe.kr/archives/1720" rel="bookmark" title="Permanent Link: Redhat 8에 Oracle 9i 설치하기 : (1) System 설정">Redhat 8에 Oracle 9i 설치하기 : (1) System 설정</a></li>
+</ol>						<div class="clear"></div>	
+													
+						<div class="clear"></div>
+
+		<!-- ioriy2k : Google adsense section targeting -->
+	<!-- google_ad_section_end -->
+	
+						
+
+						<!-- ioriy2k : Begin My View Widget -->
+						<table>
+						<tbody><tr>
+						<td colspan="2" align="center">
+						<!-- ioriy2k : Begin Aladin TTB2 -->
+						<script type="text/javascript">
+						/* Blog Post Bottom */
+						aladdin_ttb_key = 'ttbioriy2k1537001';
+						aladdin_ttb_channel = '25733';
+						aladdin_ttb_width = '505';
+						aladdin_ttb_height = '183';
+						</script>
+						<script type="text/javascript" language="javascript" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/ad_ttb.aspx"></script><iframe src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/ad.htm" frameborder="0" scrolling="no" allowtransparency="true" width="505" height="183"></iframe>				
+						<!-- ioriy2k : End Aladin TTB2 -->
+						</td>
+						</tr>
+						<tr>
+						<td>
+						<iframe src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/my_widget.htm" width="100%" height="244" frameborder="0" scrolling="no" allowtransparency="true"></iframe>
+						</td>
+						<td>
+						<iframe src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/my_widget(1).htm" width="100%" height="244" frameborder="0" scrolling="no" allowtransparency="true"></iframe>
+						</td>
+						</tr>
+						</tbody></table>
+						<!-- ioriy2k : End My View Widget -->
+
+						<!-- ioriy2k : Begin Adsense code -->
+						<div style="float: left; padding:0; margin: 4px 0 0 0px; position:relative;">
+						<script type="text/javascript"><!--
+						google_ad_client = "pub-0306123902322516";
+						/* 468x15, 10. 9. 7, under image */
+						google_ad_slot = "0044209707";
+						google_ad_width = 468;
+						google_ad_height = 15;
+						//-->
+						</script>
+						<script type="text/javascript" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/show_ads.js">
+						</script><script src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/show_ads_impl.js"></script><script>google_protectAndRun("ads_core.google_render_ad", google_handleError, google_render_ad);</script><ins style="display:inline-table;border:none;height:15px;margin:0;padding:0;position:relative;visibility:visible;width:468px"><ins id="google_ads_frame3_anchor" style="display:block;border:none;height:15px;margin:0;padding:0;position:relative;visibility:visible;width:468px"><iframe allowtransparency="true" frameborder="0" height="15" hspace="0" id="google_ads_frame3" marginheight="0" marginwidth="0" name="google_ads_frame" scrolling="no" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/ads.htm" style="left:0;position:absolute;top:0" vspace="0" width="468"></iframe></ins></ins>
+						</div>
+						<!-- ioriy2k : End Adsense code -->
+						
+						<!-- ioriy2k : Begin Mixup widget -->
+						<script type="text/javascript">document.write("<scr"+"ipt type='text/javascript' src='http://www.mixsh.com/widget/mixup/loader.js?muid=179234&guid=http%3A%2F%2Fioriy2k.pe.kr%2F%3Fp%3D656&rdate=2010-09-24+09%3A00%3A27&rawhtml=&skin=1&showhitcnt=1&platform=5'></scr"+"ipt>");</script><script type="text/javascript" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/loader.js"></script><div class="mixup_widget" style="padding:20px 0px 20px 0px; text-align:center;">
+<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="400" height="89" align="middle">
+<param name="allowScriptAccess" value="always">
+<param name="movie" value="http://www.mixsh.com/widget/mixup/loader.html?muid=179234&amp;guid=http%3A%2F%2Fioriy2k.pe.kr%2F%3Fp%3D656&amp;rdate=2010-09-24+09%3A00%3A27&amp;showhitcnt=1&amp;platform=5">
+<param name="quality" value="high">
+<param name="wmode" value="window">
+<embed src="http://www.mixsh.com/widget/mixup/loader.html?muid=179234&amp;guid=http%3A%2F%2Fioriy2k.pe.kr%2F%3Fp%3D656&amp;rdate=2010-09-24+09%3A00%3A27&amp;showhitcnt=1&amp;platform=5" quality="high" wmode="window" width="400" height="89" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer">
+</object>
+</div>
+
+						<!-- ioriy2k : End Mixup widget -->
+
+						
+					</div>	
+				</div>
+												
+			
+			
+<div class="hl"></div>
+	<div class="post-footer">
+					<div class="left">
+								이 Post가 맘에 들었다면, 원하는 사이트에 공유하세요	
+			</div>
+			<div class="right">
+					<a href="http://www.facebook.com/sharer.php?u=http://ioriy2k.pe.kr/archives/656&t=Ubuntu%20Lucid%20Lynx(10.04)%EC%97%90%EC%84%9C%20Oracle%2011g%20Release%202%20%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0%20:%201.%20System%20%EC%84%A4%EC%A0%95" title="Share on Facebook" rel="nofollow" target="_blank"><img src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/ico-facebook.png" alt="Facebook"></a> 
+					<a href="http://twitter.com/home/?status=Ubuntu%20Lucid%20Lynx(10.04)%EC%97%90%EC%84%9C%20Oracle%2011g%20Release%202%20%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0%20:%201.%20System%20%EC%84%A4%EC%A0%95%20http://ioriy2k.pe.kr/archives/656" title="Share on Twitter" rel="nofollow" target="_blank"><img src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/ico-twitter.png" alt="Twitter"></a> 
+					<a href="http://del.icio.us/post?url=http://ioriy2k.pe.kr/archives/656&title=Ubuntu%20Lucid%20Lynx(10.04)%EC%97%90%EC%84%9C%20Oracle%2011g%20Release%202%20%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0%20:%201.%20System%20%EC%84%A4%EC%A0%95" title="Share on Delicious" rel="nofollow" target="_blank"><img src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/ico-del.png" alt="Delicious"></a>										<a href="http://www.stumbleupon.com/submit?url=http://ioriy2k.pe.kr/archives/656&title=Ubuntu%20Lucid%20Lynx(10.04)%EC%97%90%EC%84%9C%20Oracle%2011g%20Release%202%20%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0%20:%201.%20System%20%EC%84%A4%EC%A0%95" title="Share on StumbleUpon" rel="nofollow" target="_blank"><img src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/ico-stumble.png" alt="StumbleUpon"></a> 					<a href="http://digg.com/submit?phase=2&url=http://ioriy2k.pe.kr/archives/656&title=Ubuntu%20Lucid%20Lynx(10.04)%EC%97%90%EC%84%9C%20Oracle%2011g%20Release%202%20%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0%20:%201.%20System%20%EC%84%A4%EC%A0%95" title="Share on Digg" rel="nofollow" target="_blank"><img src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/ico-digg.png" alt="Digg"></a>				
+			</div>
+				<br class="fix">
+		
+	</div>		</div><!--post -->
+
+	</div>
+	
+			<div class="tags">
+			Tagged with: <a href="http://ioriy2k.pe.kr/tag/db" rel="tag">DB</a> • <a href="http://ioriy2k.pe.kr/tag/linux" rel="tag">Linux</a> • <a href="http://ioriy2k.pe.kr/tag/lucidlynx" rel="tag">LucidLynx</a> • <a href="http://ioriy2k.pe.kr/tag/oracle" rel="tag">Oracle</a> • <a href="http://ioriy2k.pe.kr/tag/ubuntu" rel="tag">Ubuntu</a>&nbsp;
+		</div>
+		
+	<div class="clear"></div>
+	
+				
+						
+			<div class="postwrap commentswrap ">	
+			<div class="hentry">		
+				<div class="copy"> 
+<div id="comments">
+	
+	
+	
+									<div id="respond">
+				<h3 id="reply-title">Leave a Reply <small><a rel="nofollow" id="cancel-comment-reply-link" href="http://ioriy2k.pe.kr/archives/656#respond" style="display:none;">Cancel reply</a></small></h3>
+									<form action="http://ioriy2k.pe.kr/wordpress/wp-comments-post.php" method="post" id="commentform">
+																			<p class="comment-notes">Your email address will not be published. Required fields are marked <span class="required">*</span></p>							<p class="comment-form-author"><label for="author">이름</label> <span class="required">*</span><input id="author" name="author" type="text" value="" size="30" aria-required="true"></p>
+<p class="comment-form-email"><label for="email">Email</label> <span class="required">*</span><input id="email" name="email" type="text" value="" size="30" aria-required="true"></p>
+<p class="comment-form-url"><label for="url">웹사이트</label><input id="url" name="url" type="text" value="" size="30"></p>
+												<p class="comment-form-comment"><label for="comment">답글</label><textarea id="comment" name="comment" cols="45" rows="8" aria-required="true"></textarea></p>						<p class="form-allowed-tags">You may use these <abbr title="HyperText Markup Language">HTML</abbr> tags and attributes:  <code>&lt;a href="" title=""&gt; &lt;abbr title=""&gt; &lt;acronym title=""&gt; &lt;b&gt; &lt;blockquote cite=""&gt; &lt;cite&gt; &lt;code&gt; &lt;del datetime=""&gt; &lt;em&gt; &lt;i&gt; &lt;q cite=""&gt; &lt;strike&gt; &lt;strong&gt; </code></p>						<p class="form-submit">
+							<input name="submit" type="submit" id="submit" value="Post Comment">
+							<input type="hidden" name="comment_post_ID" value="656" id="comment_post_ID">
+<input type="hidden" name="comment_parent" id="comment_parent" value="0">
+						</p>
+							<script type="text/javascript">
+	<!--
+	refJS = escape( document[ 'referrer' ] );
+	document.write("<input type='hidden' name='refJS' value='"+refJS+"'>");
+	// -->
+	</script><input type="hidden" name="refJS" value="">
+						<input type="hidden" value="eb37bv37cedq2b5c78c5d05m0co9e2dk3cg44dlf92fb16a7258rxaeddv89" name="anti-captcha-token"></form>
+							</div><!-- #respond -->
+						</div>
+</div>
+			</div>
+			</div>
+			
+			
+	
+		
+	
+</div> <!-- end content -->
+</div>
+<div id="sidebar" class="fix">
+
+	
+				
+			<div id="welcome" class="fix">
+			<div class="welcometext">
+				<h3 class="greeting">Hi, God bless all of You.</h3>				<div class="welcomemessage">Computer밖에 모르는 녀석이 아무거나 닥치는 대로 일상생활에서 얻은 지식들을 적어놓은 Blog. 주로 Programming, IT, Linux에 대한 Post를 작성. 때론 일상의 Post도 적을 때가 있음. 
+<p align="right">
+<a href="http://fusion.google.com/add?feedurl=http://feeds.feedburner.com/ioriy2k"><img src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/add.gif" alt="Add to Google" height="17" width="104" border="0" style="vertical-align:middle"></a>
+<a href="http://www.hanrss.com/add_sub.qst?url=http%3A%2F%2Fioriy2k.pe.kr%2Ffeed" title="한RSS에 추가"><img src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/add_to_hanrss6.gif" border="0" style="vertical-align:middle"></a>
+</p></div>				
+<div class="twitter">
+	 " 끝까지 포기하지 않는 집념. 일본 애니에서는 근성이라고 표현하는 이것이 없으면 도저히 인생을 살아갈 수 없는 것 같다. 특히 자신의 뜻을 이루어가며 관철시키는 사람에게는 더더욱. " —&nbsp;<a href="http://www.twitter.com/ioriy2k">ioriy2k</a>
+</div>
+				<div class="clear"></div>
+			</div>
+		</div>
+				
+
+	
+
+
+				
+					<!--WP Widget Cache 0.25.4 (http://www.nexwp.com) Begin -->
+<div id="categories-3" class="widget_categories widget"><div class="winner"><h3 class="wtitle">분류&nbsp;</h3>		<ul>
+	<li class="cat-item cat-item-4"><a href="http://ioriy2k.pe.kr/category/borland-c-builder" title="Borland C++ Builder에 속한 글 모두 보기">Borland C++ Builder</a> (1)
+</li>
+	<li class="cat-item cat-item-5"><a href="http://ioriy2k.pe.kr/category/c-c" title="C / C++에 속한 글 모두 보기">C / C++</a> (1)
+</li>
+	<li class="cat-item cat-item-104"><a href="http://ioriy2k.pe.kr/category/database" title="Database에 속한 글 모두 보기">Database</a> (8)
+</li>
+	<li class="cat-item cat-item-6"><a href="http://ioriy2k.pe.kr/category/tools" title="Development Tools에 속한 글 모두 보기">Development Tools</a> (3)
+</li>
+	<li class="cat-item cat-item-54"><a href="http://ioriy2k.pe.kr/category/flex-air" title="Flex / AIR에 속한 글 모두 보기">Flex / AIR</a> (4)
+</li>
+	<li class="cat-item cat-item-95"><a href="http://ioriy2k.pe.kr/category/hardware-review" title="Hardware Review에 속한 글 모두 보기">Hardware Review</a> (8)
+</li>
+	<li class="cat-item cat-item-62"><a href="http://ioriy2k.pe.kr/category/iphone" title="iPhone에 속한 글 모두 보기">iPhone</a> (12)
+</li>
+	<li class="cat-item cat-item-7"><a href="http://ioriy2k.pe.kr/category/linux-just-for-fun" title="Linux, Just For Fun에 속한 글 모두 보기">Linux, Just For Fun</a> (25)
+</li>
+	<li class="cat-item cat-item-3"><a href="http://ioriy2k.pe.kr/category/life" title="My Life에 속한 글 모두 보기">My Life</a> (6)
+</li>
+	<li class="cat-item cat-item-9"><a href="http://ioriy2k.pe.kr/category/openofficeorg" title="OpenOffice.org에 속한 글 모두 보기">OpenOffice.org</a> (3)
+</li>
+	<li class="cat-item cat-item-8"><a href="http://ioriy2k.pe.kr/category/using-wordpress" title="Using Wordpress에 속한 글 모두 보기">Using Wordpress</a> (2)
+</li>
+	<li class="cat-item cat-item-110"><a href="http://ioriy2k.pe.kr/category/vaio" title="VAIO에 속한 글 모두 보기">VAIO</a> (4)
+</li>
+		</ul>
+&nbsp;</div></div><!-- WP Widget Cached categories-3 For 60 second(s)-->
+<!--WP Widget Cache End -->
+<!--WP Widget Cache 0.25.4 (http://www.nexwp.com) Begin -->
+<div id="tag_cloud-3" class="widget_tag_cloud widget"><div class="winner"><h3 class="wtitle">태그&nbsp;</h3><div class="tagcloud"><a href="http://ioriy2k.pe.kr/tag/3gs" class="tag-link-63" title="7 토픽" style="font-size: 14.5333333333pt;">3GS</a>
+<a href="http://ioriy2k.pe.kr/tag/64bit" class="tag-link-58" title="3 토픽" style="font-size: 9.86666666667pt;">64bit</a>
+<a href="http://ioriy2k.pe.kr/tag/as" class="tag-link-71" title="2 토픽" style="font-size: 8pt;">A/S</a>
+<a href="http://ioriy2k.pe.kr/tag/adobe" class="tag-link-55" title="2 토픽" style="font-size: 8pt;">Adobe</a>
+<a href="http://ioriy2k.pe.kr/tag/air" class="tag-link-56" title="2 토픽" style="font-size: 8pt;">AIR</a>
+<a href="http://ioriy2k.pe.kr/tag/apple" class="tag-link-64" title="9 토픽" style="font-size: 16.0888888889pt;">Apple</a>
+<a href="http://ioriy2k.pe.kr/tag/build" class="tag-link-45" title="3 토픽" style="font-size: 9.86666666667pt;">Build</a>
+<a href="http://ioriy2k.pe.kr/tag/cvs" class="tag-link-41" title="2 토픽" style="font-size: 8pt;">CVS</a>
+<a href="http://ioriy2k.pe.kr/tag/database" class="tag-link-104" title="5 토픽" style="font-size: 12.6666666667pt;">Database</a>
+<a href="http://ioriy2k.pe.kr/tag/db" class="tag-link-103" title="4 토픽" style="font-size: 11.4222222222pt;">DB</a>
+<a href="http://ioriy2k.pe.kr/tag/eclipse" class="tag-link-72" title="2 토픽" style="font-size: 8pt;">Eclipse</a>
+<a href="http://ioriy2k.pe.kr/tag/feisty" class="tag-link-22" title="3 토픽" style="font-size: 9.86666666667pt;">Feisty</a>
+<a href="http://ioriy2k.pe.kr/tag/flash" class="tag-link-35" title="2 토픽" style="font-size: 8pt;">Flash</a>
+<a href="http://ioriy2k.pe.kr/tag/flash-builder" class="tag-link-67" title="2 토픽" style="font-size: 8pt;">Flash Builder</a>
+<a href="http://ioriy2k.pe.kr/tag/flex-builder" class="tag-link-68" title="2 토픽" style="font-size: 8pt;">Flex Builder</a>
+<a href="http://ioriy2k.pe.kr/tag/galileo" class="tag-link-73" title="2 토픽" style="font-size: 8pt;">Galileo</a>
+<a href="http://ioriy2k.pe.kr/tag/iphone" class="tag-link-62" title="12 토픽" style="font-size: 17.8pt;">iPhone</a>
+<a href="http://ioriy2k.pe.kr/tag/kt" class="tag-link-70" title="4 토픽" style="font-size: 11.4222222222pt;">KT</a>
+<a href="http://ioriy2k.pe.kr/tag/laptop" class="tag-link-111" title="5 토픽" style="font-size: 12.6666666667pt;">Laptop</a>
+<a href="http://ioriy2k.pe.kr/tag/linux" class="tag-link-11" title="23 토픽" style="font-size: 22pt;">Linux</a>
+<a href="http://ioriy2k.pe.kr/tag/lucidlynx" class="tag-link-101" title="3 토픽" style="font-size: 9.86666666667pt;">LucidLynx</a>
+<a href="http://ioriy2k.pe.kr/tag/maverick" class="tag-link-127" title="4 토픽" style="font-size: 11.4222222222pt;">Maverick</a>
+<a href="http://ioriy2k.pe.kr/tag/monitor" class="tag-link-89" title="2 토픽" style="font-size: 8pt;">Monitor</a>
+<a href="http://ioriy2k.pe.kr/tag/openofficeorg" class="tag-link-9" title="3 토픽" style="font-size: 9.86666666667pt;">OpenOffice.org</a>
+<a href="http://ioriy2k.pe.kr/tag/oracle" class="tag-link-102" title="8 토픽" style="font-size: 15.3111111111pt;">Oracle</a>
+<a href="http://ioriy2k.pe.kr/tag/proc" class="tag-link-109" title="2 토픽" style="font-size: 8pt;">Pro*C</a>
+<a href="http://ioriy2k.pe.kr/tag/redhat" class="tag-link-141" title="7 토픽" style="font-size: 14.5333333333pt;">Redhat</a>
+<a href="http://ioriy2k.pe.kr/tag/screenshot" class="tag-link-69" title="3 토픽" style="font-size: 9.86666666667pt;">Screenshot</a>
+<a href="http://ioriy2k.pe.kr/tag/smartphone" class="tag-link-65" title="9 토픽" style="font-size: 16.0888888889pt;">Smartphone</a>
+<a href="http://ioriy2k.pe.kr/tag/sony" class="tag-link-114" title="2 토픽" style="font-size: 8pt;">Sony</a>
+<a href="http://ioriy2k.pe.kr/tag/subclipse" class="tag-link-74" title="2 토픽" style="font-size: 8pt;">Subclipse</a>
+<a href="http://ioriy2k.pe.kr/tag/subversion" class="tag-link-76" title="2 토픽" style="font-size: 8pt;">Subversion</a>
+<a href="http://ioriy2k.pe.kr/tag/svn" class="tag-link-75" title="2 토픽" style="font-size: 8pt;">SVN</a>
+<a href="http://ioriy2k.pe.kr/tag/tip" class="tag-link-105" title="2 토픽" style="font-size: 8pt;">Tip</a>
+<a href="http://ioriy2k.pe.kr/tag/ubuntu" class="tag-link-21" title="18 토픽" style="font-size: 20.4444444444pt;">Ubuntu</a>
+<a href="http://ioriy2k.pe.kr/tag/upgrade" class="tag-link-40" title="2 토픽" style="font-size: 8pt;">Upgrade</a>
+<a href="http://ioriy2k.pe.kr/tag/usb" class="tag-link-123" title="3 토픽" style="font-size: 9.86666666667pt;">USB</a>
+<a href="http://ioriy2k.pe.kr/tag/vaio" class="tag-link-110" title="4 토픽" style="font-size: 11.4222222222pt;">VAIO</a>
+<a href="http://ioriy2k.pe.kr/tag/version-control" class="tag-link-43" title="3 토픽" style="font-size: 9.86666666667pt;">Version Control</a>
+<a href="http://ioriy2k.pe.kr/tag/vgn-sz74lb" class="tag-link-112" title="4 토픽" style="font-size: 11.4222222222pt;">VGN-SZ74L/B</a>
+<a href="http://ioriy2k.pe.kr/tag/virtualbox" class="tag-link-129" title="4 토픽" style="font-size: 11.4222222222pt;">VirtualBox</a>
+<a href="http://ioriy2k.pe.kr/tag/visual-studio" class="tag-link-46" title="3 토픽" style="font-size: 9.86666666667pt;">Visual Studio</a>
+<a href="http://ioriy2k.pe.kr/tag/windows7" class="tag-link-118" title="2 토픽" style="font-size: 8pt;">Windows7</a>
+<a href="http://ioriy2k.pe.kr/tag/windowsxp" class="tag-link-83" title="2 토픽" style="font-size: 8pt;">WindowsXP</a>
+<a href="http://ioriy2k.pe.kr/tag/wordpress" class="tag-link-77" title="3 토픽" style="font-size: 9.86666666667pt;">Wordpress</a></div>
+&nbsp;</div></div><!-- WP Widget Cached tag_cloud-3 For 60 second(s)-->
+<!--WP Widget Cache End -->
+<!--WP Widget Cache 0.25.4 (http://www.nexwp.com) Begin -->
+		<div id="recent-posts-4" class="widget_recent_entries widget"><div class="winner">		<h3 class="wtitle">최근 글&nbsp;</h3>		<ul>
+				<li><a href="http://ioriy2k.pe.kr/archives/1896" title="Redhat 8에서 Apache, PHP, Oracle 9i를 연동하여 Server 구축하기">Redhat 8에서 Apache, PHP, Oracle 9i를 연동하여 Server 구축하기</a></li>
+				<li><a href="http://ioriy2k.pe.kr/archives/1795" title="Redhat 8에 Oracle 9i 설치하기 : (3) Pro*C 환경 구성하기">Redhat 8에 Oracle 9i 설치하기 : (3) Pro*C 환경 구성하기</a></li>
+				<li><a href="http://ioriy2k.pe.kr/archives/1814" title="WordPress의 Page Loading Speed를 올려보자 : Compression WP Plugin">WordPress의 Page Loading Speed를 올려보자 : Compression WP Plugin</a></li>
+				<li><a href="http://ioriy2k.pe.kr/archives/1726" title="Redhat 8에 Oracle 9i 설치하기 : (2) Oracle 9i 설치">Redhat 8에 Oracle 9i 설치하기 : (2) Oracle 9i 설치</a></li>
+				<li><a href="http://ioriy2k.pe.kr/archives/1720" title="Redhat 8에 Oracle 9i 설치하기 : (1) System 설정">Redhat 8에 Oracle 9i 설치하기 : (1) System 설정</a></li>
+				</ul>
+		&nbsp;</div></div><!-- WP Widget Cached recent-posts-4 For 60 second(s)-->
+<!--WP Widget Cache End -->
+<!--WP Widget Cache 0.25.4 (http://www.nexwp.com) Begin -->
+<div id="recent-comments-4" class="widget_recent_comments widget"><div class="winner"><h3 class="wtitle">최근 답글&nbsp;</h3><ul id="recentcomments"><li class="recentcomments">okbuddy on <a href="http://ioriy2k.pe.kr/archives/291/comment-page-1#comment-10341">Eclipse 3.5 Galileo에서 Subclipse로 SVN 연동하기 (1) 설치, Checkout</a></li><li class="recentcomments"><a href="http://ioriy2k.pe.kr/" rel="external nofollow" class="url">ioriy2k</a> on <a href="http://ioriy2k.pe.kr/archives/1064/comment-page-1#comment-10328">VAIO VGN-SZ74L/B에 Windows 7 64bit 설치하기 (Driver Pack 포함)</a></li><li class="recentcomments"><a href="http://editorschoice.tistory.com/" rel="external nofollow" class="url">이감독</a> on <a href="http://ioriy2k.pe.kr/archives/1064/comment-page-1#comment-10275">VAIO VGN-SZ74L/B에 Windows 7 64bit 설치하기 (Driver Pack 포함)</a></li><li class="recentcomments"><a href="http://ioriy2k.pe.kr/" rel="external nofollow" class="url">ioriy2k</a> on <a href="http://ioriy2k.pe.kr/archives/1064/comment-page-1#comment-10246">VAIO VGN-SZ74L/B에 Windows 7 64bit 설치하기 (Driver Pack 포함)</a></li><li class="recentcomments">sung on <a href="http://ioriy2k.pe.kr/archives/1064/comment-page-1#comment-10245">VAIO VGN-SZ74L/B에 Windows 7 64bit 설치하기 (Driver Pack 포함)</a></li></ul>&nbsp;</div></div><!-- WP Widget Cached recent-comments-4 For 60 second(s)-->
+<!--WP Widget Cache End -->
+<!--WP Widget Cache 0.25.4 (http://www.nexwp.com) Begin -->
+<div id="twitter-1" class="widget_twitter widget"><div class="winner"><div><h3 class="wtitle"><a class="twitterwidget twitterwidget-title" title="Twitter: ioriy2k" href="http://twitter.com/ioriy2k" target="_blank">Follow ioriy2k on Twitter</a>&nbsp;</h3><ul><li><span class="entry-content">끝까지 포기하지 않는 집념. 일본 애니에서는 근성이라고 표현하는 이것이 없으면 도저히 인생을 살아갈 수 없는 것 같다. 특히 자신의 뜻을 이루어가며 관철시키는 사람에게는 더더욱.</span> <span class="entry-meta"><span class="time-meta"><a href="http://twitter.com/ioriy2k/statuses/4.55400405285E+16" target="_blank">about 6 hours ago</a></span> <span class="from-meta">from <a href="http://www.nibirutech.com/" rel="nofollow">TwitBird</a></span></span></li><li><span class="entry-content">Indonesian Mandheling을 Drip해서 처음 먹어보는데 Full Body의 느낌이 나는 구나. 그래도 여태까지 먹은 것 중에서는 Kenya AA 제일 나은 듯.</span> <span class="entry-meta"><span class="time-meta"><a href="http://twitter.com/ioriy2k/statuses/4.53790487126E+16" target="_blank">about 17 hours ago</a></span> <span class="from-meta">from <a href="http://www.tweetdeck.com/" rel="nofollow">TweetDeck</a></span></span></li><li><span class="entry-content">"그러므로 내일 일을 위하여 염려하지 말라 내일 일은 내일 염려할 것이요 한 날 괴로움은 그 날에 족하니라" [마 6:34]</span> <span class="entry-meta"><span class="time-meta"><a href="http://twitter.com/ioriy2k/statuses/4.50475061822E+16" target="_blank">09:05:37 오전 3월 08, 2011</a></span> <span class="from-meta">from <a href="http://www.nibirutech.com/" rel="nofollow">TwitBird</a></span></span></li></ul></div>&nbsp;</div></div><!-- WP Widget Cached twitter-1 For 60 second(s)-->
+<!--WP Widget Cache End -->
+<div id="meta-3" class="widget_meta widget"><div class="winner"><h3 class="wtitle">그 밖의 기능&nbsp;</h3>			<ul>
+						<li><a href="http://ioriy2k.pe.kr/wordpress/wp-login.php">로그인</a></li>
+			<li><a href="http://ioriy2k.pe.kr/feed" title="RSS 2.0을 사용하여 이 사이트 동기화하기">글 <abbr title="Really Simple Syndication">RSS</abbr></a></li>
+			<li><a href="http://ioriy2k.pe.kr/comments/feed" title="블로그 전체의 최근 답글을 담은 RSS">답글 <abbr title="Really Simple Syndication">RSS</abbr></a></li>
+			<li><a href="http://wordpress.org/" title="이 블로그는 가장 앞선 개인 출판 도구, 워드프레스로 운영합니다.">WordPress.org</a></li>
+						</ul>
+&nbsp;</div></div>				
+		
+</div><!--/sidebar -->
+
+</div>
+<div class="clear"></div>
+
+
+
+<div id="footer">
+	<div class="effect">
+		<div class="content">
+						<div id="fcolumns_container" class="fix">
+									<div class="fcol">
+						<div class="fcol_pad">
+															<h3 class="footer-site-title"><a class="home" href="http://ioriy2k.pe.kr/" title="Home">Ioriy2k's Knowledgebase</a></h3>
+													</div>
+					</div>
+					<div class="fcol">
+						<div class="fcol_pad">
+							<h3>Pages</h3>
+							<div class="footer_nav"><ul><li class="page_item page-item-140"><a href="http://ioriy2k.pe.kr/about" title="About me">About me</a></li></ul></div>
+						</div>
+					</div>
+					<div class="fcol">
+						<div class="fcol_pad">
+							<h3>Stay In Touch</h3>
+							<div class="footer_nav"><ul><li class="page_item page-item-140"><a href="http://ioriy2k.pe.kr/about" title="About me">About me</a></li></ul></div>
+
+						</div>
+					</div>
+					<div class="fcol">
+						<div class="fcol_pad">
+							<h3>More</h3>
+							<div class="welcomemessage">Computer밖에 모르는 녀석이 아무거나 닥치는 대로 일상생활에서 얻은 지식들을 적어놓은 Blog. 주로 Programming, IT, Linux에 대한 Post를 작성. 때론 일상의 Post도 적을 때가 있음. 
+<p align="right">
+<a href="http://fusion.google.com/add?feedurl=http://feeds.feedburner.com/ioriy2k"><img src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/add.gif" alt="Add to Google" height="17" width="104" border="0" style="vertical-align:middle"></a>
+<a href="http://www.hanrss.com/add_sub.qst?url=http%3A%2F%2Fioriy2k.pe.kr%2Ffeed" title="한RSS에 추가"><img src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/add_to_hanrss6.gif" border="0" style="vertical-align:middle"></a>
+</p></div>						</div>
+					</div>
+					<div class="fcol">
+						<div class="fcol_pad">
+							<span class="terms">
+								© 2011 ioriy2k, All rights reserved.							</span>
+						</div>
+					</div>
+							</div>
+	
+		
+			<div class="clear"></div>
+		</div>		
+	</div>
+
+
+</div>
+	<div class="clear"></div>
+			<div id="cred" class="pagelines">
+			<a class="plimage" target="_blank" href="http://www.pagelines.com/" title="iBlog by PageLines">
+				<img src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/pagelines.png" alt="iBlog by PageLines">
+			</a>
+		</div>
+	 	<hr class="hidden">
+
+  </div><!--/wrapper -->
+
+</div><!--/page -->
+
+<!-- Footer Scripts Go Here -->
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-11822534-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script><!-- End Footer scripts -->
+
+
+<script type="text/javascript" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/jquery.translate-1.4.1.min.js"></script>
+
+<div id="translate_popup" style="display: none;">
+	<table class="translate_links"><tbody><tr><td valign="top">
+		<a class="languagelink" lang="ko" xml:lang="ko" href="http://ioriy2k.pe.kr/archives/656#" title="Korean"><img class="translate_flag ko" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/transparent.gif" alt="한국어" width="16" height="11"> 한국어</a>
+		<a class="languagelink" lang="da" xml:lang="da" href="http://ioriy2k.pe.kr/archives/656#" title="Danish"><img class="translate_flag da" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/transparent.gif" alt="dansk" width="16" height="11"> dansk</a>
+		<a class="languagelink" lang="de" xml:lang="de" href="http://ioriy2k.pe.kr/archives/656#" title="German"><img class="translate_flag de" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/transparent.gif" alt="Deutsch" width="16" height="11"> Deutsch</a>
+		<a class="languagelink" lang="el" xml:lang="el" href="http://ioriy2k.pe.kr/archives/656#" title="Greek"><img class="translate_flag el" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/transparent.gif" alt="ελληνική" width="16" height="11"> ελληνική</a>
+		<a class="languagelink" lang="en" xml:lang="en" href="http://ioriy2k.pe.kr/archives/656#" title="English"><img class="translate_flag en" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/transparent.gif" alt="English" width="16" height="11"> English</a>
+		<a class="languagelink" lang="es" xml:lang="es" href="http://ioriy2k.pe.kr/archives/656#" title="Spanish"><img class="translate_flag es" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/transparent.gif" alt="español" width="16" height="11"> español</a>
+	</td><td valign="top">
+		<a class="languagelink" lang="fr" xml:lang="fr" href="http://ioriy2k.pe.kr/archives/656#" title="French"><img class="translate_flag fr" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/transparent.gif" alt="français" width="16" height="11"> français</a>
+		<a class="languagelink" lang="ga" xml:lang="ga" href="http://ioriy2k.pe.kr/archives/656#" title="Irish"><img class="translate_flag ga" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/transparent.gif" alt="Gaeilge" width="16" height="11"> Gaeilge</a>
+		<a class="languagelink" lang="he" xml:lang="he" href="http://ioriy2k.pe.kr/archives/656#" title="Hebrew"><img class="translate_flag he" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/transparent.gif" alt="עברית" width="16" height="11"> עברית</a>
+		<a class="languagelink" lang="it" xml:lang="it" href="http://ioriy2k.pe.kr/archives/656#" title="Italian"><img class="translate_flag it" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/transparent.gif" alt="italiano" width="16" height="11"> italiano</a>
+		<a class="languagelink" lang="ja" xml:lang="ja" href="http://ioriy2k.pe.kr/archives/656#" title="Japanese"><img class="translate_flag ja" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/transparent.gif" alt="日本語" width="16" height="11"> 日本語</a>
+		<a class="languagelink" lang="nl" xml:lang="nl" href="http://ioriy2k.pe.kr/archives/656#" title="Dutch"><img class="translate_flag nl" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/transparent.gif" alt="Nederlands" width="16" height="11"> Nederlands</a>
+	</td><td valign="top">
+		<a class="languagelink" lang="no" xml:lang="no" href="http://ioriy2k.pe.kr/archives/656#" title="Norwegian"><img class="translate_flag no" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/transparent.gif" alt="norsk" width="16" height="11"> norsk</a>
+		<a class="languagelink" lang="ru" xml:lang="ru" href="http://ioriy2k.pe.kr/archives/656#" title="Russian"><img class="translate_flag ru" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/transparent.gif" alt="русский" width="16" height="11"> русский</a>
+		<a class="languagelink" lang="zh-cn" xml:lang="zh-cn" href="http://ioriy2k.pe.kr/archives/656#" title="Chinese (Simplified)"><img class="translate_flag zh-cn" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/transparent.gif" alt="中文 (简体)" width="16" height="11"> 中文 (简体)</a>
+		<a class="languagelink" lang="zh-tw" xml:lang="zh-tw" href="http://ioriy2k.pe.kr/archives/656#" title="Chinese (Traditional)"><img class="translate_flag zh-tw" src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/transparent.gif" alt="中文 (繁體)" width="16" height="11"> 中文 (繁體)</a>
+		<a class="google_branding" rel="nofollow" href="http://translate.google.com/translate?sl=auto&tl=ko&u=ioriy2k.pe.kr/archives/656" title="translate page">powered by<img src="./Ubuntu Lucid Lynx에서 Oracle 11g Release 2 설치하기   System 설정   Ioriy2k's Knowledgebase_files/small-logo.png" alt="Google" title="" width="51" height="15"></a>
+	</td></tr></tbody></table>
+</div><div id="stimuli_overlay" style="display: none; "></div><div id="stimuli_lightbox" style="display: none; "><div id="stimuli_outerImageContainer" style="width: 250px; height: 250px; "><div id="stimuli_imageContainer"><img id="stimuli_lightboxImage"><div id="stimuli_hoverNav"><a id="stimuli_prevLink" href="http://ioriy2k.pe.kr/archives/656#"></a><a id="stimuli_nextLink" href="http://ioriy2k.pe.kr/archives/656#"></a></div><div id="stimuli_loading"><a id="stimuli_loadingLink" href="http://ioriy2k.pe.kr/archives/656#"></a></div></div></div><div id="stimuli_imageDataContainer"><div id="stimuli_imageData"><div id="stimuli_imageDetails"><span id="stimuli_caption"></span><span id="stimuli_numberDisplay"></span></div><div id="stimuli_bottomNav"><a id="stimuli_bottomNavClose" href="http://ioriy2k.pe.kr/archives/656#"></a></div></div></div></div></body></html>

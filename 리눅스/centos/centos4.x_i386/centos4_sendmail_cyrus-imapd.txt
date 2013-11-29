@@ -1,0 +1,63 @@
+[ centos4 + sendmail + cyrus-imapd ]
+
+cyrus-imapd는 자체 db를 가지고 있어서 성능이 뛰어난 것이 장점이다.
+
+os install시 선택 패키지
+-. centos4_after_install.txt 참조
+
+   sendmail은 설치될 것이다.
+
+# yum list sendmail* cyrus-imap*
+
+# yum install sendmail-cf sendmail-devel cyrus-imapd cyrus-imapd-devel cyrus-imapd-utils
+
+1. sendmail(25)
+   -. /etc/mail/local-host-names
+      도메인
+   -. /etc/mail/sendmail.mc
+      127.0.0.1 제거
+      PLAIN방식 주석 제거
+      맨 아래에 다음 라인 추가(탭으로 띄운 간격 주의)
+      ===================================================
+      MAILER(local)
+      MAILER(cyrus)
+      define(`confLOCAL_MAILER',`cyrus')
+      LOCAL_RULE_0
+      R$=N                    $: $#local $: $1
+      R$=N < @ $=w. >         $: $#local $: $1
+      Rbb + $+ < @ S=w. >     $#cyrusbb $: $1
+      ===================================================
+      R$=N tab tab tab $: $#local $: $1
+      R$=N  < @ $=w. > tab $: $#local $: $1
+      Rbb + $+ < @ S=w. > tab $#cyrusbb $: $1
+
+      # m4 /etc/mail/sendmail.mc > /etc/mail/sendmail.cf
+
+2. cyrus-imapd(110,143)
+   -. /etc/imapd.conf
+   기본 환경설정에 아래 라인 추가.
+   ===================================================
+   createonpost: yes
+   autocreatequota: -1
+
+   allowanonymouslogin: no
+   sasl_passwd_check: shadow
+   ===================================================
+   -. /etc/cyrus.conf
+   =============================================================
+   imap          cmd="imapd" listen="imap" prefork=2
+   #imaps                cmd="imapd -s" listen="imaps" prefork=1
+   =============================================================
+   위 라인처럼 imap, pop3는 그대로..imaps, pop3s는 필요없으면 주석.
+   imap,pop3라인의 prefork=2 정도로 숫자 줄임.
+
+3. 서비스
+   /etc/init.d/sendmail start
+   /etc/init.d/cyrus-imapd start
+   /etc/init.d/saslauthd start
+
+cyrus-imap에 자동으로 디렉터리 만드는 패치가 적용되어 있다.
+계정추가시 /var/spool/imap에 바로 생성이 되는 것은 아니며,
+메일을 받게되면 자동으로 생성이 된다.
+계정으로 메일을 보낸 후 /var/spool/imap에 보면 계정별 알파벳 머릿글자로 디렉터리 및 파일이
+생성된다.

@@ -1,0 +1,148 @@
+
+주소 : http://fly32.tistory.com/252
+
+/****************************************************************
+  작성자 : 삼이
+  작성일 : 2004-09-30
+  제  목 : Grouping(), ROLLUP, CUBE Study 정리
+ ****************************************************************/
+
+
+* ROLLUP 연산자
+ - GROUP BY절에 있는 컬럼들을 오른쪽에서 왼쪽의 차례로 그룹들을 생성하고,
+   각 그룹에 계산함수를 적용한다.
+ - GROUP BY절의 결과는 누적 계산 결과이다.
+ 
+
+* CUBE 연산자
+ - GROUP BY절에 있는 모든 컬럼들에 대한 가능한 모든 조합을 그룹으로 생성한다.
+ 
+
+* GROUPING 함수
+ - 각 결과 행이 CUBE, ROLLUP 연산자들에 의해 계산된 것인지를 알기 위해 사용된다.
+ - 해당컬럼에 대해 계산되었다면 0, 그렇지 않다면(컬럼값이 NULL) 1을 반환한다.
+ - GROUP BY절에 나타나는 컬럼에 적용된다. 
+
+
+
+사용 예)
+
+  -- table생성(사원이름,급여,부서,직위,입사년도)
+  CREATE TABLE roll_test (
+    name   VARCHAR2(10),
+    sal    NUMBER,
+    dept   VARCHAR2(10),
+    duty   VARCHAR2(10),
+    entYear NUMBER(4)
+  );
+
+INSERT INTO roll_Test VALUES('kim' , 1000, 'AA', '00', 2004);
+INSERT INTO roll_Test VALUES('no' , 1500, 'AA', '00', 2004);
+INSERT INTO roll_Test VALUES('choi', 2000, 'BB', '02', 2003);
+INSERT INTO roll_Test VALUES('park', 2000, 'BB', '02', 2003);
+INSERT INTO roll_Test VALUES('lee' , 3000, 'CC', '03', 2002);
+INSERT INTO roll_Test VALUES('cho' , 4000, 'AA', '04', 2001);
+INSERT INTO roll_Test VALUES('lyu' , 4000, 'DD', '04', 2001);
+INSERT INTO roll_Test VALUES('ham' , 4000, 'AA', '04', 2001);
+INSERT INTO roll_Test VALUES('kang', 7000, 'DD', '05', 2001);
+COMMIT;
+
+SELECT * FROM roll_Test;
+
+
+
+-- 1. 각 부서에 대한 급여 소계를 구하고, 총계를 구하라
+--    (하나의 Column Grouping)
+
+-----일반-----------
+SELECT dept, SUM(sal)
+FROM   roll_Test
+GROUP BY dept;
+---------------------
+
+----- ROLLUP ---------
+SELECT dept, SUM(sal), GROUPING(dept)
+FROM   roll_Test
+GROUP BY ROLLUP(dept);
+-----------------------
+
+----- CUBE ----------
+SELECT dept, SUM(sal), GROUPING(dept)
+FROM roll_Test
+GROUP BY CUBE(dept);
+-----------------------
+
+-- 일반적인 GROUP BY를 사용할 경우 급여 소계만 나오고, 총계는 따로 구해야 함
+-- ROLLUP과 CUBE 차이점 없음
+
+
+
+-- 2. 각 부서별, 직위별 급여 소계를 구하고, 총계를 구하라
+--    (두개의Column Grouping)
+
+-----NORMAL-----------
+SELECT dept, duty, SUM(sal)
+FROM   roll_Test
+GROUP BY dept, duty;
+-----------------------
+
+----- ROLLUP ----------
+SELECT dept, duty, SUM(sal), GROUPING(dept), GROUPING(duty)
+FROM   roll_Test
+GROUP BY ROLLUP(dept, duty);
+-----------------------
+
+----- CUBE ----------
+SELECT dept, duty, SUM(sal), GROUPING(dept), GROUPING(duty)
+FROM   roll_Test
+GROUP BY CUBE(dept, duty);
+-----------------------
+
+-- ROLLUP은 부서에 대한 소계 / 부서에 대한 직위별 소계만 볼 수 있고,
+-- CUBE는 부서에 대한 소계 / 부서에 대한 직위별 소계 / 직위별 소계를 볼 수 있음
+-- GROUP BY 내의 왼쪽 컬럼부터 자동으로 오름차순 정렬 됨
+
+
+-- 3. 각 부서별, 직위별, 입사년도별 급여 소계를 구하고, 총계를 구하라
+--    (세개의 Column Grouping)
+
+-----NORMAL-----------
+SELECT dept, duty, entYear, SUM(sal)
+FROM   roll_Test
+GROUP BY dept, duty, entYear;
+-----------------------
+
+----- ROLLUP ----------
+SELECT dept, duty, entYear, SUM(sal), GROUPING(dept), GROUPING(duty), GROUPING(entYear)
+FROM   roll_Test
+GROUP BY ROLLUP(dept, duty, entYear);
+-----------------------
+
+----- CUBE ----------
+SELECT dept, duty, entYear, SUM(sal), GROUPING(dept), GROUPING(duty), GROUPING(entYear)
+FROM   roll_Test
+GROUP BY CUBE(dept, duty, entYear);
+-----------------------
+
+
+- ROLLUP 사용시 3개의 소계와 1개의 총계를 구할 수 있음
+  (부서별, 부서*직위별, 부서*직위*입사년도별, 총계)
+  ※ GROUP BY 내의 가장 왼쪽 컬럼을 기준으로 하여 순차적으로 하위 그룹 생성
+
+- CUBE 사용시 7개의 소계와 1개의 총계를 구할 수 있음.
+  (부서별, 직위별, 입사년도별, 부서*직위별, 부서*입사년도별, 직위*입사년도별, 부서*직위*입사년도별, 총계)
+  ※ 생성 가능한 모든 경우를 그룹 생성
+ 
+
+
+사용 예)
+
+* 부서에 대한 소계를 보고 싶을 때
+HAVING GROUPING(dept) = 0 AND GROUPING(duty) = 1
+AND GROUPING(entYear) = 1;
+
+* 각 부서에 대한 직위별 소계를 보고 싶을 때
+HAVING GROUPING(dept) = 0 AND GROUPING(duty) = 0
+AND GROUPING(entYear) = 1;
+
+

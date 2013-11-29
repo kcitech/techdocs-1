@@ -1,0 +1,31 @@
+
+[ 제로보드XE 버전 install ]
+
+1. 제로보드 다운로드
+   # tar xvzf zbxe.beta.0.2.2.tgz
+   # chmod 707 zbxe -R
+
+2. 제로보드용 mysql db 생성
+   mysql> create database zbxe;
+   mysql> grant all privileges on zbxe.* to zbxe@localhost identified by 'zbxe';
+   mysql> flush privileges;
+
+3. apache 환경 설정 (중요)
+   제로보드XE는 zbxe디렉터리 아래 .htaccess 파일에 rewrite rule을 기록하고 있다.   .htaccess파일을 읽으려면 AllowOverride All 로 옵션이 설정되어야 한다.
+   centos4 apache rpm에서는 기본이 None이므로 rewrite모듈이 있어도
+   .htaccess 파일에 접근이 안되어 rewrite rule이 적용되지 않는다.
+
+    <Directory />
+     Options FollowSymLinks
+   #    AllowOverride None
+     AllowOverride All
+    </Directory>
+
+4. 제로보드 설정
+   http://도메인/zbxe
+   설치페이지가 나온다. rewrite 모듈 체크할 것.
+
+   설치후 http://도메인/zbxe/admin 으로 했을때 admin페이지 보이면
+   rewrite 정상작동임.
+
+끝.

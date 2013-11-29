@@ -1,0 +1,465 @@
+==============================================
+centos 5.7 + kvm
+==============================================
+
+<환경>
+ Server IP : 192.168.0.100
+ Server Name : server1.example.com
+
+<cpu 가상화 지원 확인>
+ egrep '(vmx|svm)' --color=always /proc/cpuinfo
+
+<kvm 설치>
+#yum install kvm libvirt python-virtinst qemu-kvm bridge-utils virt-manager bridge-utils
+
+<kvm 모듈 동작확인>
+#lsmod | grep kvm
+#virsh -c qemu:///system list
+
+<bridge 네트워크 설정>
+#view /etc/sysconfig/network-scripts/ifcfg-br0
+
+DEVICE=br0
+TYPE=Bridge
+BOOTPROTO=static
+IPADDR=192.168.0.100
+NETMASK=255.255.255.0
+ONBOOT=yes
+
+#view /etc/sysconfig/network-scripts/ifcfg-eth0
+
+DEVICE=eth0
+#BOOTPROTO=static
+#IPADDR=192.168.0.100
+#NETMASK=255.255.255.0
+HWADDR=00:15:17:48:EE:60
+ONBOOT=yes
+BRIDGE=br0
+
+#/etc/init.d/network restart
+
+#ifcofnig
+
+   br0
+   ...
+   eth0
+   ...
+   lo
+   ...
+   virbr0
+
+<guestos생성>
+	// command 예제 1
+	#virt-install \
+	--connect qemu:///system \
+	-n web01 \
+	-r 1024 \
+	--disk path=/home/vbox/web01.img  \
+	-c /home/iso/ko_ws_2003_ent_with_sp2_vl.iso \
+	--vnc --noautoconsole \
+	--accelerate \
+	--hvm\
+	--network=bridge:br0
+
+	// command 예제 2
+	#virt-install \
+	--connect qemu:///system \
+	-n vm10 \
+	-r 512 \
+	--vcpus=2 \
+	-f ~/vm10.qcow2 \
+	-s 12 \
+	-c /dev/cdrom \
+	--vnc --noautoconsole \
+	--os-type linux \
+	--os-variant generic26 \
+	--accelerate \
+	--network=bridge:br0 \
+	--hvm
+
+        // CD를 iso이미지로 
+	#dd if=/dev/cdrom of=~/debian-500-amd64-netinst.iso
+
+	// command 예제3
+	#virt-install \
+	--connect qemu:///system \
+	-n vm10 \
+	-r 512 \
+	--vcpus=2 \
+	-f ~/vm10.qcow2 \
+	-s 12 \
+	-c ~/debian-500-amd64-netinst.iso \
+	--vnc \
+	--noautoconsole \
+	--os-type linux \
+	--os-variant generic26 \
+	--accelerate \
+	--network=bridge:br0 \
+	--hvm
+
+	#virt-manager
+
+<guest os 설정변경>
+	#view /etc/libvirt/qemu/web01.xml 
+	//아래 내용은 bridge 네트워크 설정으로 변경함 
+		<interface type='bridge'>
+			<mac address='54:52:00:79:6b:05'/>
+			<source bridge='br0'/>
+		</interface>
+
+	#virsh
+	virsh # define /etc/libvirt/qemu/web01.xml
+
+	<UI 예제>
+	#export LANG=C
+	#virt-manager
+
+guest os 네트워크 설정
+bridge 설정
+
+#view
+ 
+//참고문서
+http://www.howtoforge.com/virtualization-with-kvm-on-a-centos-5.2-server
+http://www.howtoforge.com/virtualization-with-kvm-on-a-centos-5.2-server-p2
+http://libvirt.org/formatdomain.html
+
+<virt-clone>
+#virt-clone -o GUEST_NAME_OLD -n GUEST_NAME_NEW -f /home/vbox/GUEST_NAME_NEW.img --prompt
+ * 복제후 NEW OS의 IP는 원복OS의 IP를 복제함으로 변경 필요힘
+ 
+<storage 추기>
+* storage추가후 os shutdown -> start해야 인식이 됨
+  restart하거나 virsh # define ....xml해도 인식되지 않는다.
+
+* /etc/libvirt/qemu/os.xml 수정한후 virsh # define /etc/libvirt/qemu/os.xml 실행해야 반영됨.
+
+==============================================
+/etc/xen/centos5.3
+==============================================
+
+name = "centos5.3"
+uuid = "dxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+maxmem = 1024
+memory = 1024
+vcpus = 1
+builder = "hvm"
+kernel = "/usr/lib/xen/boot/hvmloader"
+boot = "c"
+pae = 1
+acpi = 1
+apic = 1
+localtime = 0
+on_poweroff = "destroy"
+on_reboot = "restart"
+on_crash = "restart"
+device_model = "/usr/lib/xen/bin/qemu-dm"
+sdl = 0
+vnc = 1
+vncunused = 1
+keymap = "en-us"
+disk = [ "file:/home/vbox/centos5.3.img,hda,w", ",hdc:cdrom,r" ]
+vif = [ "mac=xx:xx:xx:xx:xx:xx,bridge=xenbr0" ]
+serial = "pty"
+ip="x.x.x.x"
+netmask="z.z.z.z"
+gateway="y.y.y.y"
+
+==============================================
+/etc/xen/win7
+==============================================
+
+name = "win7"
+uuid = "6xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+maxmem = 1024
+memory = 1024
+vcpus = 1
+builder = "hvm"
+kernel = "/usr/lib/xen/boot/hvmloader"
+boot = "c"
+pae = 1
+acpi = 1
+apic = 1
+localtime = 1
+on_poweroff = "destroy"
+on_reboot = "restart"
+on_crash = "restart"
+device_model = "/usr/lib/xen/bin/qemu-dm"
+usb = 1
+usbdevice = "tablet"
+sdl = 0
+vnc = 1
+vncunused = 1
+keymap = "en-us"
+disk = [ "file:/home/vbox/w7.img,hda,w", "file:/iso/w7_p_k_32.iso,hdc:cdrom,r" ]
+vif = [ "mac=00:xx:xx:xx:xx:xx,bridge=xenbr0" ]
+serial = "pty"
+ip="x.x.x.x"
+netmask="z.z.z.z"
+gateway="y.y.y.y"
+
+
+virt-clone -o GUEST_NAME_OLD -n GUEST_NAME_NEW -f /home/vbox/GUEST_NAME_NEW.img --prompt
+
+
+==============================================
+/etc/xen/centos5.4
+==============================================
+
+
+name = "TEST"
+uuid = "25xxxxxx-f683-49a6-69cd-xxxxxxxxxxxx"
+maxmem = 1024
+memory = 1024
+vcpus = 2
+bootloader = "/usr/bin/pygrub"
+on_poweroff = "destroy"
+on_reboot = "restart"
+on_crash = "restart"
+vfb = [ "type=vnc,vncunused=1,keymap=en-us" ]
+disk = [ "phy:/dev/sda4,xvda,w" ]
+vif = [ "mac=00:00:00:00:00:00,bridge=xenbr0" ]
+
+
+==============================================
+xen command
+==============================================
+
+http://www.cyberciti.biz/tips/rhel-centos-xen-virtualization-installation-howto.html
+
+para-virtualiztion
+
+# virt-install \
+--paravirt \
+--name webserver01 \
+--ram 1024 \
+--file /home/vbox/webserver01.img \
+--file-size 10 \
+--nographics \
+--location http://ftp.daum.net/centos/5.5/os/x86_64/
+
+fully virtualization (--hvm)
+virt-install --hvm --name ubuntu1004desktop --ram 1024 --file /home/vbox/ubuntu1004.img --cdrom /home/iso/ubuntu-10.04-desktop-i386.iso  --nographics
+
+
+
+□□□□□□□□
+설정 파일로 생성
+□□□□□□□□
+
+1) 이미지 파일 생성
+#dd if=/dev/zero of=/home/vbox/varnish04.img oflag=direct bs=1M count=4096
+
+(#dd if=/dev/zero of=/home/vbox/varnish04.img oflag=direct bs=1M seek=4095 count=4096)
+
+2) guest 환경설정 파일 생성
+
+#view /etc/xen/varnish04
+
+name = "varnish04"
+#uuid = "7d2e8693-1740-c6a4-c074-c528e4f66247"
+maxmem = 1024
+memory = 1024
+vcpus = 1
+builder = "hvm"
+kernel = "/usr/lib/xen/boot/hvmloader"
+boot = "d"
+pae = 1
+acpi = 1
+apic = 1
+localtime = 0
+on_poweroff = "destroy"
+on_reboot = "restart"
+on_crash = "restart"
+device_model = "/usr/lib/xen/bin/qemu-dm"
+sdl = 0
+
+vnc = 1
+vncunused = 0
+# vnc port 5904
+vncdisplay = "4"
+# Local Address Listen
+vnclisten="0.0.0.0"
+
+disk = [ "file:/home/vbox/varnish04.img,hda,w", "file:/home/iso/CentOS-5.3-i386-bin-DVD.iso,hdc:cdrom,r" ]
+vif = [ "mac=00:16:3e:09:be:14,bridge=xenbr0" ]
+serial = "pty"
+ip="192.168.2.100"
+netmask="255.255.255.0"
+gateway="192.168.2.1"
+
+3) 시작
+xm create /etc/xen/varnish04
+
+4) 확인
+xm list
+virsh list
+외부에서 vnc client로 5904포트로 접속
+
+□□□□□□□□
+빠른 설치
+□□□□□□□□
+#virt-install --hvm -s 1 -f /home/vbox/varnish04.img -n varnish04 --cdrom=/home/iso/CentOS-5.3-i386-bin-DVD.iso --vnc --vncport=5904 -r 1024
+
+이때는 vnc 포트가 127.0.0.1로 listen되어, 로컬에서만 vnc접속이 가능하다. 
+root는 vncviewer로 실행하면 바로 창이 뜨지만,
+일반계정은 ssh -X iso@ip와 같은 형식으로 접속을 해야 한다.
+
+
+virt-install --paravirt --name webserver01 --ram 1024 --file /home/vbox/webserver01.img --fie-size 10 --nographics --location http://mirrors.kernel.org/centos/5.3/os/x86_64/
+
+#
+dd if=/dev/zero of=/home/vbox/test80g.img oflag=direct bs=1M seek=81920 count=1
+
+----------------------
+centos5.5 x86_64 virt-manager 실행시 오류 날때
+
+yum install xorg-x11-xau*
+yum install python-tools
+
+
+====================
+save
+====================
+
+time virsh save virtualmaxweb virtualmaxweb_20100627.sav
+
+====================
+clone
+====================
+time virt-clone -o default000 -n default007 -f /home/vbox/default007.img
+
+
+====================
+
+====================
+
+# virt-install \
+--paravirt \
+--name webserver01 \
+--ram 512 \
+--file /vm/webserver.nixcraft.com.img \
+--file-size 10 \
+--nographics \
+--location http://mirrors.kernel.org/centos/5.3/os/x86_64/
+
+====================
+
+====================
+# virt-install \
+--connect qemu:///system \
+--name mailserver
+--ram 500 \
+--file /dev/HostVG/mailserver.cyberciti.biz \
+--network network:default \
+--accelerate \
+--vnc \
+--cdrom /dev/cdrom
+
+====================
+
+====================
+
+# virt-install \
+--name www2 \
+--ram 1000 \
+--file /dev/sdc \
+--network bridge:eth1 \
+--cdrom /tmp/fedorabootdvd.iso
+
+
+
+====================
+31.11. Limit network bandwidth for a Xen guest
+====================
+In some environments it may be required to limit the network bandwidth available to certain guests.
+This can be used to implement basic Quality of Service on a host running multiple virtual machines. By
+default, the guest can use any bandwidth setting available which your physical network card supports.
+The physical network card must be mapped to one of virtual machine's virtual network interfaces. In
+Xen the “rate” parameter part of the VIF entries can throttle virtualized guests.
+This list covers the variables
+rate
+The rate= option can be added to the VIF= entry in a virtual machine configuration file to limit a
+virtual machine's network bandwidth or specify a specific time interval for a time window.
+time window
+The time window is optional to the rate= option:
+The default time window is 50ms.
+A smaller time window will provide less burst transmission, however, the replenishment rate and
+latency will increase.
+The default 50ms time window is a good balance between latency and throughput and in most
+cases will not require changing.
+Examples of rate parameter values and uses.
+rate=10Mb/s
+Limit the outgoing network traffic from the guest to 10MB/s.
+rate=250KB/s
+Limit the outgoing network traffic from the guest to 250KB/s.
+rate=10MB/s@50ms
+Limit bandwidth to 10MB/s and provide the guest with a 50KB chunk every 50ms.
+In the virtual machine configuration a sample VIF entry would look like the following:
+vif = [ -'rate=10MB/s -, mac=00:16:3e:7a:55:1c, bridge=xenbr1']
+
+
+
+# virsh net-list
+
+# virsh net-destroy default
+# virsh net-undefine default
+# service libvirtd restart
+# ifconfig 
+
+
+
+
+
+                                                                             +-------------> vm#1 ( 10.10.21.71 / 123.1.2.4, CentOS MySQL Server)
+                                                                             |
+                                                                             +-------------> vm#2 ( 10.10.21.72 / 123.1.2.5, FreeBSD 7 Web Server)
+LAN --> Switch    -->  eth0 --> -+   10.10.21.70                             |
+                                 | ---> br0 -+      +----------------+       +-------------> vm#3 ( 10.10.21.73 / 123.1.2.6, OpenBSD 4.x Firewall )
+                                 |           | ===> |   RHEL Server  |  -----+
+                                 |           |      |      KVM       |       +-------------> vm#4 ( 10.10.21.74 / 123.1.2.7, Solaris 10 Testing Server )
+                                 | ---> br1 -+      +----------------+       |
+Wan --> ISP Router --> eth1 --> -+   123.1.2.3                               +-------------> vm#5 ( 10.10.21.71 / 123.1.2.8, Windows Server Testing Server )
+                                                                             |
+                                                                             +-------------> vm#6 ( 10.10.21.71 / 123.1.2.9, RHEL Mail Server )
+
+                                                                             
+                                                                             
+                                                                             
+                                                                             
+                                                                             
+		+------+       +-----+
+LAN      -->	| eth0 |  <==> | br0 |       -> KVM VMs connected to LAN for SAN/NFS
+		+------+       +-----+
+                               10.10.x.y/24 
+
+		+------+       +-----+
+Internet -->	| eth1 |  <==> | br1 |       -> KVM VMs connected to the Inernet
+		+------+       +-----+
+                               123.1.2.0/28
+                                                                             
+                                                                             
+                                                                             
+                                                                             
+                                                                             
+[root@localhost ~]# brctl show
+bridge name     bridge id               STP enabled     interfaces
+virbr0          8000.56a22dcc6ced       yes             vif10.0
+                                                        tap0
+xenbr0          8000.feffffffffff       no              peth0
+                                                        vif0.0
+                                                        
+                                                        
+Using more than 8 loopback devices
+By default, Red Hat Enterprise Linux limits the number of loopback devices available.
+This number can be raised by modifying the kernel limit.
+In the /etc/modprobe.conf add the following line:
+options loop max_loop=64
+Reboot the machine or run the following commands to update the kernel:
+# rmmod loop
+# modprobe loop
+
+ls -l /dev/loop*
+losetup -a
+
+                                                                             

@@ -1,0 +1,32 @@
+-----------------------------------------------------------
+jquery ajax example
+-----------------------------------------------------------
+
+1. HTML code
+
+<form name="info" id="info" action="#">
+	<input type="button" id="test" name="test" value="test" />
+</form>
+
+
+
+2. Script code
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+	$("#test").click(function() {
+		$.ajax({
+			url:'주소',
+			type:'GET',
+			error:function(){
+				alert("에러");
+			},
+			success: function(res){
+				alert(res);
+			}
+		});
+	});
+});
+
+</script>

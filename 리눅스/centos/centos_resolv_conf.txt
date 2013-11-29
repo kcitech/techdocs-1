@@ -1,0 +1,19 @@
+
+사무실에서 LINUX신규설치시, DHCP로 사설IP받아서, 자동으로 resolv.conf가 세팅됩니다.
+ 
+이때, 기존 세팅이 세이브됩니다.
+ 
+[root@localhost ~]# ll /etc/resolv.*
+-rw-r--r-- 1 root root 106  1월 11 21:43 /etc/resolv.conf
+-rw-r--r-- 1 root root   1  1월 11 21:41 /etc/resolv.conf.predhclient
+[root@localhost ~]#
+그냥, 사무실에서 공인IP세팅후에, 서버실에 장착하면, resolv.conf 세팅이 사라집니다.
+ 
+그러므로 상기 /etc/resolv.conf.predhclient 파일에,
+ 
+미리, 아래와 같이 nameserver를 세팅해주면, 서버실장착했을때도 세팅이 유지 됩니다.
+ 
+nameserver 1.1.1.1
+nameserver 2.2.2.2
+
+

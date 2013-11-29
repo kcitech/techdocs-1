@@ -1,0 +1,43 @@
+
+------------------------
+apache 1.x
+------------------------
+
+ src/include/httpd.h
+ 
+ #ifdef HARD_SERVER_LIMIT
+ #ifdef WIN32
+ #define HARD_SERVER_LIMIT 1024
+ #elif defined (NETWARE)
+ #define HARD_SERVER_LIMIT 2048
+ #else
+ #define HARD_SERVER_LIMIT 2048 <=== 수정
+ #endif 
+ #endif
+
+------------------------
+apache 2.x
+------------------------
+ server/mpm/prefork/prefork.c
+ 
+ #define DEFAULT_SERVER_LIMIT 246 -> 2048
+
+------------------------
+centos 3.x
+------------------------
+ 소스컴파일 필요
+
+------------------------
+centos 4.x
+------------------------
+
+      3.x대의 아파치에서 MaxClients의 수 증가를 위해 소스컴파일을 했지만
+      아래와 같이 ServerLimit,MaxClients 를 수정하면 됨.
+      (MaxClients의 수는 ServerLimit보다 클 수 없다.)
+      ====================================================
+      <IfModule prefork.c>  
+          ServerLimit      256  -> ServerLimit      1024
+          MaxClients       256  -> MaxClients       512          
+      </IfModule>
+      ====================================================
+

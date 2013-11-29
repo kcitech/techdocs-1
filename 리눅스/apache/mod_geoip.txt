@@ -1,0 +1,97 @@
+
+아파치에서 국가별 대역 차단하는 모듈입니다.
+(단지, 참조만 바랍니다.)
+
+http://www.maxmind.com/app/mod_geoip
+다운로드
+ mod_geoip2_1.2.5.tar.gz (Apache 2.x)
+ GeoIP.dat.tar.gz (free http://www.maxmind.com/app/geolitecountry)
+ 
+#yum install GeoIP*
+
+#tar xvf mod_geoip2_1.2.5.tar.gz
+#cd mod_geoip2_1.2.5
+#view INSTALL
+#apxs -i -a -L/usr/local/lib -I/usr/local/include -lGeoIP -c mod_geoip.c
+
+#cp GeoIP.dat /etc/httpd/conf/
+
+#httpd.conf에 추가
+----------------------------
+샘플)
+----------------------------
+<IfModule geoip_module>
+    GeoIPEnable On
+    GeoIPDBFile /etc/httpd/conf/GeoIP.dat
+
+    <Location /home/geoiptest/public_html>
+        SetEnvIf GEOIP_COUNTRY_CODE CN BlockCountry
+        SetEnvIf GEOIP_COUNTRY_CODE RU BlockCountry
+        SetEnvIf GEOIP_COUNTRY_CODE TH BlockCountry
+        SetEnvIf GEOIP_COUNTRY_CODE KR BlockCountry
+    </Location>
+
+    <Limit GET POST>
+        Order Allow,Deny
+        Allow from all
+        Deny  from env=BlockCountry
+    </Limit>
+
+
+</IfModule>
+
+----------------------------
+예1) KR만 허용
+----------------------------
+<VirtualHost *:80>
+    ServerAdmin USER@DOMAINSAMPLE
+    DocumentRoot /home/geoiptest/public_html
+    ServerName geoiptest.DOMAINSAMPLE
+    ErrorLog logs/geoiptest.DOMAINSAMPLE-error_log
+    CustomLog logs/geoiptest.DOMAINSAMPLE-access_log geoiplog
+
+    GeoIPEnable On
+    GeoIPDBFile /etc/httpd/conf/GeoIP.dat
+
+    <Directory /home/geoiptest/public_html>
+        SetEnvIf GEOIP_COUNTRY_CODE CN BlockCountry
+        SetEnvIf GEOIP_COUNTRY_CODE RU BlockCountry
+        SetEnvIf GEOIP_COUNTRY_CODE TH BlockCountry
+        SetEnvIf GEOIP_COUNTRY_CODE KR go_in
+
+        <Limit GET POST>
+                Order Deny,Allow
+                Deny from all
+                Allow  from env=go_in
+        </Limit>
+    </Directory>
+
+</VirtualHost>
+
+----------------------------
+예2) CN, RU,TH 차단
+----------------------------
+<VirtualHost *:80>
+    ServerAdmin USER@DOMAINSAMPLE
+    DocumentRoot /home/geoiptest/public_html
+    ServerName geoiptest.DOMAINSAMPLE
+    ErrorLog logs/geoiptest.DOMAINSAMPLE-error_log
+    CustomLog logs/geoiptest.DOMAINSAMPLE-access_log geoiplog
+
+    GeoIPEnable On
+    GeoIPDBFile /etc/httpd/conf/GeoIP.dat
+
+    <Directory /home/geoiptest/public_html>
+        SetEnvIf GEOIP_COUNTRY_CODE CN BlockCountry
+        SetEnvIf GEOIP_COUNTRY_CODE RU BlockCountry
+        SetEnvIf GEOIP_COUNTRY_CODE TH BlockCountry
+        SetEnvIf GEOIP_COUNTRY_CODE KR go_in
+
+        <Limit GET POST>
+              Order Allow,Deny
+               Allow from all
+               Deny  from env=BlockCountry
+        </Limit>
+    </Directory>
+
+</VirtualHost>

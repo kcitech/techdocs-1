@@ -1,0 +1,76 @@
+
+[ mailenable 서버 설치된 곳에서 asp로 메일 보내기]
+
+mailenable을 사용하는 서버에서 asp로 메일 보내려면 단순히 smtp를 이용하면 안된다.
+(500에러가 발생할 것이다.)
+
+해결 방법은 2가지이다.
+1) smtp 인증을 하게끔 asp 스크립트 내에서 설정(아래 참조)
+2) mailenable의 smtp port는 25, iis의 smtp port는 다른 것 할당(예..30) -> 더 쉬울 것이다.
+
+smtp인증을 하기 때문에 아래와 같이 해줘야 한다.
+만약 안되면 mailenable에서는 smtp relay부분에서 allow local address 부분에 체크해야 한다.
+
+메일 스크립트에서는 아래 설정이 필요한다.
+======================================================================================
+
+<%
+'Sending a text email using authentication against a  remote SMTP server  
+
+Const cdoSendUsingPickup = 1 'Send message using the local SMTP service pickup directory. 
+Const cdoSendUsingPort = 2 'Send the message using the network (SMTP over the network). 
+
+Const cdoAnonymous = 0 'Do not authenticate
+Const cdoBasic = 1 'basic (clear-text) authentication
+Const cdoNTLM = 2 'NTLM
+
+Set objMessage = CreateObject("CDO.Message") 
+objMessage.Subject = "korea" 
+objMessage.Sender = "USER@DOMAIN.SAMPLE" 
+objMessage.To = "USER2@USER.co.kr" 
+'objMessage.TextBody = "This is some sample message text.." & vbCRLF & "It was sent using SMTP authentication."
+objMessage.TextBody = "mail enable에서 smtp 인증방법을 사용하기때문 일반적인 방법이 아닙니다." & vbCRLF & "참조하세요"
+
+
+'==This section provides the configuration information for the remote SMTP server.
+
+objMessage.Configuration.Fields.Item _
+("http://schemas.microsoft.com/cdo/configuration/sendusing") = 2 
+
+'Name or IP of Remote SMTP Server
+objMessage.Configuration.Fields.Item _
+("http://schemas.microsoft.com/cdo/configuration/smtpserver") = "mail.DOMAIN.SAMPLE"
+
+'Type of authentication, NONE, Basic (Base64 encoded), NTLM
+objMessage.Configuration.Fields.Item _
+("http://schemas.microsoft.com/cdo/configuration/smtpauthenticate") = cdoBasic
+
+'Your UserID on the SMTP server
+objMessage.Configuration.Fields.Item _
+("http://schemas.microsoft.com/cdo/configuration/sendusername") = "USER@DOMAIN.SAMPLE"
+
+'Your password on the SMTP server
+objMessage.Configuration.Fields.Item _
+("http://schemas.microsoft.com/cdo/configuration/sendpassword") = "PASSWD"
+
+'Server port (typically 25)
+objMessage.Configuration.Fields.Item _
+("http://schemas.microsoft.com/cdo/configuration/smtpserverport") = 25 
+
+'Use SSL for the connection (False or True)
+objMessage.Configuration.Fields.Item _
+("http://schemas.microsoft.com/cdo/configuration/smtpusessl") = False
+
+'Connection Timeout in seconds (the maximum time CDO will try to establish a connection to the SMTP server)
+objMessage.Configuration.Fields.Item _
+("http://schemas.microsoft.com/cdo/configuration/smtpconnectiontimeout") = 60
+
+objMessage.Configuration.Fields.Update
+
+'==End remote SMTP server configuration section==
+
+objMessage.Send
+%>
+================================================================================================
+
+끝.

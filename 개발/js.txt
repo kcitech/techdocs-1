@@ -1,0 +1,114 @@
+js수집
+
+/*---------------------------------------------------------------------------------------------
+                                      JAVASCRIPT CODE                                          
+  ---------------------------------------------------------------------------------------------
+	function name						| description				| use process
+  ---------------------------------------------------------------------------------------------
+	fontPlus()							| 글자크기 크게				| 기사 보기
+	fontMinus()							| 글자크기 작게				| 기사 보기
+	checkMsgLength()					| 입력된 문자열 길이 검사			| 기사 댓글
+	calculateMsgLength()				| 문자열 길이 반환				| 기사 댓글
+	assertMsgLength()					| 문자열 길이만큼 잘라 변환		| 기사 댓글
+  ---------------------------------------------------------------------------------------------*/
+  
+  
+/*
+*	글자크기
+*/
+var fontSize = 14;
+
+
+/*
+*	글자크기 크게
+*/
+function fontPlus()
+{
+	fontSize += 2;
+
+	if(fontSize > 24) fontSize = 24;
+
+	var articleBody = document.getElementById("articleBody"); 
+	articleBody.style.fontSize = fontSize;
+}
+
+
+/*
+*	글자크기 작게
+*/
+function fontMinus()
+{
+	fontSize -= 2;
+
+	if(fontSize < 12) fontSize = 12;
+
+	var articleBody = document.getElementById("articleBody"); 
+	articleBody.style.fontSize = fontSize;
+}
+
+
+/*
+*	입력된 문자열 길이 검사
+*/
+function checkMsgLength(frm, id, lenStr)
+{
+	var length = calculateMsgLength(document.getElementById(frm).value);
+	document.getElementById(id).innerHTML = length;
+	if (length > lenStr) {
+		alert("최대 "+lenStr+" 바이트까지 남기실 수 있습니다.\r\n초과된 " + (length - lenStr) + "바이트는 자동으로 삭제됩니다.");
+		document.getElementById(frm).value = assertMsgLength(document.getElementById(frm).value, lenStr, id);
+	}
+}
+		
+
+/*
+*	문자열 길이 반환
+*/
+function calculateMsgLength(message)
+{
+	var nbytes = 0;
+	
+	for (i=0; i<message.length; i++) {
+		var ch = message.charAt(i);
+		
+		if (escape(ch).length > 4) {
+			nbytes += 2;
+		} else if (ch != "\r") {
+			nbytes++;
+		}
+	}
+			
+	return nbytes;
+}
+
+
+/*
+*	문자열 길이만큼 잘라 변환
+*/			
+function assertMsgLength(message, maximum, id)
+{
+	var inc = 0;
+	var nbytes = 0; 
+	var msg = "";
+	var msglen = message.length;
+
+	for (i=0; i<msglen; i++) {
+		var ch = message.charAt(i);
+
+		if (escape(ch).length > 4) {
+			inc = 2;
+		} else if (ch != "\r") {
+			inc = 1;
+		}
+
+		if ((nbytes + inc) > maximum) {
+			break;
+		}
+
+		nbytes += inc;
+		msg += ch;
+	}
+
+	document.getElementById(id).innerHTML = nbytes;
+	return msg;
+}

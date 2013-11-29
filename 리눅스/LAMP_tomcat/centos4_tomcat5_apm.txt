@@ -1,0 +1,772 @@
+
+tomcat : http://tomcat.apache.org/download-55.cgi
+         apache-tomcat-5.5.20.tar.gz
+         apache-tomcat-5.5.20-compat.tar.gz
+         jdk1.4호환패키지라고 함
+
+http://tomcat.apache.org/tomcat-5.5-doc/catalina/docs/api/org/apache/jk/config/ApacheConfig.html
+
+<Listener className="org.apache.jk.config.ApacheConfig" />
+위 Listener에 들어갈 옵션은 아래와 같다.
+*  configHome - default parent directory for the following paths. 
+   If not set, this defaults to TOMCAT_HOME. Ignored whenever any of the
+   following paths is absolute.
+* jkConfig - path to use for writing Apache mod_jk conf file. If not set,
+             defaults to "conf/auto/mod_jk.conf".
+* workersConfig - path to workers.properties file used by mod_jk. If not
+                  set, defaults to "conf/jk/workers.properties".
+* modJk - path to Apache mod_jk plugin file. If not set, defaults to
+         "modules/mod_jk.dll" on windows, "modules/mod_jk.nlm" on netware, and
+         "libexec/mod_jk.so" everywhere else.
+* jkLog - path to log file to be used by mod_jk.
+* jkDebug - JK Loglevel setting. May be debug, info, error, or emerg. If
+             not set, defaults to emerg.
+* jkWorker The desired worker. Must be set to one of the workers defined
+     in the workers.properties file. "ajp12", "ajp13" or "inprocess" are the
+     workers found in the default workers.properties file. If not specified,
+     defaults to "ajp13" if an Ajp13Interceptor is in use, otherwise it
+     defaults to "ajp12".
+* forwardAll - If true, forward all requests to Tomcat. This helps insure
+     that all the behavior configured in the web.xml file functions
+     correctly. If false, let Apache serve static resources. The default is
+     true. Warning: When false, some configuration in the web.xml may not be
+     duplicated in Apache. Review the mod_jk conf file to see what
+     configuration is actually being set in Apache.
+* noRoot - If true, the root context is not mapped to Tomcat. If false and
+     forwardAll is true, all requests to the root context are mapped to
+     Tomcat. If false and forwardAll is false, only JSP and servlets requests
+     to the root context are mapped to Tomcat. When false, to correctly serve
+     Tomcat's root context you must also modify the DocumentRoot setting in
+     Apache's httpd.conf file to point to Tomcat's root context directory.
+     Otherwise some content, such as Apache's index.html, will be served by
+     Apache before mod_jk gets a chance to claim the request and pass it to
+     Tomcat. The default is true.
+
+[ tomcat5 + centos4 + APM ]
+
+OS : centos4
+apm : rpm버전(mysql 4.1.x)
+
+tomcat : apache-tomcat-5.5.20.tar.gz(jdk 1.5.x)
+         apache-tomcat-5.5.20-compat.tar.gz(jdk 1.4.x 호환)
+
+tomcat connector : tomcat-connectors-1.2.20-src.tar.gz
+
+mysql jdbc driver : http://dev.mysql.com/downloads/connector/j/5.0.html
+                    mysql-connector-java-5.0.4.tar.gz
+
+J2SE :  jdk-1_5_0_10-linux-i586.bin
+
+-. os설치시 설치된 java관련 패키지 삭제
+   PATH에 사용할 JDK를 명시하면 되나, 명확히 하기 위해 삭제한다.
+   # java -version
+   java version "1.4.2"
+   gcj (GCC) 3.4.6 20060404 (Red Hat 3.4.6-3)
+   생략...
+
+   # yum list "*gcj*"
+   # yum remove "*gcj*"
+
+1. tomcat5.5 + jdk1.5.0 + mod_jk
+
+   tomcat5.0.x는 jdk1.4대를 사용해도 된다.
+
+   /usr/local에 tomcat, j2sdk를 압축풀었다고 한다.
+   # cd /usr/local
+   # ln -s jdk1.5.0_10  java
+   # ln -s apache-tomcat-5.5.20 tomcat
+   # vi /etc/profile
+   export JAVA_HOME=/usr/local/java
+   export CATALINA_HOME=/usr/local/tomcat
+   export PATH=$PATH:$JAVA_HOME/bin:$CATALINA_HOME/bin
+
+   이후 로그아웃 및 재접속
+
+   # /usr/local/tomcat/bin/startup.sh
+
+   http://ip:8080
+   고양이 화면 OK.
+   jsp examples실행 OK.
+   servlet examples실행 OK.
+
+2. tomcat connector 컴파일
+   # tar xvzf tomcat-connectors-1.2.20-src.tar.gz
+   # cd tomcat-connectors-1.2.20-src
+   # cd native
+   # ./configure --with-apxs=/usr/sbin/apxs
+   # make
+   # make install
+
+   # ls /etc/httpd/modules
+     mod_jk.so  --> 생성확인.
+
+3. server.xml 환경설정
+   # cd $CATALINA_HOME/conf
+   # cp -a server.xml server.xml.orig
+
+   # vi server.xml
+     =========================================================================================================
+     <Server port="8005" shutdown="SHUTDOWN" debug="0">
+     밑줄에 다음을 입력.(mod_jk.so설치된 경로는 반드시 입력)
+     <Listener className="org.apache.jk.config.ApacheConfig"
+modJk="/etc/httpd/modules/mod_jk.so" jkLog="/usr/local/tomcat/logs/mod_jk.log"
+/>
+     =========================================================================================================
+     위 라인은 반드시 입력해줘야 한다.
+
+   # /usr/local/tomcat/bin/shutdown.sh
+   # /usr/local/tomcat/bin/startup.sh
+
+   # ls /usr/local/tomcat/conf
+     auto, jk라는 디렉터리가 생성된 것을 볼 있다.
+     auto디렉터리에는 mod_jk.conf파일이 생성되어 있다.
+     즉, mod_jk.conf는 만드는 것이 아니다.
+     생성된 내용은 다음과 같다.(/usr/local/tomcat/conf/auto/mod_jk.conf)
+     =======================================================================
+     ########## Auto generated on Sun Jan 28 03:01:34 KST 2007##########
+
+     <IfModule !mod_jk.c>
+         LoadModule jk_module "/etc/httpd/modules/mod_jk.so"
+     </IfModule>
+
+     JkWorkersFile "/usr/local/tomcat/conf/jk/workers.properties"
+     JkLogFile "/usr/local/tomcat/logs/mod_jk.log"
+
+     JkLogLevel emerg
+     =======================================================================
+
+     (2008.09.02 jw 추가)
+     위에서 JkWorkerFile, JkLogFile, JkLogLevel은 자동으로 추가되지 않고,
+     수동으로 입력 해줘야 함.
+
+4. workers.properties 환경설정
+   # cd $CATALINA_HOME/conf
+   # cd jk
+   # vi workers.properties   
+     ========================================
+     worker.list=ajp13
+     worker.ajp13.port=8009
+     worker.ajp13.host=localhost
+     worker.ajp13.type=ajp13
+     ========================================
+
+5. httpd.conf 설정
+   맨 아래에 다음 라인 추가.
+   Include /usr/local/tomcat/conf/auto/mod_jk.conf
+
+6. vitualhost로 설정
+   -. httpd.conf
+      =========================================
+      NameVirtualHost *:80
+      <VirtualHost *:80>
+       ServerAdmin root@TESTDOMAIN.co.kr
+       DocumentRoot /home/tomcat1/public_html
+       ServerName tomcat1.TESTDOMAIN.co.kr
+       JkMount /*.jsp ajp13
+       JkMount /servlet/* ajp13
+      </VirtualHost>
+      =========================================
+      
+      httpd.conf, php.conf에서 DirectoryIndex에서 index.jsp를 제일 처음으로.
+
+   -. server.xml
+      =========================================================================================================================
+      <Engine..> </Engine> 사이에 위치한다. localhost처럼.
+
+      <Host name="tomcat1.TESTDOMAIN.co.kr" appBase="/home/tomcat1/public_html"unpackWARs="true" autoDeploy="true"
+       xmlValidation="false" xmlNamespaceAware="false">
+
+        <Valve className="org.apache.catalina.valves.AccessLogValve"
+                 directory="logs" prefix="tomcat1.TESTDOMAIN.co.kr_access_log." suffix=".txt" pattern="common" resolveHosts="false"/>
+
+         <Context path="" docBase="" debug="0" reloadable="true"/>
+      </Host>
+      =========================================================================================================================
+
+7. tomcat start & httpd start
+   -. jsp
+      httpd://tomcat1.TESTDOMAIN1.co.kr
+      jsp페이지, html, php 잘 되면 OK
+      directory를 추가생성 후 jsp파일 잘 되면 OK.
+
+8. servlet환경(서블릿 사용하지 않으면 패스)
+   /homt/tomcat1/public_html/data1이라는 디렉터리에서 서블릿을 실행.
+
+   -. server.xml
+      ================================================================
+      <Host name="tomcat1.TESTDOMAIN.co.kr" appBase="/home/tomcat1/public_html"unpackWARs="true" autoDeploy="true"
+       xmlValidation="false" xmlNamespaceAware="false">
+
+        <Valve className="org.apache.catalina.valves.AccessLogValve"
+                 directory="logs" prefix="tomcat1.TESTDOMAIN.co.kr_access_log." suffix=".txt" pattern="common" resolveHosts="false"/>
+
+         <Context path="" docBase="" debug="0" reloadable="true"/>
+         <Context path="/data1" docBase="data2" debug="0" reloadable="true"/>
+      </Host>
+      ================================================================
+      Context로 추가해야 서블릿 가능. reloadable=true해야 java컴파일시
+      tomcat restart 하지 않아도 됨.
+
+      Context의 path : 웹경로
+      Context의 docBase : 서버의 물리적 경로(appBase의 상대경로 또는 절대경로)
+
+   -. httpd.conf
+      virtualhost 블록안에 다음 라인 추가.
+
+      JkMount /data1/servlet/* ajp13
+
+   -. java 컴파일
+
+      # cd /usr/local/tomcat/common/lib
+      # cp servlet-api.jar /usr/local/java/jre/lib/ext/
+  
+      위 라인이 없다면 다음과 같이 컴파일 옵션을 줘야 한다.
+      ========================================================================= 
+      # javac -classpath /usr/local/tomcat/common/lib/servlet-api.jar -d . Hello.java
+      ========================================================================= 
+   
+      # mkdir /home/tomcat1/public_html/data1
+      # cd /home/tomcat1/public_html/data1
+      # mkdir -p WEB-INF/classes
+      # mkdir -p WEB-INF/lib
+      # cp /usr/local/tomcat/webapps/ROOT/WEB-INF/web.xml WEB-INF/
+
+      # cd WEB-INF
+      # vi web.xml
+        =============================================
+        <?xml version="......생략
+        
+        <web-app>
+          <servlet>
+            <servlet-name>Hello</servlet-name>
+            <servlet-class>Hello</servlet-class>
+          </servlet>
+
+          <servlet-mapping>
+            <servlet-name>Hello</servlet-name>
+            <url-pattern>/servlet/Hello</url-pattern>
+          </servlet-mapping>
+
+        </web-app>
+        =============================================
+
+     # cd ../classes
+     # javac Hello.java
+
+     tomcat start && apache start
+      
+     http://tomcat1.TESTDOMAIN.co.kr/data1/servlet/Hello
+     안녕하세요 페이지가 보이면 OK.
+
+9. mysql연동
+   # tar xvzf mysql-connector-java-5.0.4.tar.gz
+   # cd cd mysql-connector-java-5.0.4
+   # cp mysql-connector-java-5.0.4-bin.jar /usr/local/java/jre/lib/ext/
+
+   tomcat restart
+   mysql  start 
+
+   # cd /home/tomcat1/public_html
+   # vi mysql.jsp
+   =====================================================================
+   <%@ page language="java" import="java.sql.*,java.io.*" %>
+
+   <html><body>
+   <meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+   
+   <%@ page contentType="text/html; charset=EUC-KR" %>
+   
+   <%
+   java.sql.Connection conn = null;
+   java.sql.PreparedStatement ps = null;
+   java.sql.ResultSet rs = null;
+   String strRet = null;
+   int    intRet = 0;
+   
+     try { Class.forName("org.gjt.mm.mysql.Driver");
+         } catch (ClassNotFoundException e ) { out.println(e); }
+   
+     try { conn =   java.sql.DriverManager.getConnection("jdbc:mysql://localhost/mysql?user=root&password=");
+         } catch (java.sql.SQLException e) { out.println(e); }
+   
+     try { ps = conn.prepareStatement("select host, user from user where user =   'root' ");
+           rs = ps.executeQuery();
+   
+           rs.next();
+           out.println("DB connected..." + "<br><br>");
+           out.println("id:  " + rs.getString("host") + "<br>");
+           out.println("user:  " + rs.getString("user") + "<br><br>");
+           rs.close();
+           ps.close();
+           conn.close();
+   
+         } catch (java.sql.SQLException e) { System.out.println(e); }
+           catch (java.io.UnsupportedEncodingException e) {
+           System.out.println(e); }
+   %>
+   </body></html>
+   =====================================================================
+
+   DB연동 되면 OK.
+
+10. jdk1.4.x 호환
+    tomcat 5.5는 jdk1.5를 사용해야 한다.
+    만약 jdk1.4를 꼭 사용해야 한다면 호환패키지를 설치한다.
+    # tar xvzf apache-tomcat-5.5.20-compat.tar.gz -C /usr/local
+
+    /usr/local/apache-tomcdat-5.5.20에 몇개 패키지가 더 설치된다.
+
+    # tomcat stop && start
+
+    만약 Unsupported major.minor version 49.0 와 같은 에러가 웹에서
+    발생한다면 다은 jdk버전에서 컴파일된 jsp가 있다는 뜻.
+
+    # rm -rf /us/local/tomcat/work/tomcat1.TESTDOMAIN.co.kr
+       /usr/local/tomcat/work 디렉터리 안에 컴파일된 jsp가 있는 디렉터리를
+      삭제한다.
+
+    # tomcat restart
+
+11. httpd.conf 예
+    ============================================================
+    생략..
+    Include /usr/local/tomcat/conf/auto/mod_jk.conf
+
+    NameVirtualHost *:80
+    <VirtualHost *:80>
+        ServerAdmin root@TESTDOMAIN.co.kr
+        DocumentRoot /home/tomcat1/public_html
+        ServerName tomcat1.TESTDOMAIN.co.kr
+    
+        JkMount /*.jsp ajp13
+        JkMount /servlet/* ajp13
+        JkMount /data2/servlet/* ajp13
+    </VirtualHost>
+    ============================================================
+
+
+끝.
+
+jw 추가
+httpd.conf 예
+============================================================
+<VirtualHost *:80>
+    ServerAdmin webmaster@dummy-host.example.com
+    DocumentRoot /home/dummy-host.example.com
+    ServerName dummy-host.example.com
+    jkMount /*.jsp ajp13
+    jkMount /servlet/* ajp13
+    jkMount /servlets-examples/* ajp13
+    ErrorLog logs/dummy-host.example.com-error_log
+    CustomLog logs/dummy-host.example.com-access_log common
+</VirtualHost>
+
+Include /usr/local/tomcat/conf/auto/mod_jk.conf
+
+Alias /webmail "/home/squirrelmail-1.4.10a"
+============================================================
+
+/usr/local/tomcat/conf/server.xml
+============================================================
+      <Host name="dummy-host.example.com"
+        appBase="/home/dummy-host.example.com" unpackWARs="true" autoDeploy="true"
+        xmlValidation="false" xmlNamespaceAware="false">
+
+        <Valve className="org.apache.catalina.valves.AccessLogValve"
+                directory="logs" prefix="dummy-host.example.com_access_log."
+                suffix=".txt" pattern="common" resolveHosts="false" />
+
+        <Context path="" docBase="" debug="0" reloadable="true" />
+        <Context path="/servlets-examples" docBase="servlets-examples" debug="0" reloadable="true" />
+      </Host>
+============================================================
+
+
+tomcat.sh
+
+============================================================
+#!/bin/sh
+# Startup script for Tomcat, the Apache Servlet Engine
+#
+# chkconfig: - 85 15
+# description: Start Tomcat
+#
+# processname: tomcat
+#
+# Source function library.
+
+. /etc/rc.d/init.d/functions
+
+export JAVA_HOME=/usr/java/jdk1.5.0_12/
+export CATALINA_HOME=/usr/local/tomcat/
+export PATH=$PATH:$JAVA_HOME/bin:$CATALINA_HOME/bin
+
+# See how we were called.
+case "$1" in
+  start)
+        echo  "Starting Tomcat Server: "
+        $CATALINA_HOME/bin/startup.sh
+        touch /var/lock/subsys/tomcat
+        echo
+        ;;
+  stop)
+        echo  "Shutting down Tomcat Server: "
+        $CATALINA_HOME/bin/shutdown.sh
+        rm -f /var/lock/subsys/tomcat
+        echo
+        ;;
+  restart)
+        $0 stop
+        sleep 2
+        $0 start
+        ;;
+  *)
+        echo "Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+
+exit 0
+============================================================
+
+
+2008.09.02 추가 (jw)
+
+예1)
+
+방문주소:
+	http://www.TESTDOMAIN2.co.kr/TEST4/
+	http://www.TESTDOMAIN2.co.kr/TEST4/servlet/HelloWorldExample
+
+#mkdir /home/www2/public_html/TEST4
+
+#cp -a /usr/local/tomcat/webapps/servlets-examples/* 
+      /home/www2/public_html/TEST4/
+
+---------------------------
+/etc/httpd/conf/httpd.conf
+---------------------------
+
+<VirtualHost *:80>
+    ServerAdmin USER@hanmail.net
+    DocumentRoot /home/www2/public_html
+    ServerName TESTDOMAIN2.co.kr
+    ServerAlias www.TESTDOMAIN2.co.kr
+
+    JkMount /*.jsp ajp13
+    JkMount /servlet/* ajp13
+    JkMount /TEST4/* ajp13
+
+    ErrorLog logs/TESTDOMAIN2.co.kr-error_log
+    CustomLog logs/TESTDOMAIN2.co.kr-access_log common
+</VirtualHost>
+
+----------------------------------
+/usr/local/tomcat/conf/server.xml
+----------------------------------
+
+      <Host name="www.TESTDOMAIN2.co.kr" appBase="/home/www2/public_html" unpackWARs="true"
+         autoDeploy="true" xmlValidation="false" xmlNamespaceAware="false">
+
+       <Value className="org.apache.catalina.valves.AccessValve" directory="logs"
+         prefix="www.TESTDOMAIN2.co.kr_access_log." suffix=".txt" pattern="common" resolveHosts="false" />
+
+       <Context path="" docBase="" debug="0" reloadable="true" />
+
+      </Host>
+
+----------------------------------------------
+/home/www2/public_html/TEST4/WEB-INF/web.xml
+----------------------------------------------
+
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+    version="2.4">
+
+    <display-name>Servlet 2.4 Examples</display-name>
+    <description>
+      Servlet 2.4 Examples.
+    </description>
+
+    <!-- Define servlet-mapped and path-mapped example filters -->
+    <filter>
+        <filter-name>Servlet Mapped Filter</filter-name>
+        <filter-class>filters.ExampleFilter</filter-class>
+        <init-param>
+            <param-name>attribute</param-name>
+            <param-value>filters.ExampleFilter.SERVLET_MAPPED</param-value>
+        </init-param>
+    </filter>
+    <filter>
+        <filter-name>Path Mapped Filter</filter-name>
+        <filter-class>filters.ExampleFilter</filter-class>
+        <init-param>
+            <param-name>attribute</param-name>
+            <param-value>filters.ExampleFilter.PATH_MAPPED</param-value>
+        </init-param>
+    </filter>
+    <filter>
+        <filter-name>Request Dumper Filter</filter-name>
+        <filter-class>filters.RequestDumperFilter</filter-class>
+    </filter>
+
+    <!-- Example filter to set character encoding on each request -->
+    <filter>
+        <filter-name>Set Character Encoding</filter-name>
+        <filter-class>filters.SetCharacterEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>EUC_JP</param-value>
+        </init-param>
+    </filter>
+
+    <filter>
+        <filter-name>Compression Filter</filter-name>
+        <filter-class>compressionFilters.CompressionFilter</filter-class>
+
+        <init-param>
+          <param-name>compressionThreshold</param-name>
+          <param-value>10</param-value>
+        </init-param>
+        <init-param>
+          <param-name>debug</param-name>
+          <param-value>0</param-value>
+        </init-param>
+    </filter>
+
+    <!-- Define filter mappings for the defined filters -->
+    <filter-mapping>
+        <filter-name>Servlet Mapped Filter</filter-name>
+        <servlet-name>invoker</servlet-name>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>Path Mapped Filter</filter-name>
+        <url-pattern>/servlet/*</url-pattern>
+    </filter-mapping>
+
+
+<!-- Example filter mapping to apply the "Set Character Encoding" filter
+     to *all* requests processed by this web application -->
+<!--
+    <filter-mapping>
+        <filter-name>Set Character Encoding</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+-->
+
+<!--
+    <filter-mapping>
+      <filter-name>Compression Filter</filter-name>
+      <url-pattern>/CompressionTest</url-pattern>
+    </filter-mapping>
+-->
+
+<!--
+    <filter-mapping>
+        <filter-name>Request Dumper Filter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+-->
+
+    <!-- Define example application events listeners -->
+    <listener>
+        <listener-class>listeners.ContextListener</listener-class>
+    </listener>
+    <listener>
+        <listener-class>listeners.SessionListener</listener-class>
+    </listener>
+
+    <!-- Define servlets that are included in the example application -->
+
+    <servlet>
+        <servlet-name>CompressionFilterTestServlet</servlet-name>
+        <servlet-class>compressionFilters.CompressionFilterTestServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>HelloWorldExample</servlet-name>
+        <servlet-class>HelloWorldExample</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>RequestInfoExample</servlet-name>
+        <servlet-class>RequestInfoExample</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>RequestHeaderExample</servlet-name>
+        <servlet-class>RequestHeaderExample</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>RequestParamExample</servlet-name>
+        <servlet-class>RequestParamExample</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>CookieExample</servlet-name>
+        <servlet-class>CookieExample</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>SessionExample</servlet-name>
+        <servlet-class>SessionExample</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>CompressionFilterTestServlet</servlet-name>
+        <url-pattern>/CompressionTest</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>HelloWorldExample</servlet-name>
+        <url-pattern>/servlet/HelloWorldExample</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RequestInfoExample</servlet-name>
+        <url-pattern>/servlet/RequestInfoExample/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RequestHeaderExample</servlet-name>
+        <url-pattern>/servlet/RequestHeaderExample</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RequestParamExample</servlet-name>
+        <url-pattern>/servlet/RequestParamExample</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>CookieExample</servlet-name>
+        <url-pattern>/servlet/CookieExample</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>SessionExample</servlet-name>
+        <url-pattern>/servlet/SessionExample</url-pattern>
+    </servlet-mapping>
+
+    <security-constraint>
+      <display-name>Example Security Constraint</display-name>
+      <web-resource-collection>
+         <web-resource-name>Protected Area</web-resource-name>
+         <!-- Define the context-relative URL(s) to be protected -->
+         <url-pattern>/jsp/security/protected/*</url-pattern>
+         <!-- If you list http methods, only those methods are protected -->
+         <http-method>DELETE</http-method>
+         <http-method>GET</http-method>
+         <http-method>POST</http-method>
+         <http-method>PUT</http-method>
+      </web-resource-collection>
+      <auth-constraint>
+         <!-- Anyone with one of the listed roles may access this area -->
+         <role-name>tomcat</role-name>
+         <role-name>role1</role-name>
+      </auth-constraint>
+    </security-constraint>
+
+    <!-- Default login configuration uses form-based authentication -->
+    <login-config>
+      <auth-method>FORM</auth-method>
+      <realm-name>Example Form-Based Authentication Area</realm-name>
+      <form-login-config>
+        <form-login-page>/jsp/security/protected/login.jsp</form-login-page>
+        <form-error-page>/jsp/security/protected/error.jsp</form-error-page>
+      </form-login-config>
+    </login-config>
+
+    <!-- Security roles referenced by this web application -->
+    <security-role>
+      <role-name>role1</role-name>
+    </security-role>
+    <security-role>
+      <role-name>tomcat</role-name>
+    </security-role>
+
+    <!-- Environment entry examples -->
+    <!--env-entry>
+      <env-entry-description>
+         The maximum number of tax exemptions allowed to be set.
+      </env-entry-description>
+      <env-entry-name>maxExemptions</env-entry-name>
+      <env-entry-value>15</env-entry-value>
+      <env-entry-type>java.lang.Integer</env-entry-type>
+    </env-entry-->
+    <env-entry>
+      <env-entry-name>minExemptions</env-entry-name>
+      <env-entry-type>java.lang.Integer</env-entry-type>
+      <env-entry-value>1</env-entry-value>
+    </env-entry>
+    <env-entry>
+      <env-entry-name>foo/name1</env-entry-name>
+      <env-entry-type>java.lang.String</env-entry-type>
+      <env-entry-value>value1</env-entry-value>
+    </env-entry>
+    <env-entry>
+      <env-entry-name>foo/bar/name2</env-entry-name>
+      <env-entry-type>java.lang.Boolean</env-entry-type>
+      <env-entry-value>true</env-entry-value>
+    </env-entry>
+    <env-entry>
+      <env-entry-name>name3</env-entry-name>
+      <env-entry-type>java.lang.Integer</env-entry-type>
+      <env-entry-value>1</env-entry-value>
+    </env-entry>
+    <env-entry>
+      <env-entry-name>foo/name4</env-entry-name>
+      <env-entry-type>java.lang.Integer</env-entry-type>
+      <env-entry-value>10</env-entry-value>
+    </env-entry>
+
+</web-app>
+
+
+예2)
+방문주소:
+	http://www.TESTDOMAIN2.co.kr/TEST4/test01/
+	http://www.TESTDOMAIN2.co.kr/TEST4/test01/servlet/HelloWorldExample
+
+#mkdir /home/www2/public_html/TEST4/test01
+
+#cp -a /usr/local/tomcat/webapps/servlets-examples/* 
+      /home/www2/public_html/TEST4/test01/
+
+---------------------------
+/etc/httpd/conf/httpd.conf
+---------------------------
+
+<VirtualHost *:80>
+    ServerAdmin USER@PORTALMAIL
+    DocumentRoot /home/www2/public_html
+    ServerName TESTDOMAIN2.co.kr
+    ServerAlias www.TESTDOMAIN2.co.kr
+
+    JkMount /*.jsp ajp13
+    JkMount /TEST4/* ajp13
+
+    ErrorLog logs/TESTDOMAIN2.co.kr-error_log
+    CustomLog logs/TESTDOMAIN2.co.kr-access_log common
+</VirtualHost>
+
+----------------------------------
+/usr/local/tomcat/conf/server.xml
+----------------------------------
+
+      <Host name="www.TESTDOMAIN2.co.kr" appBase="/home/www2/public_html" unpackWARs="true"
+         autoDeploy="true" xmlValidation="false" xmlNamespaceAware="false">
+
+       <Value className="org.apache.catalina.valves.AccessValve" directory="logs"
+         prefix="www.TESTDOMAIN2.co.kr_access_log." suffix=".txt" pattern="common" resolveHosts="false" />
+
+       <Context path="" docBase="" debug="0" reloadable="true" />
+       <Context path="/TEST4/test01" docBase="TEST4/test01" debug="0" reloadable="true" />
+
+      </Host>

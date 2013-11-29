@@ -1,0 +1,38 @@
+
+고객님 클라이언트 OS상에서 관리용 네트워크 드라이브 공유
+부분을 차단 하는 것입니다.
+
+이 부분은 모든 WINDOWS 에서 기본으로 열려있어 하나의 취약점으
+로도 널리 알려져 있는 부분입니다.
+
+차단을 위해서는 Registery 상에서 직접 변경 수정을 하신 뒤
+리부팅을 하시면 되며 혹은 부팅시 자동으로 실행 되도록
+batch 파일로 구성 하여 시작프로그램등에 등록을 하시면 됩니다.
+
+1) 레지스트리 수정 방법
+실행창에서 regiedit 수행
+
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\lanmanserver\parameters
+AutoShareServer (서버군)
+AutoShareWks (클라이언트군) 값을 추가 하고 0으로 입력
+Data Type : DWORD Value : 0
+헷갈리시면 제가 알기로는 두개다 등록하여 0으로 하셔도 상관은
+없으실 겁니다.
+
+2) Batch 파일로 구성 하는 방법
+sample.bat
+net share admin$ /delete
+net share ips$ /delete
+net share c$ /delete
+기타 다른 드라이브가 있으면 추가합니다.
+작성한 내용을 저장하고 sample.bat파일을 시작프로그램에 등록합니다.
+
+원격 데스크톱의 포트를 변경 
+
+1. 실행창에서 Regedit 입력
+
+2.HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\TerminalServer\Wds\repwd\Tds\Tcp
+이름 종류 데이터
+PortNumber REG_DWORD 0x00000d3d(3389)
+위 PortNumber 부분이 10진수 값으로 520으로 되어 계실 것입니다.
+필요에 따른 포트로 변경하여 사용 하시면 되겠습니다.

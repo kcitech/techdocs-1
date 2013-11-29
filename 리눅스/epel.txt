@@ -1,0 +1,19 @@
+rpm -Uvh http://download.fedora.redhat.com/pub/epel/6/x86_64/epel-release-6-5.noarch.rpm
+
+rpm -Uvh http://download.fedora.redhat.com/pub/epel/6/x86_64/epel-release-6-5.noarch.rpm
+
+wget http://download.fedora.redhat.com/pub/epel/6/x86_64/epel-release-6-5.noarch.rpm
+
+wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+
+rpm -ivh epel-release-6-8.noarch.rpm 
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+http://fedoraproject.org/wiki/EPEL
+
+6.x x64
+http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+
+5.x x32
+http://dl.fedoraproject.org/pub/epel/5/i386/epel-release-5-4.noarch.rpm

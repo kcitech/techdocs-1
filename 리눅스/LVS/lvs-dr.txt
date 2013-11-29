@@ -1,0 +1,297 @@
+[ LVS DR ]
+
+참조: http://www.linuxvirtualserver.org
+      http://www.ssi.bg/~ja/
+      kernel2.6(centos4 등등)에서의 hidden관련.
+      http://www.austintek.com/LVS/LVS-HOWTO/HOWTO/LVS-HOWTO.arp_problem.html#ratz_arp_announce
+
+-. OS
+   lvs director server : redhat9
+   real server         : debian woody
+
+-. lvs director server
+   eth0       : 192.168.2.210
+   gw         : 192.168.2.1
+
+-. real1 server
+   eth0       : 192.168.2.221
+   gw         : 192.168.2.1
+-. real2 server
+   eth0       : 192.168.2.222
+   gw         : 192.168.2.1
+
+-. virtual IP (VIP : 외부에 서비스할 IP)
+
+   192.168.2.235
+
+[ lvs director server ]
+1. kernel download & compile
+   linux-2.4.2x 버전 download
+   ip_vs 모듈은 kernel 2.4.23부터 포함되어 있기 때문에 따로 컴파일 하지 않는다.
+   netfilter / virtual server configuration 활성화
+
+2. kernel parameter
+   /etc/sysctl.conf의 내용이다.
+
+   net.ipv4.ip_forward = 1                         ==> (jw:이것만 추가하면됨)
+   net.ipv4.conf.all.send_redirects = 1
+   net.ipv4.conf.default.send_redirects = 1
+   net.ipv4.conf.eth0.send_redirects = 1
+
+3. piranha  / ipvsadmin download
+   piranha : redhat enterprise linux 2.1의 update에 보면 src rpm이 있다.
+             이것을 rpm rebuild해서 사용하면 된다.
+   ipvsadm : http://www.linuxvirtualserver.org/software/ipvs.html
+             해당 커널 버전에 맞는 패키지를 받으면 된다.
+             Makefile을 보면 /usr/src/linux로 되어 있으므로 링크를 생성하거나 
+             linux-2.4로 수정한다.
+
+3.1 kernel RPM /piranha / ipvsadm
+    whiteboxlinux 3.0의 2.4.21-20.ELsmp의 소스에 보면 ip_vs가 이미 있다.
+    이 커널을 이용할 때는 아래와 같이 한다.
+
+    1) ipvsadm
+       # wget http://www.linuxvirtualserver.org/software/kernel-2.4/ipvsadm-1.21-10.src.rpm
+       # rpm -ivh ipvsadm-1.21-10.src.rpm
+         rpmbuild하지 말고 소스를 직접 compile한다.
+
+       # tar xvzf ipvsadm-1.21-10.tar.gz
+       # cd ipvsadm
+       # vi Makefile
+         KERNELSOURCE = /usr/src/linux  -> KERNELSOURCE = /usr/src/linux-2.4 로 수정
+     
+       # make && make install
+
+    2) piranha
+       rhel 2.1AS의 SRPMS에서 받아다가 compile.
+       
+       # rpm -ivh piranha-0.7.0-5.src.rpm
+       # cp /usr/src/redhat/SOURCE/* .
+       # cd piranha-0.7.0.tar.gz
+       # cd piranha
+       # patch -p1 < /usr/local/src/piranha-release-misc.patch
+       # patch -p1 < /usr/local/src/piranha-php3-short-tag.patch
+       # make && make install
+
+4. lvs 설정
+   piranha를 이용하면 real server의 데몬을 체크해서 alive되어 있는 서버만 
+   서비스할 수 있게 해준다.(즉, downtime이 거의 없다.)
+
+   단순히 ipvsadm으로만 할 경우 연결되어 있는 서버가 죽을 경우
+   alive되어 있는 서버로 가는 시간이 있다.(즉, downtime이 있다.)
+
+   -. piranha를 이용하지 않은 설정
+      ifconfig eth0:0 192.168.2.235 netmask 255.255.255.255 broadcast 172.26.20.110 up
+      ipvsadm -A -t 192.168.2.235:80 -s wlc
+      ipvsadm -a -t 192.168.2.235:80 -r 192.168.2.221 -g
+      ipvsadm -a -t 192.168.2.235:80 -r 192.168.2.222 -g
+
+   -. piranha를 이용한 lvs 설정
+
+      # vi /etc/sysconfig/ha/lvs.cf
+      =======================================================================
+      service = lvs
+      primary = 192.168.2.210
+      backup  = 192.168.2.220
+      backup_active = 1
+      heartbeat = 1
+      heartbeat_port = 1050
+      keepalive = 2
+      deadtime =  5
+      reservation_conflict_action = preempt
+      debug_level = NONE
+      
+      network = direct
+      rsh_command = ssh
+   
+      virtual web {
+              address = 192.168.2.235 eth0:0
+              vip_nmask = 255.255.255.255
+      #       fwmark = 100
+              active = 1
+              port = 80
+              timeout = 5
+              reentry = 10
+      #       load_monitor = uptime
+              load_monitor = none     
+              send = "GET / HTTP/1.0\r\n\r\n"
+              expect = "HTTP"
+              scheduler = wlc
+              persistent = 60
+              pmask = 255.255.255.255
+              protocol = tcp
+      
+              server real1 {
+                      address = 192.168.2.221
+                      active = 1
+                      weight = 1
+              }
+        
+              server real2 {
+                      address = 192.168.2.222
+                      active = 1
+                      weight = 1
+           }
+      
+      }
+      ======================================================================
+      위 설정에서 load_monitor = none으로 하는 것이 좋다.
+      uptime으로 설정한 후 아래와 같은 에러가 발생하면서 nanny가 죽어서
+      lvs는 살아있는데 서비스는 안되는 현상이 발생한 경우가 있다.
+        Jan 30 11:09:16 lvs07 nanny[21035]: shutting down 221.143.49.75:80 due to connection failure
+        Jan 30 11:09:36 lvs07 nanny[21035]: CONNECT to 221.143.49.75:80 timed out
+        ...
+        Jan 30 11:15:39 lvs07 pulse[21013]: Terminating due to signal 15
+        Jan 30 11:15:39 lvs07 lvs[21017]: shutting down due to signal 15
+        Jan 30 11:15:39 lvs07 lvs[21017]: shutting down virtual service www
+
+      
+      # ssh-keygen -t rsa
+        패스워드는 그냥 enter(즉, 패스워드 설정하지 않음)
+      # scp /root/.ssh/id_rsa.pub 192.168.2.221:/root/.ssh/authorized_keys2
+      # scp /root/.ssh/id_rsa.pub 192.168.2.222:/root/.ssh/authorized_keys2
+
+      # ssh 192.168.2.221
+        패스워드 없이 로그인 되면 OK.
+
+      # reboot
+
+      # /etc/rc.d/init.d/pulse start
+
+      # ipvsadm -L
+
+[ real server ]
+1. kernel patch & compile
+
+   client에서는 hidden patch를 적용해야 arp와 관련된 문제를 방지할 수 있다.
+
+   http://www.ssi.bg/~ja에서 kernel 버전에 맞는 패치파일을 받아 패치한다.
+
+   # cd /usr/src/linux-2.4.26
+   # patch -p1 < hidden-2.4.26-1.diff
+
+   reboot후 /proc/sys/net/ipv4/conf/all/hidden 파일이 보이면 OK. 
+
+   =========================================
+   kernel 2.4.26 ~ 2.6.4이후
+   hidden patch 대신 다음 파라미터를 사용.
+   
+   arp_ignore, arp_announce
+   =========================================
+   
+2. real server network
+
+   # vi /etc/sysctl.conf
+     net.ipv4.ip_forward = 1
+     net.ipv4.conf.all.hidden = 1
+     net.ipv4.conf.lo.hidden = 1
+   # sysctl -p
+
+   =======================================================
+   kernel 2.6에서 arp_ignore, arp_announce 를 이용한다면..
+
+   net.ipv4.conf.all.arp_ignore = 1
+   net.ipv4.conf.all.arp_announce = 2
+   net.ipv4.conf.eth0.arp_ignore = 1
+   #net.ipv4.conf.lo.arp_ignore = 1
+   #net.ipv4.conf.lo.arp_announce = 2
+   =======================================================
+
+
+   # ifconfig lo:0 192.168.2.235 netmask 255.255.255.255 broadcast 192.168.2.235 up
+     위 라인을 /etc/rc.local 맨 아래에 추가하여 부팅시 적용되도록 한다.
+
+     =============================================================================
+     kernel 2.6에서
+     # vi /etc/sysconfig/networ-scripts/ifcfg-lo:0
+       DEVICE=lo:0
+       IPADDR=221.143.49.42
+       NETMASK=255.255.255.255
+       ONBOOT=yes
+       ARP=no
+     =============================================================================
+
+   2.1 debian에서 설정
+       # vi /etc/init.d/lvs_network.sh
+       ===================================================================================
+       /sbin/sysctl -p
+       /sbin/ifconfig lo:0 192.168.2.235 netmask 255.255.255.255 broadcast 192.168.2.235 up
+       ===================================================================================
+   
+       # cd /etc/rcS.d
+       # ln -s ../init.d/lvs_network.sh S99lvs_network.sh
+
+   2.2 real server가 다른 network상에 있을 때
+
+       # route add -host 192.168.2.235 dev lo:0
+
+   2.3 윈도의에서 loopback 
+       ========================================================================
+        수동 설치
+       1. 시작을 누르고 설정을 가리키고 제어판을 누른 다음 하드웨어 추가/제거를
+          두 번 누릅니다.
+       2. 장치 추가/문제 해결을 누르고 다음을 누릅니다.
+       3. 새 장치 추가를 누르고 다음을 누릅니다.
+       4. 아니오, 목록에서 하드웨어를 선택합니다를 누르고 다음을 누릅니다.
+       5. 네트워크 어댑터를 누르고 다음을 누릅니다.
+       6. 제조업체 상자에서 Microsoft를 누릅니다.
+       7. 네트워크 어댑터 상자에서 Microsoft Loopback Adapter를 누르고 다음을
+          누릅니다.
+       8. 마침을 누릅니다.
+       ========================================================================
+       ip는 리눅스와 마찬가지이나 netmask는 255.255.255.255가 에러발생.
+       (레지스트리 변경해야 가능)
+
+       =======================================================================
+       레지스트리 편집기를 열어 다음을 편집.
+       HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Tcpip\Parameters\Interfaces
+       --> Subnetmask 항목에서 255.255.255.255로 수정 후 리부팅.
+       --> 레지스트리 부분은 안해줬는데 서비스에는 이상없는 것 같음.
+       =======================================================================
+
+       또는 
+       netmask를 255.0.0.0으로 설정한다.
+       윈도우는 디폴트로 가장 작은 subnet을 가장 먼저 라우팅으로 사용하기
+       때문이다. 그리고 A 클래스는 C클래스 대신 사용되지 않는다.
+       -> 적용해봐야 함.
+
+3. 확인
+   -. real server
+      # ifconfig
+          lo:0      Link encap:Local Loopback  
+                    inet addr:192.168.2.235  Mask:255.255.255.255
+                    UP LOOPBACK RUNNING  MTU:16436  Metric:1
+      # ps axf | grep apache
+          272 ?        S      0:00 /usr/sbin/apache
+          273 ?        S      0:00  \_ /usr/sbin/apache
+          ....
+
+   -. lvs director server
+      # ps axf
+        1226 ?        S      0:00 pulse
+        1238 ?        S      0:00  \_ /usr/sbin/lvs --nofork -c /etc/sysconfig/ha/lvs.cf
+        1247 ?        S      0:00      \_ /usr/sbin/nanny -c -h 192.168.2.221 -p 80 -s GET / HTTP/1.0\r\n\r\n -x HTTP -a 10 -I /sbin/ipvsadm -t 5 -w 1 -V 192.168.2.235 -M g -U ssh --lvs
+        1248 ?        S      0:00      \_ /usr/sbin/nanny -c -h 192.168.2.222 -p 80 -s GET / HTTP/1.0\r\n\r\n -x HTTP -a 10 -I /sbin/ipvsadm -t 5 -w 1 -V 192.168.2.235 -M g -U ssh --lvs
+
+      # ifconfig
+        eth0:0    Link encap:Ethernet  HWaddr 00:E0:81:29:00:F3  
+                  inet addr:192.168.2.235  Bcast:192.168.2.235  Mask:255.255.255.255
+                  UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+                  ...
+
+      # ipvsadm -L 
+        IP Virtual Server version 1.0.11 (size=4096)
+        Prot LocalAddress:Port Scheduler Flags
+          -> RemoteAddress:Port           Forward Weight ActiveConn InActConn
+        TCP  vip:http wlc persistent 60
+          -> real2:http                   Route   1      0          0         
+          -> real1:http                   Route   1      0          0         
+
+4. web browser
+   ip가 real, vip 2개이기 때문에 virtualhost구성시 
+   NameVirtualHost * 처럼 ip지정하지 않고 하는 것이 낫다.
+
+   잘 연결되면 OK.
+   real server를 죽였을 때(혹은 apache데몬 stop)  ipvsadm 리스트에서 해당 서버가 빠지고
+   연결이 다른 alive상태의 real server 로 연결되면 OK
+

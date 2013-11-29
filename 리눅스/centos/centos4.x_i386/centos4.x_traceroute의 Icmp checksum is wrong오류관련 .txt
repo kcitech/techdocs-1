@@ -1,0 +1,8 @@
+http://bugs.centos.org/view.php?id=2182
+
+http://www.webhostingtalk.com/showthread.php?t=615385
+
+문제 있는 버전    : traceroute-1.4a12-24.EL4.1
+다운그레이드 버전 : traceroute-1.4a12-24.i386
+
+ftp://mirror.alphared.com/CentOS-4.3/CentOS/RPMS/traceroute-1.4a12-24.i386.rpm

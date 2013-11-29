@@ -1,0 +1,7 @@
+on ubuntu
+
+sudo apt-get cacti
+
+http://ip/cacti
+
+id : admin / admin <== must change 

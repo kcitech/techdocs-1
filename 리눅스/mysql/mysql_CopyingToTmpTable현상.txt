@@ -1,0 +1,25 @@
++----+------+----------------------+------------+---------+------+----------------------+------------------------------------------------------------------------------------------------------+
+| Id | User | Host                 | db         | Command | Time | State                | Info                                                                                                 |
++----+------+----------------------+------------+---------+------+----------------------+------------------------------------------------------------------------------------------------------+
+|  4 | acea | 192.168.118.76:48271  | aceauction | Query   |  144 | Copying to tmp table | select c.name as charge_name, c.method, d.name as CC_name, d.code as CC_code, c.no from ac_goo |
+|  8 | acea | 192.168.118.121:32984 | aceauction | Query   |  142 | Copying to tmp table | select c.name as charge_name, c.method, d.name as CC_name, d.code as CC_code, c.no from ac_goo |
+| 11 | acea | 192.168.118.76:48274  | aceauction | Query   |  142 | Copying to tmp table | select c.name as charge_name, c.method, d.name as CC_name, d.code as CC_code, c.no from ac_goo |
+| 14 | acea | 192.168.118.76:48277  | aceauction | Query   |  138 | Copying to tmp table | select c.name as charge_name, c.method, d.name as CC_name, d.code as CC_code, c.no from ac_goo |
+| 24 | acea | 192.168.118.121:32988 | aceauction | Query   |  114 | Copying to tmp table | select c.name as charge_name, c.method, d.name as CC_name, d.code as CC_code, c.no from ac_goo |
+| 28 | acea | 192.168.118.121:32991 | aceauction | Query   |   92 | Copying to tmp table | select c.name as charge_name, c.method, d.name as CC_name, d.code as CC_code, c.no from ac_goo |
+| 32 | acea | 192.168.118.76:48304  | aceauction | Query   |   88 | Copying to tmp table | select c.name as charge_name, c.method, d.name as CC_name, d.code as CC_code, c.no from ac_goo |
+| 35 | acea | 192.168.118.76:48306  | aceauction | Query   |   84 | Copying to tmp table | select c.name as charge_name, c.method, d.name as CC_name, d.code as CC_code, c.no from ac_goo |
+| 38 | acea | 192.168.118.76:48309  | aceauction | Query   |   80 | Copying to tmp table | select a.id, a.CC_code, a.event_no, a.no, a.type_code, a.appoint_result, a.pic_1, a.pic_2, a.appo |
+| 41 | acea | 192.168.118.121:32994 | aceauction | Query   |   78 | Copying to tmp table | select c.name as charge_name, c.method, d.name as CC_name, d.code as CC_code, c.no from ac_goo |
+| 44 | root | localhost            | mysql      | Query   |    0 | NULL                 | show processlist                                                                                     |
+| 47 | acea | 192.168.118.76:48320  | aceauction | Query   |   29 | Copying to tmp table | select c.name as charge_name, c.method, d.name as CC_name, d.code as CC_code, c.no from ac_goo |
+| 50 | acea | 192.168.118.76:48323  | aceauction | Query   |   26 | Copying to tmp table | select c.name as charge_name, c.method, d.name as CC_name, d.code as CC_code, c.no from ac_goo |
+| 55 | acea | 192.168.118.76:48329  | aceauction | Query   |    5 | Copying to tmp table | select c.name as charge_name, c.method, d.name as CC_name, d.code as CC_code, c.no from ac_goo |
++----+------+----------------------+------------+---------+------+----------------------+------------------------------------------------------------------------------
+
+
+Copying to tmp table
+;������ �޸𸮿� �ִ� �ӽ� ���̺? �������̴�.
+
+http://www.mysqlkorea.co.kr/sub.html?mcode=develop&scode=01_1&m_no=22549&cat1=827&cat2=966&cat3=1008&lang=k
+

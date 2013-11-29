@@ -1,0 +1,47 @@
+
+ 
+간단한 메일 발송 스크립트입니다.
+ 
+smtp 셋팅 후 고객이 웹 메일 폼에서 발송 안되는 부분이 있으실 경우
+ 
+실제 서버상에서 스크립트로 발송 테스트를 해 드린 뒤에 셋팅상 동작은 정상인 부분을 안내 해 드리고
+ 
+소스상의 수정을 보시도록 이야기 드리시기 바랍니다.
+ 
+이상입니다.
+ 
+첨부파일은 2000용과 2003용으로 구분 하여 두었습니다.
+ 
+이전 CONTS 로 많이 사용하던 2000용과 2003에서는 위 연동 DLL파일이 더이상 지원 안하는 관계로 CDO.dll 파일로 되어 있습니다.
+  
+==============
+mail_2000.vbs
+==============
+
+Set objSendMail = CreateObject(CDONTS.NewMail)
+objSendMail.From = "USER1@DOMAIN.SAMPLE"    
+objSendMail.To = "USER2@DOMAIN.SAMPLE"   
+objSendMail.Subject = "메일 테스트입니다" 
+objSendMail.Body = "테스트입니다."
+
+Set objSendMail = Nothing
+
+msgbox "메일이 발송되었습니다"
+
+==============
+mail_2003.vbs
+==============
+Set objMail = CreateObject("CDO.Message")
+objMail.From = "USER1@DOMAIN.SAMPLE"
+objMail.To = "support@BBBBBB.com"
+objMail.Subject = "test 메일입니다."
+objMail.textBody = "테스트입니다."
+'objMail.htmlBody = html_only_body
+objMail.send 
+
+Set objMail = Nothing
+
+msgbox "메일이 발송되었습니다"
+
+
+

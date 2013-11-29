@@ -1,0 +1,417 @@
+[ centos4 + qmail ]
+참조 : www.qmailrocks.org
+       os별로 설치 단계가 있음.
+
+-. os 설치 문서 참조
+-. apache,php rpm문서 참조
+-. mysql은 mysql db연동하는 5.2로 컴파일할 때 필요.
+
+-. 설치 패키지는 크게 아래와 같이 3부분
+   qmail, ucspi-tcp, daemontools
+   vpopmail
+
+   vqadmin,qmailadmin
+
+   squirrelmail
+
+-. 설치 디렉터리
+   /var/qmail :  qmail 설정 디렉터리 control디렉터리 중요. 이 디렉터리 백업.
+   /home/vpopmail : domain,계정,패스워드,메일 있음. 이 디렉터리를 백업.
+   /usr/local/
+
+-. qmail 설치 전 hostname을 설정가능하면 미리 해 놓고 할 것.
+   (ex. mail.A.B.C)
+
+-. mysql연동없이 설치를 한 후 mysql연동을 하려면 아래 패키지만 재설치하면 됨.
+   vpopmail,vqadmin,qmailadmin,courier-authlib
+
+1. 패키지 download
+   # mkdir /downloads
+   # cd /downloads
+   # wget http://www.qmailrocks.org/downloads/qmailrocks.tar.gz
+   # tar zxvf qmailrocks.tar.gz
+
+2. qmail & ucspi-tcp & daemontools install
+   # /downloads/qmailrocks/scripts/install/qmr_install_linux-s1.script
+   # /downloads/qmailrocks/scripts/util/qmail_big_patches.script 
+   # cd /usr/src/qmail/qmail-1.03
+   # make man && make setup check
+   # ./config-fast your_fqdn_hostname (ex. ./config-fast testtest.co.kr)
+   
+   # cd /usr/src/qmail/ucspi-tcp-0.88/
+   # patch < /downloads/qmailrocks/patches/ucspi-tcp-0.88.errno.patch
+   # make && make setup check
+   
+   # cd /package/admin/daemontools-0.76
+   # cd /package/admin/daemontools-0.76/src
+   # patch < /downloads/qmailrocks/patches/daemontools-0.76.errno.patch
+   # cd /package/admin/daemontools-0.76
+   # package/install
+
+3. EZmlm (mailing list add on)
+   # cd /downloads/qmailrocks/
+   # tar zxvf ezmlm-0.53-idx-0.41.tar.gz
+   # cd ezmlm-0.53-idx-0.41
+   # make && make setup
+
+4. Autoresponder
+   # cd /downloads/qmailrocks
+   # tar zxvf autorespond-2.0.5.tar.gz
+   # cd autorespond-2.0.5
+   # make && make install
+
+5.1 Vpopmail ( no mysql )
+    # cd /downloads/qmailrocks
+    # tar zxvf vpopmail-5.4.9.tar.gz
+    # cd vpopmail-5.4.9
+    # ./configure --enable-logging=p
+    #  make && make install-strip
+      ====================================================
+      아래 에러가 발생한다면..(gcc 3.x...)
+      In file included from vconvert.c:35:
+      vmysql.h:53:22: missing terminating " character
+      vmysql.h:60:35: missing terminating " character
+      make[2]: *** [vconvert.o] Error 1
+
+      patch < /downloads/qmailrocks/patches/vmysql.patch
+      make && make install
+      ====================================================
+
+5.2 Vpopmail (mysql)
+    # mkdir ~vpopmail/etc
+    # chown vpopmail.vchkpw ~vpopmail/etc
+    # echo "localhost|0|qmail|PASSWD1|vpopmail" > ~vpopmail/etc/vpopmail.mysql 
+      qmail        : 디비유저
+      PASSWD1  : 디비유저의 패스워드
+      vpopmail     : 디비
+    # chown vpopmail.vchkpw ~vpopmail/etc/vpopmail.mysql
+    # chmod 640 ~vpopmail/etc/vpopmail.mysql 
+
+    # mysql -u root -p
+    mysql> CREATE DATABASE vpopmail;
+    mysql> GRANT select,insert,update,delete,create,drop ON vpopmail.* TO qmail@localhost IDENTIFIED BY 'PASSWD1';
+
+    mysql> flush privileges;
+
+    # cd /downloads/qmailrocks
+    # tar zxvf vpopmail-5.4.9.tar.gz
+    # cd vpopmail-5.4.9
+    # ./configure --enable-logging=p --enable-auth-module=mysql \
+                  --disable-passwd --enable-clear-passwd --disable-many-domains \
+                  --enable-auth-logging --enable-mysql-logging --enable-valias \
+                  --disable-mysql-limits
+    # make && make install-strip
+
+6. vqadmin (manage vpopmail)
+   도메인 관리, 계정 관리
+   # cd /downloads/qmailrocks
+   # tar zxvf vqadmin-2.3.6.tar.gz
+   # cd vqadmin-2.3.6
+   # ./configure --enable-cgibindir=/home/webmail/cgi-bin \
+                 --enable-htmldir=/home/webmail
+   # make && make install-strip
+
+   # vi /etc/httpd/conf
+     =================================================
+     <Directory "/home/webmail/cgi-bin/vqadmin">
+     deny from all
+     Options ExecCGI
+     AllowOverride AuthConfig
+     Order deny,allow
+     </Directory>
+     =================================================
+
+   # /home/webmail/cgi-bin/vqadmin
+   # vi .htaccess
+     ====================================================
+     AuthType Basic
+     AuthUserFile /home/webmail/cgi-bin/vqadmin/.htpasswd
+     AuthName vQadmin
+     require valid-user
+     satisfy any
+     ====================================================
+   # chown apache .htaccess
+   # chmod 644 .htaccess
+   # htpasswd -bc /home/webmail/cgi-bin/vqadmin/.htpasswd admin admin_passwd
+   # chmod 644 /home/webmail/cgi-bin/vqadmin/.htpasswd
+   # /etc/init.d/httpd stop
+   # /etc/init.d/httpd start
+   
+   http://www.yourdomain.com/cgi-bin/vqadmin/vqadmin.cgi
+    -> 정상적으로 보이면 ok.
+
+7. Maildrop
+   # cd /downloads/qmailrocks
+   # tar zxvf maildrop-1.6.3.tar.gz
+   # cd maildrop-1.6.3
+   # ./configure --prefix=/usr/local \ 
+                 --exec-prefix=/usr/local \
+                 --enable-maildrop-uid=root \
+                 --enable-maildrop-gid=vchkpw \
+                 --enable-maildirquota
+   # make && make install-strip && make install-man
+
+8. Qmailadmin
+   email계정, forward설정, mailing list설정 
+   # cd /downloads/qmailrocks
+   # tar zxvf qmailadmin-1.2.3.tar.gz
+   # cd qmailadmin-1.2.3
+   # ./configure --enable-cgibindir=/home/webmail/cgi-bin \
+                 --enable-htmldir=/home/webmail
+     (/home/webmail/cgi-bin/qmailadmin 파일 생성,
+      /home/webmail/images 디렉터리 생성)
+   # make && make install-strip
+   
+   # vi /etc/httpd/conf/httpd.conf
+     ==============================================
+     ScriptAlias /cgi-bin/ "/home/webmail/cgi-bin/"
+     ==============================================
+
+   http://www.yourdomain.com/cgi-bin/qmailadmin
+   --> qmailadmin페이지 뜨면 ok.
+
+9. httpd.conf 참조
+   ===================================================
+   <Virtualhost ...>
+    DocumentRoot /home/webmail/
+    ServerName mail.A.B.C
+   
+    ScriptAlias /cgi-bin/ "/home/webmail/cgi-bin/"   
+
+      <Directory "/home/webmail/cgi-bin/vqadmin">
+        deny from all
+        Options ExecCGI
+        AllowOverride AuthConfig
+        Order deny,allow
+      </Directory>
+   </VirtualHost>
+   ===================================================
+
+
+10. finalize qmail
+   # /downloads/qmailrocks/scripts/finalize/linux/finalize_linux.script
+   
+   # vi /var/qmail/supervise/qmail-pop3d/run
+     mail.example.com -> 서버의 hostname (ex. mail.A.B.C)
+
+   # vi /var/qmail/supervise/qmail-smtpd/run
+     mail.example.com -> 서버의 hostname (ex. mail.A.B.C)
+     
+   # qmailctl stop
+   
+   # echo '127.:allow,RELAYCLIENT=""' >> /etc/tcp.smtp
+   
+   # qmailctl cdb
+
+   # echo root > /var/qmail/alias/.qmail-root
+   # echo root > /var/qmail/alias/.qmail-postmaster
+   # echo root > /var/qmail/alias/.qmail-mailer-daemon
+     (root는 시스템 계정 또는 email주소임..)
+  
+   # ln -s /var/qmail/alias/.qmail-root /var/qmail/alias/.qmail-anonymous
+   # chmod 644 /var/qmail/alias/.qmail*
+
+11. sendmail 또는 postfix 삭제
+    sendmail 또는 postfix를 삭제한다.
+    (rpm -e ... 또는 yum remove ...)
+
+    # ln -s /var/qmail/bin/sendmail /usr/lib/sendmail
+    # ln -s /var/qmail/bin/sendmail /usr/sbin/sendmail
+
+11. 점검
+    -. qmail installation check
+       # /downloads/qmailrocks/scripts/util/qmr_inst_check
+
+    -. qmail stop / start / stat
+       qmailctl stop / qmailctl start / qmailctl stop
+
+    -. port
+       25, 110이 열린다. 143(webmail interface)을 이용하려면 
+       courier-imap을 설치해야 한다.
+
+    -. outlook에서 메일 보내기/받기 잘 되어야 정상.
+       아이디는 id@domain 형식이다. 
+
+12. courier-imap
+    webmail(143port)을 이용하기 위해..
+    # cd /downloads/qmailrocks/
+    # tar jxvf courier-authlib-0.55.tar.bz2
+    # cd courier-authlib-0.55
+    # ./configure --prefix=/usr/local \
+                  --exec-prefix=/usr/local \
+                  --with-authvchkpw --without-authldap \
+                  --without-authmysql --disable-root-check \
+                  --with-ssl \
+                  --with-authchangepwdir=/usr/local/libexec/authlib \
+                  --with-redhat
+    # make && make check
+    # make install-strip && make install-configure
+
+    # vi /etc/rc.local
+      부팅시 start..아래 라인 추가.
+      =====================================
+      /usr/local/sbin/authdaemond start
+      =====================================
+
+    # useradd test
+    # cd /downloads/qmailrocks/
+    # tar jxvf courier-imap-4.0.2.tar.bz2
+    # chown -R test:wheel courier-imap-4.0.2
+    # cd /downloads/qmailrocks/courier-imap-4.0.2
+    # su test
+
+    # ./configure --prefix=/usr/local --exec-prefix=/usr/local \
+                   --with-authvchkpw --without-authldap \
+                   --without-authmysql \
+                   --disable-root-check --with-ssl \
+                   --with-authchangepwdir=/usr/local/libexec/authlib \
+                   --with-redhat
+
+    # make && make check
+
+    # exit
+    # make install-strip && make install-configure
+
+    # vi /usr/local/etc/imapd.cnf
+      ====================================
+      IMAPDSTART=YES
+      ====================================
+
+    # vi /usr/local/etc/imapd-ssl
+      ====================================
+      IMAPDSSLSTART=NO
+      ====================================
+
+    # vi /usr/local/etc/authlib/authdaemonrc
+      ====================================
+      authmodulelist="authvchkpw"
+      ====================================
+
+    start script 생성
+    # cp /usr/local/libexec/imapd.rc /etc/rc.d/init.d/imap
+    # cp /usr/local/libexec/imapd-ssl.rc /etc/rc.d/init.d/imaps
+
+    service start / stop
+    # /usr/local/sbin/authdaemond stop
+    # /usr/local/sbin/authdaemond start
+    # /etc/rc.d/init.d/imap stop
+    # /etc/rc.d/init.d/imap start
+
+13. couierpassd
+    squirrel에서 로그인한 사람이 패스워드를 변경할 수 있게 함.
+
+    # cd /downloads/qmailrocks
+    # tar zxvf courierpassd-1.1.0-RC1.tar.gz
+    # cd courierpassd-1.1.0-RC1
+    # ./configure
+    # make && make instal
+
+    # vi /etc/xinetd.d
+      ============================================
+      service courierpassd
+      {
+         port = 106
+         socket_type = stream
+         protocol = tcp
+         user = root
+         server = /usr/local/sbin/courierpassd
+         server_args = -s imap
+         wait = no
+         only_from = 127.0.0.1
+         instances = 4
+         disable = no
+      }
+      ============================================
+
+    # /etc/init.d/xinetd restart
+    106번 port가 열려야 한다.
+
+    # telnet localhost 106
+      Trying 127.0.0.1...
+      Connected to localhost.
+      Escape character is '^]'.
+      200 courierpassd v0.30 hello, who are you?
+      user postmaster@testtest.co.kr  <--입력 
+      200 Your password please.
+      pass my_password  <-- 기존 패스워드 입력(틀리면 종료된다)
+      200 Your new password please.
+      newpass my_new_password <-- 변경할 패스워드 입력
+      200 Password changed, thank-you.
+      quit
+      200 Bye.
+      Connection closed by foreign host.
+
+      --> 위의 일련의 작업과 같이 되면 패키지 정상 설치.
+
+14. squirrle 메일 설치
+    squirrelmail-1.4.6
+    all_locales-1.4.6-20060221.tar.gz
+    change_pass-2.7-1.4.x.tar.gz
+    (PAM or Courier authentication modules, poppassd 또는 courierpassd)
+
+    # tar xvzf squirrelmail-1.4.6.tar.gz -C /home/webmail
+    # ln -s /home/webmail/squirrelmail-1.4.6/smail
+    # tar xvzf all_locales-1.4.6-20060221.tar.gz -C /home/webmail/smail/
+    # tar xvzf change_pass-2.7-1.4.x.tar.gz -C /home/webmail/smail/plugins 
+
+    # cd /home/webmail/smail
+    # chown -R apache:apache data
+
+    # cd /home/webmail/smail/config
+    # ./conf.pl
+      =========================================================
+      General
+      -------
+      1.  Domain                 : testtest.co.kr
+      2.  Invert Time            : false
+      3.  Sendmail or SMTP       : SMTP
+      
+      IMAP Settings
+      --------------
+      4.  IMAP Server            : localhost
+      5.  IMAP Port              : 143
+      6.  Authentication type    : login
+      7.  Secure IMAP (TLS)      : false
+      8.  Server software        : other
+      9.  Delimiter              : detect
+      
+      SMTP Settings
+      -------------
+      4.   SMTP Server           : localhost
+      5.   SMTP Port             : 25
+      6.   POP before SMTP       : false
+      7.   SMTP Authentication   : login
+      8.   Secure SMTP (TLS)     : false
+      9.   Header encryption key :
+
+      Language preferences
+      1.  Default Language       : ko_KR
+
+      Plugins
+        Installed Plugins
+          1. change_pass
+      =========================================================
+
+     # vi /etc/httpd/conf/httpd.conf
+       =============================================================
+       <VirtualHost ...>
+         DocumentRoot /home/webmail
+         ServerName mail.*              <-- 수정
+         php_flag register_globals off  <-- 추가
+         Alias /webmail "/home/webmail/squirrelmail-1.4.6/"  <--추가   
+       =============================================================
+
+     http://mail.A.B.C/webmail/src/configtest.php
+     --> 에러문구 없이 출력되면 ok.(사용가능한 기능들 출력)
+
+     squirrel로그인 및 메일 발송/받기 확인.
+     환경설정에 보면 패스워드 변경하는 부분 있음.
+     정상적으로 변경되면 ok.
+    
+15. service
+    # vi /etc/rc.local
+      ======================================
+      /etc/init.d/imap start
+      /usr/local/sbin/authdaemond start
+      ======================================
+끝.

@@ -1,0 +1,16 @@
+
+1. 문제현상
+웹에서 \"뷁\" 등 확장완성형 단어가 포함된 글 입력시
+확장완성형 단어 이후부터는 db에 저장되지 않는 문제.
+
+2. 원인
+apache의 character set과 db의 character set이 맞지 않음.
+apache : ks_c_5601-1987
+mysql db : euckr
+
+3. 수정
+httpd.conf
+========================
+AddDefaultCharset EUC-KR
+========================
+아파치 resetart후 문제 해결됨을 확인.

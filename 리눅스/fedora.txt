@@ -1,0 +1,14 @@
+http://www.cmsfactory.net/node/62
+
+systemctl status httpd.service
+systemctl stop httpd.service
+systemctl restart httpd.service
+systemctl start httpd.service
+
+systemctl enable httpd.service
+systemctl disable httpd.service
+
+systemctl list-units --type=service
+
+
+

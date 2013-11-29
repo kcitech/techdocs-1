@@ -1,0 +1,187 @@
+---------------------------------------------
+<mysql-5.0.45>
+---------------------------------------------
+#./configure --prefix=/usr/local/mysql-5.0.45 --with-charset=euckr --enable-thread-safe-client && make && make install
+
+-- tip --
+configure 시 오류 메세지
+checking for termcap functions library... configure: error: No curses/termcap library found
+# yum -y install ncurses-devel
+-- tip --
+
+#groupadd mysql
+#useradd -g mysql mysql
+
+#cp /usr/local/mysql-5.0.45/share/my-medium.cnf /etc/my.cnf
+#mkdir /home/mysql-data
+
+[client]
+default-character-set=euckr
+
+[mysqld]
+datadir=/home/mysql-data
+
+old_passwords=1
+default-character-set=euckr
+init_connect="set names euckr"
+
+*old_passwords=1 / init_connect="set names euckr"
+ ; 4.1.x이상에서만 필요함.
+
+*old_passwords=1
+ ;4.0.x대이하에서 사용하던 password함수로 입력되어진  data와 호환하기 위함.
+
+*init_connect="set names euckr"
+  ;4.0.x대이하의 DB를 dump해서
+   4.1로 restore한후 웹에서 한글이 깨질경우
+
+set-variable=max_connections=400
+set-variable=wait_timeout=300
+
+#/usr/local/mysql-5.0.45/bin/mysql_install_db
+
+#chown -R mysql.mysql /home/mysql-data
+
+#ln -s /usr/local/mysql-5.0.45/share/mysql/mysql.server /etc/init.d/mysqld
+
+#vi /etc/ld.so.conf.d/mysqld.conf
+/usr/local/mysql-5.0.45/lib/mysql
+
+#ldconfig
+
+---------------------------------------------
+<httpd-2.0.61>
+---------------------------------------------
+#vi server/mpm/prefork/prefork.c
+#define DEFAULT_SERVER_LIMIT 256 -> 2048
+
+#./configure --prefix=/usr/local/httpd-2.0.59 --enable-mods-shared=all --enable-ssl --with-ssl && make && make install
+
+-- tip --
+SSL관련 오류시 #yum install openssl-devel 설치
+-- tip --
+
+# vi httpd.conf
+<IfModule prefork.c>
+ServerLimit        256 -> 1024
+MaxClients         256 -> 512
+</IfModule>
+
+KeepAlive Off
+AddDefaultCharset UTF-8 -> EUC-KR
+
+AddType application/x-httpd-php .php .php4 .php3 .html .htm .phtml .inc
+AddType application/x-httpd-php-source .phps
+
+DirectoryIndex index.html index.html.var index.htm index.php
+
+---------------------------------------------
+<php-4.4.7>
+---------------------------------------------
+./configure --prefix=/usr/local/php-4.4.7 \
+--with-config-file-path=/usr/local/php-4.4.7/etc \
+--with-apxs2=/usr/local/httpd-2.0.61/bin/apxs \
+--with-mysql=/usr/local/mysql-5.0.45 \
+--with-openssl \<---- 노트기재된 내용에서 추가됨
+--with-gd \
+--with-freetype-dir \
+--with-png-dir \
+--with-jpeg-dir \
+--with-zlib-dir \
+--with-iconv \
+--with-dom \
+--with-xml \
+--with-expat-dir=/usr \
+--with-zlib \
+--with-bz2 \
+--with-gettext \
+--with-gmp \
+--enable-sigchild \<---- 노트기재된 내용에서 추가됨
+--enable-exif \
+--enable-gd-native-ttf \
+--enable-track-vars \
+--enable-sockets \
+--enable-sysvsem \
+--enable-sysvshm \
+--enable-magic-quotes \
+--enable-safe-mode \
+--enable-ftp \
+--enable-mbstring \
+--enable-force-cgi-redirect \
+--enable-pic \
+--enable-inline-optimization \
+--enable-bcmath \
+--enable-discard-path \
+--enable-yp \
+--enable-wddx \
+--enable-dbx \
+--enable-dio \
+--enable-mcal \
+--enable-calendar \
+--disable-debug \
+--disable-rpath
+
+./configure --prefix=/usr/local/php-4.3.11 \
+--with-config-file-path=/usr/local/php-4.3.11/etc \
+--with-apxs2=/usr/local/httpd-2.0.61/bin/apxs \
+--with-mysql=/usr \
+--with-openssl \
+--with-gd \
+--with-freetype-dir \
+--with-png-dir \
+--with-jpeg-dir \
+--with-zlib-dir \
+--with-iconv \
+--with-dom \
+--with-xml \
+--with-expat-dir=/usr \
+--with-zlib \
+--with-bz2 \
+--with-gettext \
+--with-gmp \
+--enable-sigchild \
+--enable-exif \
+--enable-gd-native-ttf \
+--enable-track-vars \
+--enable-sockets \
+--enable-sysvsem \
+--enable-sysvshm \
+--enable-magic-quotes \
+--enable-safe-mode \
+--enable-ftp \
+--enable-mbstring \
+--enable-force-cgi-redirect \
+--enable-pic \
+--enable-inline-optimization \
+--enable-bcmath \
+--enable-discard-path \
+--enable-yp \
+--enable-wddx \
+--enable-dbx \
+--enable-dio \
+--enable-mcal \
+--enable-calendar \
+--disable-debug \
+--disable-rpath 
+
+--with-oci8-instant-client \\ <-- 오라클연동
+
+-- tip --
+#yum install libxml2-devel
+#yum install bzip2-devel
+#yum install gmp-devel
+-- tip --
+
+
+#cp php.ini-dist /etc/php.ini
+#vi php.ini
+ register_globals=Off -> On
+ max_execution_time=30 -> 60
+ memory_limit=8M -> 20M
+ allow_url_fopen = Off
+
+
+/etc/httpd/conf.d/php.conf
+DirectoryIndex index.php
+
+

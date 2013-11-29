@@ -1,0 +1,15 @@
+
+ 
+윈도우 예약작업 로그파일(SchedLgU.txt)는, 윈도우 GUI로 해당폴더에 나타나지가 않습니다.
+ 
+cmd창을 열어서 확인시에, 확인이 가능하였습니다..
+ 
+아래와 같이 확인이 가능합니다.
+ 
+ cd c:
+ cd c:\windows
+ cd Tasks
+ dir
+ notepad SchedLgU.txt
+ 
+ 

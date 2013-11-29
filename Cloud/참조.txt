@@ -1,0 +1,314 @@
+http://www-903.ibm.com/kr/kssl/hipods/hipods3.html
+
+
+http://wiki.libvirt.org/page/VM_lifecycle
+
+Virtual Machine Lifecycle
+
+Contents
+[hide]
+1 Virtual Machine Lifecycle
+1.1 Terminology
+2 Concepts
+2.1 Guest domains are described using XML configuration
+2.2 Transient guest domains vs Persistent guest domains
+2.3 States that a guest domain can be in
+2.4 Snapshots
+2.5 Migration
+2.6 Removing guest domains
+3 Tasks
+3.1 Creating a domain
+3.2 Editing a domain
+3.3 Starting a domain
+3.4 Stopping or rebooting a domain
+3.5 Pausing a guest domain
+3.6 Unpausing a guest domain
+3.7 Taking a Snapshot of a guest domain
+3.8 Listing the snapshots of a guest domain
+3.9 Restoring a guest domain from a snapshot
+3.10 Removing a snapshot from a guest domain
+3.11 Migration
+3.12 Deletion of a domain
+3.13 Wiping the storage used by a guest domain
+4 Reference
+[edit]
+Virtual Machine Lifecycle
+This page describes a basics of virtual machine lifecycle. Its aim is to have fundamental information about creating, running, stopping, migrating and deleting virtual machines in one page.
+
+[edit]
+Terminology
+Since libvirt uses a slightly different terminology than other technologies, it's important to know what is meant under the terms it uses. Please refer to this page if you are not familiar with it.
+
+[edit]
+Concepts
+[edit]
+Guest domains are described using XML configuration
+In libvirt XML format is used to store configuration of everything, be it domain, network, storage, etc. It allows users to edit configuration in their favourite text editor. Devices in domain are represented by XML elements and device configuration is done by assigning attributes and/or child elements. For instance:
+
+<domain type='qemu'>
+   <name>demo</name>
+   ...
+   <devices>
+      ...
+      <disk type='file' device='disk'> ... </disk>
+      <disk type='file' device='cdrom'> ... </disk>
+      <input type='mouse' bus='ps2'/>
+      ...
+   </devices>
+</domain>
+Libvirt then uses XPath technology to select nodes from XML document.
+
+[edit]
+Transient guest domains vs Persistent guest domains
+Libvirt distinguishes two different types of domains: transient and persistent. Transient domains are better suited for single use, since they exist only until domain shutdown or host server restart. Persistent domains, however, last indefinitely.
+
+Once a domain is created (no matter what type) its state can be saved into a file and then restored many times as long as the file exists. Thus even a transient domain can be restored over and over again.
+
+Transient domains are created a bit differently than persistent ones. Persistent domains need to be defined first in order to be started up. Transient domains are created and started at once. This also means that different commands are used.
+
+Please keep in mind that although transient domains are created and destroyed on-the-fly, all of their components (storage, networks, devices, ...) need to exist before.
+
+This topic is strongly related to the next one.
+
+[edit]
+States that a guest domain can be in
+Domain can be in several states:
+
+Undefined - This is a baseline state. Libvirt does not know anything about domains in this state because they haven't been defined or created in any way.
+Defined - The domain has been defined, but it's not running. That's why this state can be also called stopped. Only persistent domains can be in this state.
+Running - The domain has been created and started either as transient or persistent one. All domains in this state are executed on hypervisor.
+Paused - The domain execution on hypervisor has been suspended. Its state has been temporarily stored upon resume. The domain does not have any knowledge whether it was paused or not. If you are familiar with processes in operating systems, this is the same.
+Saved - Similar to the previous state, but this time the domain state is stored to persistent storage. Again, the domain in this state can be restored and it does not notice anything.
+The next picture shows how domain flows from one state to another:
+
+
+
+The states are described above, the edges represent commands used to change state of the domain.
+
+From the picture one can see, it is possible with one command (shutdown) to either get to Defined or Undefined state. Transient domain would go to Undefined state and persistent one to Defined.
+
+[edit]
+Snapshots
+Snapshot is a view of a virtual machine's operating system and all its applications at a given point in time. Sometimes it is good to have restore points to which can one return. This is the aim of snapshots. For example, user install and set his or her domain and create a snapshot. From this time on, he or she can do anything with the domain, like changing domain OS configuration, install or update new applications, etc. But at anytime there is the possibility to unroll all changes made and return to the previous state of domain.
+
+At this point it is worth mentioning snapshots are static. So when you revert to previous state and make some changes (e.g. modify some files), they get lost unless you create a new snapshot.
+
+[edit]
+Migration
+A running virtual machine can be migrated to any host within its designated host. This is especially useful if the load on a particular host is too great, and is essential before bringing a server down for maintenance. Migration of virtual machines does not cause any service interruption.
+
+Types of migration:
+
+"standard" - Domain is suspended as long as all its resources are being transferred to destination host. Once done, it is again resumed on destination. The time spent in suspended state is directly proportional to domain memory size.
+peer-to-peer - this type is used whenever source and destination hosts can communicate directly.
+tunnelled - in this case a tunnel is created between source and destination hosts, e.g. ssh tunnel and all network communication is sent through it.
+live vs non-live - When migrating in live mode, the domain is not paused and all services on it are still running. The opposite is non-live migration, when a domain is paused for the time necessary to transfer its state through network. However, live migration is sensitive for heavy domain load. When live migrating a domain, its allocated memory is sent to the destination host and being watched for changes at the same time. After this all changed memory areas are moved to destination host, and again since the domain is still active, any other memory areas changed in the meantime be recognized and transferred. At the end we have the same memory images and domain can be transfered.
+direct - libvirt just initiates the migration, but then whole process is under hypervisors control, since they talk to each other, e.g. Xen on the source host communicates directly to Xen on the destination host without any libvirt intervention.
+Requirements for migration:
+
+Shared storage accessible under same paths and locations,e.g. iSCSI, NFS, etc.
+Exact same version of hypervisors on both hosts
+Same network configuration
+Same CPUs, or better said CPUs have to be from the same vendor and CPU flags on the destination host must be superset of CPU flags on source.
+A checklist for successful migration is here.
+
+[edit]
+Removing guest domains
+When removing a guest domain one can also want to remove and wipe the storage it was using so there are no sensitive data left behind. This has to be done explicitly since during the domain removing process libvirt does not release any resources domain was using, although they might be used only by this one domain.
+
+Wiping the storage is critical, since simple file removal does not erase data from the hard drive, it only marks the file as deleted and its blocks as free space. The only option is to rewrite the file content with random data.
+
+[edit]
+Tasks
+[edit]
+Creating a domain
+In order to run a domain it is first necessary to create one. This can be done in several ways. The following page describes the process using the Virtual Machine Manager GUIT. The second way is by using the virt-install command line tool.
+
+# virt-install \
+             --connect qemu:///system \
+             --virt-type kvm \
+             --name MyNewVM \
+             --ram 512 \
+             --disk path=/var/lib/libvirt/images/MyNewVM.img,size=8 \
+             --vnc \
+             --cdrom /var/lib/libvirt/images/Fedora-14-x86_64-Live-KDE.iso \
+             --network network=default,mac=52:54:00:9c:94:3b \
+             --os-variant fedora14
+This command creates a new domain called 'MyNewVM', with 512 MB RAM and 8 GB disk space using KVM. Please read the manual page for any further information.
+
+The last way is to create an XML definition of the domain and volume(s) and run virsh with the appropriate commands: vol-create and define.
+
+Volumes are joined in a pool. By default, there exists one pool called "default". This is a directory-type pool, which means all volumes are stored as files in one directory. But please read this page if you are not completely aware of libvirt storage management. You may find more suitable storage solution there.
+
+Example of volume XML definition (new_volume.xml):
+
+<volume>
+ <name>sparse.img</name>
+ <capacity unit="G">10</capacity>
+</volume>
+This defines a new volume with a capacity of 10 GB. To create volume in "default" pool:
+
+# virsh vol-create default new_volume.xml
+Example of domain XML definition (MyNewVM.xml):
+
+<domain type='kvm'>
+  <name>MyNewVM</name>
+  <currentMemory>524288</currentMemory>
+  <memory>524288</memory>
+  <uuid>30d18a08-d6d8-d5d4-f675-8c42c11d6c62</uuid>
+  <os>
+    <type arch='x86_64'>hvm</type>
+    <boot dev='hd'/>
+  </os>
+  <features>
+    <acpi/><apic/><pae/>
+  </features>
+  <clock offset="utc"/>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>restart</on_crash>
+  <vcpu>1</vcpu>
+  <devices>
+    <emulator>/usr/bin/qemu-kvm</emulator>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='raw'/>
+      <source file='/var/lib/libvirt/images/MyNewVM.img'/>
+      <target dev='vda' bus='virtio'/>
+    </disk>
+    <disk type='block' device='cdrom'>
+      <target dev='hdc' bus='ide'/>
+      <readonly/>
+    </disk>
+    <interface type='network'>
+      <source network='default'/>
+      <mac address='52:54:00:9c:94:3b'/>
+      <model type='virtio'/>
+    </interface>
+    <input type='tablet' bus='usb'/>
+    <graphics type='vnc' port='-1'/>
+    <console type='pty'/>
+    <sound model='ac97'/>
+    <video>
+      <model type='cirrus'/>
+    </video>
+  </devices>
+</domain>
+To define a new presistent domain:
+
+# virsh define MyNewVM.xml
+Domain XML format has many optional elements which you may find useful. Therefore read this page which is a complete domain XML format reference including examples and most common scenarios.
+
+[edit]
+Editing a domain
+Any domain can be edited in a user's favourite editor. What is needed is to set the $VISUAL or $EDITOR environment variable and run:
+
+# virsh edit <domain>
+If neither of these variables are not set, the vi editor is used by default. After closing the editor libvirt will automatically check for changes and apply them. However, it is also possible to edit domain in Virtual Machine Manager.
+
+
+[edit]
+Starting a domain
+Once a domain is created, one is able to run it. This is possible through Virtual Machine Manager or by running virsh start <domain> command. For example:
+
+# virsh start MyNewVM
+This command however performs either so called clean boot up or restores the domain from the previously saved state. See managedsave virsh command for details. It is important to notice, a domain can't be started if any of its components are not up, e.g. network.
+
+As mentioned above, a transient domain can be run without previous definition:
+
+# virsh create /path/to/MyNewVM.xml
+[edit]
+Stopping or rebooting a domain
+To stop running domain just run:
+
+# virsh shutdown <domain>
+To reboot a persistent domain:
+
+# virsh reboot <domain>
+Rebooting a transient domain is not possible, since right after shutdown are transient domains also undefined.
+
+An inelegant shutdown, also known as hard-stop:
+
+# virsh destroy <domain>
+This is equivalent to unplugging the power cable.
+
+[edit]
+Pausing a guest domain
+Domain can be paused in virsh:
+
+# virsh suspend <domain>
+or in Virtual Machine Manager by clicking Pause button from main toolbar. When a guest is in a suspended state, it consumes system RAM but not processor resources. Disk and network I/O does not occur while the guest is suspended. This operation is immediate
+
+[edit]
+Unpausing a guest domain
+Any paused or suspended domain can be resumed by:
+
+# virsh resume <domain>
+or by unclicking the appropriate Pause button in Virtual Manager.
+
+[edit]
+Taking a Snapshot of a guest domain
+Creating a snapshot is done by executing:
+
+# virsh snapshot-create <domain>
+[edit]
+Listing the snapshots of a guest domain
+All snapshosts of a guest domain can be viewed in virsh:
+
+# virsh snapshot-list <domain>
+For instance, the output might look like this:
+
+ Name                 Creation Time             State
+---------------------------------------------------
+ 1295973577           2011-01-25 17:39:37 +0100 running
+ 1295978837           2011-01-25 19:07:17 +0100 running
+
+We can see one snapshot created at 17:39:17 local time, with the name 1295973577 which corresponds to Unix time. The other was created at 19:07:17 with the name 1295978837.
+
+[edit]
+Restoring a guest domain from a snapshot
+To restore a guest domain from a previous snapshot you can use:
+
+# virsh snapshot-restore <domain> <snapshotname>
+This restores a specified domain to a state represented by snapshotname. Please note that any changes made will be destroyed!
+
+[edit]
+Removing a snapshot from a guest domain
+Any snaphsot of a given domain can be removed via:
+
+# virsh snapshot-delete <domain> <snapshotname>
+[edit]
+Migration
+Libvirt provides migration support. It means you can migrate a domain from one host to another over the network. Migration can operate in two main modes:
+
+Plain migration: The source host VM opens a direct unencrypted TCP connection to the destination host for sending the migration data. Unless a port is manually specified, libvirt will choose a migration port in the range 49152-49215, which will need to be open in the firewall on the remote host.
+Tunneled migration: The source host libvirtd opens a direct connection to the destination host libvirtd for sending migration data. This allows the option of encrypting the data stream. This mode doesn't require any extra firewall configuration, but is only supported with qemu 0.12.0 or later, and libvirt 0.7.2 or later.
+For a successful migration there are couple of things needed to be done. For instance, storage settings have to match. All volumes that migrated domain use have to be stored under the same paths. For full checklist follow this page. We also recommend you use secure migration.
+
+Once pre-migration checks are done, you can migrate machine using virsh:
+
+# virsh migrate <domain> <remote host URI> --migrateuri tcp://<remote host>:<port>
+[edit]
+Deletion of a domain
+One may delete an inactive domain in virsh:
+
+# virsh undefine <domain>
+As usual, there is also the possibility of deleting it in Virtual Machine Manager, covered in this page .
+
+[edit]
+Wiping the storage used by a guest domain
+A volume used by a domain can contain confidential data, hence it is necessary to wipe it before removal. Libvirt offers a helping hand for such cases:
+
+# virsh vol-wipe <volume>
+which truncates and extends the volume to its original size. This in fact fills the file with zeroes. This ensures that data previously stored on volume is not accessible to reads anymore. After this, you can remove volume :
+
+# virsh vol-delete <volume>
+[edit]
+Reference
+These pages may also provide useful further information:
+
+Domain XML format
+RHEL 6 Virtualization Guide
+Anatomy of the libvirt virtualization library
+Application development guide: Guest domains lifecycle
+Virsh Command Reference
+Retrieved from "http://wiki.libvirt.org/page/VM_lifecycle"

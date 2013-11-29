@@ -1,0 +1,19 @@
+1.case
+  c 20G --> 40G로 변경
+  sda1 100M --> sdc1 100M
+  sda2 20G  --> sdc2 40G
+  
+1. boot from sysresccd 
+   download => http://www.sysresccd.org/ 
+   부팅시 graphics로 부팅
+  
+2. gparted 실행
+   copy partition sda1 & paste sda1 to sdc1
+   copy partition sda2 & paste sda2 to sdc2
+   
+   flag on sdc1 (boot)
+
+3. boot from winCD
+   repair & check filesystem
+   
+4. boot 

@@ -1,0 +1,115 @@
+
+-. oracle 10g R2 설치
+시스템의 oracle계정(id / passwd) :
+oracle /PWD 
+
+설치위치 : /home/ORACLE
+
+oracle 환경파라미터 기재: /home/oracle/.bash_profile
+/etc/init.d/tomcat
+
+oracle dbname / sid : ora10 / ora10
+
+부팅시 start / stop 스크립트 : /etc/init.d/dbora
+
+db 기본계정 / 패스워드 : sys,system,dbsnmp,sysman / PWD
+오라클DB
+
+oracle enterprise manager접속 방법 :
+http://192.168.43.199:1158/em
+(sys계정으로 로그인, sysdba 권한선택)
+
+-. apache 설치
+
+# yum install httpd httpd-devel
+
+-. tomcat 연동
+mod_jk (tomcat-connectors-1.2.21-src.tar.gz) 이용
+mod_jk.so생성
+
+기존 server.xml 백업 :
+/usr/local/tomcat/conf/server.xml.090623 백업
+
+server.xml수정 :
+======================================================================
+< Server port="8005" shutdown="SHUTDOWN" >
+아래 라인 추가
+< Listener className="org.apache.jk.config.ApacheConfig"
+modJk="/etc/httpd/modules/mod_jk.so"
+jkLog="/usr/local/tomcat/logs/mod_jk.log" />
+
+생략
+
+< Service name="Catalina" >
+
+< Connector port="81" <- 80을 81로 수정
+생략
+
+< Service name="admin" >
+
+< Connector port="8080" <- 수정안함
+=======================================================================
+
+
+/usr/local/tomcat/conf/jk/workers.properties생성
+=====================================
+worker.list=ajp13
+worker.ajp13.port=8009
+worker.ajp13.host=localhost
+worker.ajp13.type=ajp13
+======================================
+
+/etc/httpd/conf/httpd.conf 설정
+======================================
+DirectoryIndex inex.jsp
+
+Include /usr/local/tomcat/conf/auto/mod_jk.conf
+
+NameVirtualHost *:80
+
+< VirtualHost *:80 >
+ServerName www.TESTDOMAIN.net
+DocumentRoot /home/TESTDOMAIN
+
+Alias /docs "/home/toppnd/docs"
+
+JkMount /*.jsp ajp13
+JkMount /servlet/* ajp13
+
+
+
+< VirtualHost *:80 >
+ServerName admin.TESTDOMAIN.net
+DocumentRoot /home/TESTDOMAIN/admin
+
+JkMount /*.jsp ajp13
+JkMount /servlet/* ajp13
+
+=========================================
+
+/home/toppnd 디렉터리 권한 수정 : 기존 700 -> 755
+
+-. 아파치 , tomcat 재시작
+
+# /etc/init.d/tomcat stop
+# /etc/init.d/httpd stop
+
+# /etc/init.d/tomcat start
+# /etc/init.d/httpd start
+
+apache는 부팅시 start되게 설정되어 있음.
+
+-. 사이트 확인
+
+http://www.TESTDOMAIN.net/oracle_check.jsp (thin방식 연결테스트)
+http://www.TESTDOMAIN.net
+http://www.TESTDOMAIN.net/docs (docs디렉터리의 index.jsp는 jsp코드 삽입)
+http://admin.TESTDOMAIN.net
+
+확인해보시기 바랍니다.
+
+만약 원상태로 돌리려면, 아래 순서대로 하시면 됩니다.
+/etc/init.d/httpd stop
+/etc/init.d/tomcat stop
+server.xml.090623을 server.xml로 카피
+/etc/init.d/omcat start 

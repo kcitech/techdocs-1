@@ -1,0 +1,104 @@
+#!/bin/bash
+
+IPTABLES="/sbin/iptables"
+
+$IPTABLES -F
+
+$IPTABLES -P INPUT DROP
+$IPTABLES -P FORWARD DROP
+$IPTABLES -P OUTPUT ACCEPT
+
+$IPTABLES -A INPUT -i lo -j ACCEPT
+$IPTABLES -A OUTPUT -o lo -j ACCEPT
+
+$IPTABLES -A INPUT -i eth0 -s 10.0.0.0/8 -j DROP
+$IPTABLES -A INPUT -i eth0 -s 255.255.255.255/32 -j DROP
+$IPTABLES -A INPUT -i eth0 -s 0.0.0.0/8 -j DROP
+$IPTABLES -A INPUT -i eth0 -s 169.254.0.0/16 -j DROP
+$IPTABLES -A INPUT -i eth0 -s 172.16.0.0/12 -j DROP
+$IPTABLES -A INPUT -i eth0 -s 192.0.2.0/24 -j DROP
+$IPTABLES -A INPUT -i eth0 -s 224.0.0.0/4 -j DROP
+$IPTABLES -A INPUT -i eth0 -s 240.0.0.0/5 -j DROP
+$IPTABLES -A INPUT -i eth0 -s 248.0.0.0/5 -j DROP
+
+$IPTABLES -A OUTPUT -d 10.0.0.0/8 -j DROP
+$IPTABLES -A OUTPUT -d 255.255.255.255/32 -j DROP
+$IPTABLES -A OUTPUT -d 0.0.0.0/8 -j DROP
+$IPTABLES -A OUTPUT -d 169.254.0.0/16 -j DROP
+$IPTABLES -A OUTPUT -d 172.16.0.0/12 -j DROP
+$IPTABLES -A OUTPUT -d 192.0.2.0/24 -j DROP
+$IPTABLES -A OUTPUT -d 224.0.0.0/4 -j DROP
+$IPTABLES -A OUTPUT -d 240.0.0.0/5 -j DROP
+$IPTABLES -A OUTPUT -d 248.0.0.0/5 -j DROP
+
+$IPTABLES -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+$IPTABLES -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+ 
+$IPTABLES -A INPUT -i eth0 -p TCP ! --syn -m state --state NEW -j DROP
+
+$IPTABLES -A INPUT -i eth0 -p ALL -m state --state INVALID -j DROP 
+
+# www
+#$IPTABLES -A INPUT -i eth0 -p TCP -m iprange --src-range 192.168.2.1-192.168.2.2 --sport 1024: --dport 80 -m state --state NEW -j ACCEPT #
+$IPTABLES -A INPUT -i eth0 -p TCP -s 0.0.0.0/0 --sport 1024: --dport 80 -m state --state NEW -j ACCEPT #
+
+# svn
+$IPTABLES -A INPUT -i eth0 -p TCP -s 0.0.0.0/0 --sport 1024: --dport 3690 -m state --state NEW -j ACCEPT #혈본
+
+# ftp
+#$IPTABLES -A INPUT -i eth0 -p TCP -s 0.0.0.0/0 --sport 1024: --dport 21 -m state --state NEW -j ACCEPT 
+
+# mysql 
+#$IPTABLES -A INPUT -i eth0 -p TCP -s 0.0.0.0/0 --sport 1024: --dport 3306 -m state --state NEW -j ACCEPT 
+
+# ssh
+#$IPTABLES -A INPUT -i eth0 -p TCP -s 0.0.0.0/0 --sport 1024: --dport 22 -m state --state NEW -j ACCEPT
+$IPTABLES -A INPUT -i eth0 -p TCP -s 222.235.42.114 --sport 1024: --dport 22 -m state --state NEW -j ACCEPT #xen
+$IPTABLES -A INPUT -i eth0 -p TCP -s 211.57.231.130 --sport 1024: --dport 22 -m state --state NEW -j ACCEPT #혈본
+$IPTABLES -A INPUT -i eth0 -p TCP -s 175.113.80.37  --sport 1024: --dport 22 -m state --state NEW -j ACCEPT #도로공사
+$IPTABLES -A INPUT -i eth0 -p TCP -s 222.235.42.114 --sport 1024: --dport 22 -m state --state NEW -j ACCEPT #jinwoo
+$IPTABLES -A INPUT -i eth0 -p TCP -m iprange --src-range 211.238.194.220-211.238.194.250 --sport 1024: --dport 22 -m state --state NEW -j ACCEPT #구로본사
+
+# smtp
+$IPTABLES -A INPUT -i eth0 -p TCP -s 0.0.0.0/0 --sport 1024: --dport 25 -m state --state NEW -j ACCEPT
+
+# pop3
+$IPTABLES -A INPUT -i eth0 -p TCP -s 0.0.0.0/0 --sport 1024: --dport 110 -m state --state NEW -j ACCEPT
+
+# snmpd
+$IPTABLES -A INPUT -i eth0 -p UDP -s 0.0.0.0/0 --sport 1024: --dport 161 -m state --state NEW -j ACCEPT
+$IPTABLES -A INPUT -i eth0 -p TCP -s 0.0.0.0/0 --sport 1024: --dport 161 -m state --state NEW -j ACCEPT
+
+# nagios nrpe port 5666번 
+$IPTABLES -A INPUT -i eth0 -p TCP --sport 1024: -s 0.0.0.0/0 --dport 5666 -m state --state NEW -j ACCEPT
+$IPTABLES -A INPUT -i eth0 -p TCP --sport 1024: -s 0.0.0.0/0 --dport 5666 -m state --state NEW -j ACCEPT
+
+# traceroute
+$IPTABLES -A INPUT -m state --state NEW -p udp --dport 33434:38000 -j ACCEPT
+
+# icmp / echo-reply
+$IPTABLES -A INPUT -p ICMP --icmp-type echo-reply -j ACCEPT
+$IPTABLES -A INPUT -p ICMP --icmp-type echo-request -j ACCEPT
+
+# icmp 
+$IPTABLES -A INPUT -p ICMP --icmp-type network-unreachable -m limit --limit 1/s --limit-burst 5 -j ACCEPT
+$IPTABLES -A INPUT -p ICMP --icmp-type host-unreachable -m limit --limit 1/s --limit-burst 5 -j ACCEPT
+$IPTABLES -A INPUT -p ICMP --icmp-type port-unreachable -m limit --limit 1/s --limit-burst 5 -j ACCEPT
+$IPTABLES -A INPUT -p ICMP --icmp-type fragmentation-needed -m limit --limit 1/s --limit-burst 5 -j ACCEPT
+$IPTABLES -A INPUT -p ICMP --icmp-type time-exceeded -m limit --limit 1/s --limit-burst 5 -j ACCEPT
+
+# tcp-flags
+$IPTABLES -A INPUT -p tcp --tcp-flags ALL FIN,URG,PSH -m limit --limit 5/minute -j LOG --log-prefix "NMAP-XMAS:"
+$IPTABLES -A INPUT -p tcp --tcp-flags ALL FIN,URG,PSH -j DROP
+$IPTABLES -A INPUT -p TCP --tcp-flags SYN,FIN SYN,FIN -j DROP
+$IPTABLES -A INPUT -p TCP --tcp-flags SYN,RST SYN,RST -j DROP
+$IPTABLES -A INPUT -p TCP --tcp-flags FIN,RST FIN,RST -j DROP
+$IPTABLES -A INPUT -p TCp --tcp-flags ACK,FIN FIN -j DROP
+$IPTABLES -A INPUT -p TCP --tcp-flags ACK,PSH PSH -j DROP
+$IPTABLES -A INPUT -p TCP --tcp-flags ACK,URG URG -j DROP
+$IPTABLES -A INPUT -p TCP --tcp-flags ALL FIN -j DROP
+$IPTABLES -A INPUT -p TCP --tcp-flags ALL NONE -j DROP
+$IPTABLES -A INPUT -p TCP --tcp-flags ALL PSH,FIN -j DROP
+$IPTABLES -A INPUT -p TCP --syn --dport 113 -j REJECT --reject-with tcp-reset
+
+

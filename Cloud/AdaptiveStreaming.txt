@@ -1,0 +1,19 @@
+--------------------------
+reference
+--------------------------
+
+http://blog.naver.com/PostView.nhn?blogId=gojump0713&logNo=140080464213
+
+Adaptive Streaming
+
+인터넷으로 영상 미디어를 즐기는 방법 2가지
+- 다운로드방식 
+   : http protocol 사용 ==> stateless
+
+- 스트리밍방식 
+  : 전용 protocol 사용, 
+    스트리밍미디어서버 <---논리적인관으로연결--> 클라이언트(영상플레이어) ==> stateful
+
+- Adaptive Streaming
+  : 영상미디어를 슬라이스 치즈(오이채 썰듯)처럼 얇게 썰어서 이를 마치 글이나 그림처럼 표준적인 http 기술 써서 쏟아냄.
+

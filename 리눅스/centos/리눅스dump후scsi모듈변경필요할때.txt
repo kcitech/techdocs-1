@@ -1,0 +1,70 @@
+
+
+scsi서버의 경우 scsi  driver가  맞지 않으면
+부팅시 kernel panic이 발생합니다.
+
+이 경우에는 해당 scsi driver를 ram disk image에 등록해주면 됩니다.
+
+일반적으로 다음과 같은 절차로 하시면 되겠습니다.
+
+기존 드라이버 : adaptec
+새   드라이버 : lsi logic
+
+1. rescue 모드 부팅
+redhat, centos, fedora : CD 부팅시 linux rescue
+
+2. chroot
+# fdisk -l
+하드 잡았는지 확인
+
+3. 어떤 드라이버인지 확인
+# lsmod
+aic79xx, mptbase등 어떤 scsi driver올라와 있는지 확인.
+
+lsi logic(sas하드)의 경우에는
+mptbase, mptsas, mptscsih등 약 6개 정도 올라옴.
+이중 mptbase, mptscsih를 module.conf(centos 3.x) 또는
+modprobe.conf(centos 4.x)에 넣고 ramdisk image를 생성하면 된다.
+
+4. ramdisk를 생성하기 위한 chroot.
+# chroot /mnt/sysimage
+
+# vi /etc/modules.conf
+==============================
+alias scsi_hostadapter aic79xx
+==============================
+위와 같이 설정되어 있다면 부팅시 adaptec driver가 올라옴.
+따라서 모듈 변경 .
+
+==================================
+aic79xx 라인 삭제 및 아래 라인 추가
+alias scsi_hostadapter mptbase
+alias scsi_hostadapter1 mptscsih
+==================================
+
+# cd /boot
+# ls /lib/modules/
+드라이버등이 위치한 곳.
+설치되어 있는 커널에 따라 그 이름을  디렉터리명으로 되어 있다.
+lsmod로 확인한 드라이버가 있을것이다.
+2.6.9-22.ELsmp
+2.6.9-22.0.1.ELsmp
+
+5. ramdisk생성
+# cp initrd-2.6.9-22.0.1.ELsmp.img initrd-2.6.9-22.0.1.ELsmp.img.orig
+# mkinitrd -f initrd-2.6.9-22.0.1.ELsmp.img  2.6.9-22.0.1.ELsmp
+
+initrd-2.6.9-22.0.1.ELsmp.img : ramdisk image
+2.6.9-22.0.1.ELsmp  : 커널 드라이버가 있는 디렉터리명
+(/lib/modules에서 확인)
+
+6. 5에서 에러 발생한다면
+만약 OS하드에 modules.conf에 설정한 드라이버가 없다면,
+그런 모듈 없다는 에러메세지 보인다.
+이때는 오타거나 실제 dump한 데이타에 모듈이 없던가 확인해봐야 한다.
+
+
+에러 없으면  리부팅 및 부팅 확인
+
+즉2.6.9-22.0.1.ELsmp.img ramdisk이미지에 등록되어 있는
+드라이버를 로딩해서 OS를 부팅하게 된다.

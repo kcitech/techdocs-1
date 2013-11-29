@@ -1,0 +1,17 @@
+
+CentOS 5 (Final)에 ModSecurity 2.x 버전 설치 후 구동시 다음과 같은 에러가
+발생하며 아파치 구동이 안되는 경우가 있습니다.
+
+mod_security2.so : undefined symbol: xmlFree
+
+이와 같은 경우에는 httpd.conf에 다음과 같이 libxml2.so를 mod_security2.so 이전에
+load 시켜주면 됩니다.
+
+/etc/httpd/conf/httpd.conf
+
+-- 상략 --
+LoadFile /usr/lib/libxml2.so
+LoadModule security2_module modules/mod_security2.so
+-- 하략 --
+
+참고 부탁드립니다. 감사합니다.

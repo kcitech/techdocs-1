@@ -1,0 +1,349 @@
+펌>
+
+인용:
+* 오타가 있을수 있으이 의역 바랍니다. ^^
+
+리눅스에서 윈도 터미널 원격접속 하는 방법으로 RDP 프로토콜을 사용하는 rdesktop
+가 있습니다. 최근에 리눅스에서 사용되는 winlink , tsclient 등은 모두 rdesktop base
+으로 gui만 입혀져있다고 보시면 됩니다. 
+RDP 프로토콜 관련하여 RFC규약 내용을 보소 싶으신경우
+
+* T.128 Draft - Application Sharing Protocol
+* T.125 Draft - Multipoint Communication Service
+* RFC905 - ISO DP 8073 Transport Protocol
+* RFC2126 - ISO Transport on TCP 묵
+
+내용을 iana 홈피에서 열람 하실수 있습니다. 
+
+■ 유사 프로그램: winlink , Terminal Service Client for Redhat , rdesktop
+
+- Rdesktop Console Tool: http://www.rdesktop.org
+- Gnome based GUI Tool: http://www.gnomepro.com/tsclient/
+
+WinLink (Origianal:rdesktop)는 리눅스 데스크톱에서 M$ 윈도 터미널 서버에
+연결하여 윈도용 프로그램을 사 용할 수 있게 해주는 프로그램으로 
+sound redirection, disk, serial, parallel, printer 등의 장치를 redirection할 수 있게 지원하였고,
+그외에도 대역폭 조절 지원, 다른 frontend를 위한 xembed지원 등이 추가되었었습니다. 이
+기능의 경우 한컴리눅스에서 제공되었으나 지금은 사라지고 tscliet으로 이용되고 있습니다. 
+
+한컴에서 내놓은 RPM버젼은 Python으로 QT를 import하여 개발했기때문에, python/QT가
+설치된 환경에서 winlink가 정상적으로 실행됨(한마디로 의존적App로 안좋음.?)
+예전에 다운로드) http://kr.hancom.com/->로그인->좌측하단 오픈자료실 ->winlink 검색->다운로드
+
+http://www.rdesktop.org 에서 rdesktop다운받아, 한컴리눅스에서 rpm으로 빌드하여 winlink으로 내놓다가, 한컴리눅스 데스크탑 2.0 부터는 grdesktop/rdesktop 으로 릴리즈중에 있습니다. 
+
+아래의 rdesktop 관련정보들 참고하시기 바랍니다. 
+
+■ rdesktop의 윈도우 버젼별 RDP 버젼 지원에 대한 정보
+- WinNT Server 4.0 introduced RDP 4.0 but supports RDP 5.0 due to later updates 
+- Win2000 Server introduced RDP 5.0 that supports up to 16 bit color depth.
+- WinXP Proffesional supports RDP 5.1 that can run up to 24 bit (True Color) color depth 
+- Win2003 Server supports RDP 5.2 that also supports max 24 bit (True Color) color depth
+
+■ 설치및 사용방법(소스 설치방법)
+
+가. www.rdesktop.org에서 rdesktop.1.4.1 소스를 다운로드.
+
+나. 설치
+#> wget www.rdesktop.org/rdesktop-1.4.1.tar.gz
+#> tar xvzf rdesktop-1.4.1.tar.gz
+#> ./configure
+#> make
+#> make install
+#> /usr/local/bin/rdesktop
+
+다. 실행
+#>/usr/local/bin/rdesktop 210.117.48.31
+- 풀스크린화면 사용방법: /usr/local/bin/rdesktop -f 210.117.48.31 
+- 1024x768화면 사용방법: /usr/local/bin/rdesktop -g 1024x768 -a 16 210.117.48.31
+- 사운드 청취방법: /usr/local/bin/rdesktop -a 16 -g1270x974 -T "winxp" -u invain -p password -r sound:local 10.88.165.49
+
+라. 사용되는 포트:
+- 윈도우 터미널서버 포트: 32,xxx port
+- 리눅스 redesktop App 포트: 3,389 port
+
+■ 자동실행소스( Language : C)
+
+#include < stdio.h >
+#include < unistd.h >
+
+int main()
+{
+char *a;
+char terminal[100] ;
+int b=3389, c=8, task_continue;
+char another;
+task_continue =1;
+while ( task_continue )
+{
+system ("clear");
+printf ("\n");
+printf ("Winodws Terminal Server Service \n");
+printf ("====================================== \n\n\n");
+printf ("Input Server IP Address :"); scanf ("%s",&a);
+printf ("Input Server Port(ex: 3389):"); scanf ("%d",&b);
+printf ("Input Server Resolution(ex: 8 or 16):"); scanf ("%d",&c);
+printf ("\n\n\n\n");
+sprintf (terminal ,"/usr/local/bin/rdesktop -a %d -g 1024x768 %s:%d",c,&a,b);
+printf ("\n\n\n Just a moment . Now Processing ..... \n");
+system (terminal);
+
+system ("clear");
+printf ("\n\n\n\n");
+printf ("\n\b Are you connect Another Terminal Server...(Y/N):");
+scanf ("%s",&another);
+
+if (another == 'Y' || another =='y' ) task_continue = 1;
+else if ( another == 'N' || another =='n' ) task_continue =0;
+else {printf ("\nYou entered incorrect character.This App stoped.");
+exit;
+}
+
+}
+
+return 0;
+}
+
+■ 한글/영문을 Ctrl+Shift Key의 조합으로 변환하여 사용하기
+
+윈도우에서 IME(EN/KO)를 오른쪽 마우스로 클릭후 "설정"을 선택하고
+KO:한국어 --> 키보드:한글 입력기( IME 2002)선택 --> 기본설정 -->
+키설정 --> 입력 언어의 바로가기키 --> 동작 --> 입력 언어간 전환 -->
+키 시퀀스 변경 --> [V]입력 언어 전환 --> Ctrl + Shit를 체크 --> 확인
+: 이제 Ctrl+Shift Key로 한/영을 입력하면 됨. 
+
+---한영키 패치----------------------------------------------------------------
+--- rdesktop-1.4.0/xkeymap.c~ 2004-02-27 18:53:59.380070848 +0900
++++ rdesktop-1.4.0/xkeymap.c 2004-02-27 18:54:52.811947968 +0900
+@@ -138,6 +138,8 @@
+if (strncmp(line, "map ", 4) == 0)
+{
+g_keylayout = strtol(line + 4, NULL, 16);
++ if (g_keylayout == 0x0412)
++ g_keylayout |= 0xe0010000; /* M$ hangul IME */
+DEBUG_KBD(("Keylayout 0x%x\n", g_keylayout));
+continue;
+}
+--- /dev/null 2003-11-20 01:46:13.000000000 +0900
++++ rdesktop-1.4.0/keymaps/ko 2004-02-27 18:55:39.632830112 +0900
+@@ -0,0 +1,37 @@
++# generated from XKB map ko
++include common
++map 0x412
++exclam 0x02 shift
++at 0x03 shift
++numbersign 0x04 shift
++dollar 0x05 shift
++percent 0x06 shift
++asciicircum 0x07 shift
++ampersand 0x08 shift
++asterisk 0x09 shift
++parenleft 0x0a shift
++parenright 0x0b shift
++minus 0x0c
++underscore 0x0c shift
++equal 0x0d
++plus 0x0d shift
++bracketleft 0x1a
++braceleft 0x1a shift
++bracketright 0x1b
++braceright 0x1b shift
++semicolon 0x27
++colon 0x27 shift
++apostrophe 0x28
++quotedbl 0x28 shift
++grave 0x29
++asciitilde 0x29 shift
++backslash 0x2b
++bar 0x2b shift
++comma 0x33
++less 0x33 shift
++period 0x34
++greater 0x34 shift
++slash 0x35
++question 0x35 shift
++Hangul 0xf2
++Hangul_Hanja 0xf1
+
+--------------------------------------------------------------------------------
+
+■ 듀얼모니터 환경에서 rdesktop 실행시 X_CreateColormap 문제 해결방법
+
+듀얼 모니터 환경에서는 ColorMap을 생성하지 못하는 버그가 있는 관계로
+1.3.1 , 1.4.1 버젼을 사용할수 없기때문에 www.rdesktop.org에서 1.2.0
+버젼을 설치하여야 한다. 그러나, 해상도를 8bit밖에 사용할수 없다.
+
+필자의 경우 Fedora Core 5를 사용중에 xorg-x11-***을 업데이트후에 이러한 현상이
+일어났기 때문에, #> rpm -qa | grep xorg-x11 | rpm -e force [enter] 로 모두 제거후
+Fedora Core 5의 설치시디에 들어있는 xorg를 아래와 같이 설치하여 원래대로
+16비트의 해상도를 사용할수 있었다. (2006.08.20)
+#> rpm -ivh xorg-x11-* [enter]
+
+
+http://sourceforge.net/mail/?group_id=24366 http://joyce.webcreations.ca/rdesktop/xinerama_patch.diff
+
+---Error Info -----------------------------------------------
+rdesktop.1.4.1#> /usr/bin/rdesktop 10.88.165.149
+X Error of failed request: BadValue (integer parameter out of range for operation)
+Major opcode of failed request: 78 (X_CreateColormap)
+Value in failed request: 0x0
+Serial number of failed request: 7
+Current serial number in output stream: 8
+
+---------------------------------------------------------
+
+그리고 아래는 RDP 프로토콜이 아닌 VNC 프로토콜을 이용하는 원격접속의 방법으로 
+GNU진영에서 제작되어 지금은 많은 클론프로그램들이 (for win, linux , mac)있는 vnc 입니다. 
+
+vnc( Virtual Network Computing ) 
+----------------------------------------------------------------
+2006.04.27
+
+http://www.tightvnc.com/download.html
+
+vnc는 가상 네트워크 컴퓨팅( Virtual Network Computing )이다.
+간단하게 말하면, 실행되고 있는 머신만이 아닌 인터넷상의 어디
+에서든, 광범위한 머신 아키텍쳐로부터도, 컴퓨팅 ``데스크탑''
+환경을 보이도록 하는 것이 vnc이다. vnc 의 클라이언트와 서버는
+Linux 용도 다른 플랫폼용도 다수 있다. Windows NT 나 95 상에서
+MS-Word를 실행해, 그 출력을 Linux 머신 으로 표시할 수 있다.
+그 반대로도 할 수 있다. Linux 머신으로 어플리케이션을 실행하고,
+그 출력을 다른 Linux 와 Windows 머신으로 표시할 수 있다. Java의
+클라이언트도 있으므로, Web 브라우저 내부에서 리모트 디스플레를
+실행할 수 있다. 마지막으로, SVGAlib의 그래픽스 라이브러리를
+사용해 Linux로 이식한 것을 사용하면, 386s에서 불과 4Mb의 RAM
+머신을 완전하게 동작하는 X 단말가 가능하다. 2006년 6월 현재
+Realvnc(Original), Ultravnc, Tightvnc 등이 있다.
+----------------------------------------------------------------
+★윈도우에서 vnc Server 실행방법
+----------------------------------------------------------------
+1) Download
+2) Install
+3) [시작][프로그램][vnc] 에서 vncserver을 실행하면 됨
+4) 다른 컴퓨터에서 vncviewr을 사용하면 됨.
+
+----------------------------------------------------------------
+★리눅스에서 vnc Server 실행방법 ( 5901:tcp )
+----------------------------------------------------------------
+■ 1) 다운로드 및 설치
+#> http://http://www.realvnc.com/download.html
+
+1.1) 소스 설치
+#> tar xvzf vnc-4_1_2-x86_linux.tar.gz
+( rpm은 vnc접속시 Xwindows가 안보이는 문제가 있으므로 *.tar.gz권장)
+#> ./configure ; make ; make install
+
+1.2) RPM 설치
+#> rpm -Uvh vnc-3.3.3r2-28.2.rpm
+#> rpm -Uvh vnc-server-3.3.3r2-28.2.rpm
+
+■ 2) 환경설정(vnc접속후 xwindows 실행을 위하여)
+#>vi ~/.vnc/xstartup [enter]
+방법1) hanterm &
+startkde
+
+방법2) 윈도우 메니저 예제
+exec gnome-session
+exec startfluxbox
+startkde
+
+For KDE------------------------------------------------------
+#!/bin/sh
+[ -r $HOME/.Xresources ] && xrdb $HOME/.Xresources
+xsetroot -solid grey
+vncconfig -iconic &
+xterm -geometry 80x24+10+10 -ls -title "$vncDESKTOP Desktop" &
+startkde &
+
+For Gnome-----------------------------------------------------
+#!/bin/sh
+[ -r $HOME/.Xresources ] && xrdb $HOME/.Xresources
+xsetroot -solid grey
+vncconfig -iconic &
+xterm -geometry 80x24+10+10 -ls -title "$vncDESKTOP Desktop" &
+twm &
+
+■ 3) vnc Server 의 환경설정 및 서비스 데몬 시작
+root에 디스플레이 번호 1번을 vnc server로 등록
+
+#> vi /etc/sysconfig/vncservers [enter]
+# The vncSERVERS variable is a list of display:user pairs.
+# vncSERVERS="2:myusername"
+# vncSERVERARGS[2]="-geometry 800x600"
+vncSERVERS="1:root"
+
+#> /etc/init.d/vncserver [enter]
+Password:
+Confirm :
+
+* #>ntsysv [enter]
+[*] vncserver
+#> /etc/init.d/vncserver start [enter]
+#> /etc/init.d/vncserver :1 [enter] 
+
+*#> vi /etc/rc.d/rc.local [enter]
+또는 /usr/local/bin/vncserver :1 [enter]<---- *.tar.gz 설치시 사용
+또는 /usr/bin/vncserver :1 [enter]
+
+* vncserver의 세션번호 확인하기
+#> ps -efw | grep vnc
+root 3447 1 0 00:52 ? 00:00:17 Xvnc :1 -desktop X -httpd /usr/s
+root 5412 5071 0 01:20 pts/1 00:00:00 grep vnc
+* vnc 서비스 데몬 중지 방법: #> vncserver -kill :0 [enter] 
+
+----------------------------------------------------------------
+* vncserver [:display] [-geometry widthxheight] [-depth depth] [-pixelformat rgbNNN|bgrNNN] [-name desktop-name] [Xvnc-options...]
+* vncserver -kill :display
+* vncserver -help
+----------------------------------------------------------------
+
+■ 4) 윈도우에서 vncviewer을 실행하여 리눅스의 vnc 서버에 접속
+4.1) vnc client 사용하기
+- 시작 - 프로그램 - Realvnc - vncviewer
+- IP Address: 192.168.0.3:1
+- 암호 입력: ***
+
+4.2) vnc Viewer 없이 웹브라우저를 이용하여 접속하기
+http://intomail.net:5801/
+
+■ 6) 기타 팁
+
+★ 그놈 패널 실행시키는 방법
+#> gnomeicu --activate-goad-server=gnomeicu
+
+★vncserver의 display number 제거 방법
+#> ps -aux | grep vnc 
+#> kill -9 pid
+*) vncserver의 데스크탑 번호를 알기위해 필요
+*) 기록된 정보 삭제 방법
+rm /tmp/.X?-lock
+rm: remove `/tmp/.X1-lock'? y
+rm: remove `/tmp/.X2-lock'? y
+rm: remove `/tmp/.X3-lock'? y
+rm: remove `/tmp/.X4-lock'? y
+
+★한텀 못쓰시는 분들께
+/usr/bin/vncserver 151 line 을 보면 폰트에 관한 사항이 있습니다.
+주석을 풀고 서울폰트 깔린 곳(/usr/share/fonts/hangul/ssc/)을 추가.
+$cmd .= " -fp /usr/lib/X11/fonts/misc/,/usr/lib/X11/fonts/75dpi/,/usr/share/fonts/hangul/ssc/";
+물론 root로 편집하셔야 하구요. 그리고는 다시 vncserver를 실행합니다.
+이제 한텀을 실행하면 제대로 작동될 것입니다.
+
+★ vnc 서비스 포트 번호 ( TCP 5800, 5900 )
+5800/5801 Port: webbrowser를 이용해서 접속을 할 때 사용하는 포트.
+5900/5901 Port: 일반적으로 vnc Viewer가 사용하는 포트.
+
+★ vnc 서비스 해상도 초기값 변경
+#>vi /etc/sysconfig/vncservers
+vncSERVERARGS[1]="-geometry 1280x1024"
+
+★ vnc 접속 IP 정보의 확인 방법
+vnc Viewer를 통하여 접속을 시도하면 해당 IP가 레지스트리에 저장 된다.
+HKEY_CURRENT_USER - Software -ORL -vncvieer -MRU 에
+문자열 값 = 데이터
+A = IP 정보
+B = IP정보
+
+★ http://yourdomain.com:5801/ 접속시 "RFB 003.008" 화면이 출력되는경우
+해당 포트가 웹브라우저 접속을 위해 설정된 포트가 아닌 것을 의미함.
+

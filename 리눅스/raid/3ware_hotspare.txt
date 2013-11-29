@@ -1,0 +1,50 @@
+[ 3ware 9500S-8 ]
+디스크 총 8개 : 7개-> raid5 , 1개->spare예정
+-. raid build시 
+   raid bios에서 7개만 raid level 5로 잡음.
+   f8로 save해서 빠져나옴.
+
+-. os부팅 후
+   
+# ./tw_cli info c1
+
+Unit  UnitType  Status         %Cmpl  Stripe  Size(GB)  Cache  AVerify  IgnECC
+------------------------------------------------------------------------------
+u0    RAID-5    INITIALIZING   12     64K     1396.92   ON     OFF      OFF 
+
+Port   Status           Unit   Size        Blocks        Serial
+---------------------------------------------------------------
+p0     OK               u0     232.88 GB   488397168     WD-WCANK10214
+p1     OK               u0     232.88 GB   488397168     WD-WCANK10524
+p2     OK               u0     232.88 GB   488397168     WD-WMANK18387
+p3     OK               u0     232.88 GB   488397168     WD-WMANK19888
+p4     OK               u0     232.88 GB   488397168     WD-WCANK10503
+p5     OK               u0     232.88 GB   488397168     WD-WCANK10170
+p6     OK               u0     232.88 GB   488397168     WD-WCANK10213
+p7     OK               -      232.88 GB   488397168     WD-WCANK10170
+
+-> p7 (8번째 하드를 spare로 할 예정)
+
+# ./tw_info
+> maint createunit c1 rspare p7
+Creating new unit on controller /c1 ...  Done. The new unit is /c1/u1.
+
+> info c1
+
+Unit  UnitType  Status         %Cmpl  Stripe  Size(GB)  Cache  AVerify  IgnECC
+------------------------------------------------------------------------------
+u0    RAID-5    INITIALIZING   13     64K     1396.92   ON     OFF      OFF 
+u1    SPARE     OK             -      -       232.877   -      OFF      - 
+
+Port   Status           Unit   Size        Blocks        Serial
+---------------------------------------------------------------
+p0     OK               u0     232.88 GB   488397168     WD-WCANK10214
+p1     OK               u0     232.88 GB   488397168     WD-WCANK10524
+p2     OK               u0     232.88 GB   488397168     WD-WMANK18387
+p3     OK               u0     232.88 GB   488397168     WD-WMANK19888
+p4     OK               u0     232.88 GB   488397168     WD-WCANK10503
+p5     OK               u0     232.88 GB   488397168     WD-WCANK10170
+p6     OK               u0     232.88 GB   488397168     WD-WCANK10213
+p7     OK               u1     232.88 GB   488397168     WD-WCANK10170
+
+끝.

@@ -1,0 +1,28 @@
+
+mysql 쿼리 로그를 남기기 위해 설정파일에 아래 라인을
+
+추가후 mysql 재시작 하였습니다.
+
+# vi /etc/my.cnf
+log-bin = localhost-bin //쿼리로그 남기기
+binlog_cache_size = 1M //binlogchase 사이즈
+max_binlog_size = 50M //bin로그 max 사이즈
+expire_logs_days = 3 //로그 보관기간
+
+로그파일은 /home/mysql-data/localhost-bin.000001 ~ localhost-bin.00000* 의 이름으로 저장되게 됩니다.
+
+# mysqlbinlog 로그파일 > 저장파일명
+예)
+#mysqlbinlog localhost-bin.000001 > nuri_080502.sql
+
+# mysqlbinlog -d db명 로그파일 > 파일명
+예)
+#mysqlbinlog -d lucky localhost-bin.000001 > nuri_080502.sql
+
+-. 쿼리로그는 쿼리가 발생할때 마다 저장되기 때문에 용량도
+
+무한대로 증가할 뿐만 아니라 시스템에 부하도 있을거라 생각됩니다.
+
+옵션으로 용량제한을 걸어 두었으며 부하발생은 조금더 모니터링
+
+해본후 사용할지 유무를 선택해야 할 것 같습니다.

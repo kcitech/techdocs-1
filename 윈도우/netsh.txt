@@ -1,0 +1,45 @@
+
+netsh ip setting 및 firewall 구성
+
+ip 값 백업 : netsh interface ip dump c:\ipbackup.txt 
+ip 값 복원 : netsh exec c:\ipbackup.txt 
+
+netsh>  
+
+ip 셋팅 확인
+
+interface ip dump 
+interface ip show config -> ipconfig 동일 효과(mac 주소는 안나타남)
+interface ip show address 
+
+ip 셋팅 수동 입력
+
+네트워크 연결에 접근에 문제가 있거나 할 경우 수행 해 볼 수 있겠습니다.
+단 터미널 작업시 IP변경을 하면 바로 적용이 되어 연결이 끊어지므로 콘솔 상으로만 변경 수행 하시길 바랍니다.
+netsh> 
+interface ip set address name="로컬 영역 연결 2" source=static addr=192.168.2.55 mask=255.255.255.0
+interface ip set address name="로컬 영역 연결 2" gateway=192.168.2.1 gwmetric=1
+interface ip set dns name="로컬 영역 연결 2" source=static addr=210.220.163.82 register=PRIMARY
+interface ip add dns name="로컬 영역 연결 2" addr=168.126.63.1 index=2
+interface ip set wins name="로컬 영역 연결 2" source=static addr=none
+
+firewall 확인
+
+firewall 백업 : netsh firewall dump c:\firewallbackup.txt
+firewall 복원 : netsh exec c:\firewallbackup.txt
+
+자세한 것은 netsh -> firewall ? 로 확인
+
+방화벽 접근이 안되거나 에러가 날시 한번 시도해 볼 수 있겠습니다.
+※ netsh 에서 방화벽 추가 삭제 모두 가능함 
+
+net firewall show allowedprogram - 방화벽 허용 프로그램 구성을 표시합니다.
+net firewall show config    - 방화벽 구성 정보를 표시합니다.
+net firewall show icmpsetting - 방화벽 ICMP 구성을 표시합니다.
+net firewall show portopening - 방화벽 포트 구성을 표시합니다.
+net firewall show service   - 방화벽 서비스 구성을 표시합니다.
+net firewall show state     - 현재 방화벽 상태를 표시합니다.
+
+
+
+

@@ -1,0 +1,10 @@
+===========================
+redmine
+===========================
+
+http://www.redmine.org
+
+http://ryudaewan.wordpress.com/2012/07/16/yet-another-redmine-installation-note/
+
+http://bitnami.org/ko/stack/redmine
+

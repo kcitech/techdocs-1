@@ -1,0 +1,61 @@
+
+1. apache
+설치경로 : /usr/local/httpd-2.2.3
+
+# ./configure --prefix=/usr/local/httpd-2.2.3
+--enable-mods-shared=all --enable-ssl --with-ssl
+
+2. php
+설치경로 : /usr/local/php-4.4.4
+php.ini위치 : /usr/local/php-4.4.4/etc/
+
+# ./configure \
+--prefix=/usr/local/php-4.4.4
+--with-config-file-path=/usr/local/php-4.4.4/etc \
+--with-apxs2=/usr/local/httpd-2.2.3/bin/apxs \
+--with-mysql=/usr/local/mysql \
+--with-openssl \
+--enable-sigchild \
+--with-gd --with-freetype-dir --with-png-dir
+--with-jpeg-dir \
+--with-zlib-dir --enable-exif \
+--enable-gd-native-ttf \
+--enable-freetype-4bit-antialias-hack \
+--enable-track-vars --enable-sockets \
+--with-iconv \
+--enable-sysvsem --enable-sysvshm \
+--with-dom --with-xml --with-expat-dir=/usr \
+--enable-magic-quotes --enable-safe-mode \
+--enable-ftp --enable-mbstring --with-zlib \
+--enable-force-cgi-redirect --disable-debug
+--enable-pic \
+--disable-rpath \
+--enable-inline-optimization --with-bz2 \
+--with-gettext --with-gmp \
+--enable-bcmath \
+--enable-discard-path \
+--enable-yp --enable-wddx \
+--enable-dbx --enable-dio --enable-mcal
+--enable-calendar
+
+3. 기타
+gd 정보는 다음과 같습니다.
+=====================================
+GD Support enabled
+GD Version bundled (2.0.28 compatible)
+FreeType Support enabled
+FreeType Linkage with freetype
+GIF Read Support enabled
+GIF Create Support enabled
+JPG Support enabled
+PNG Support enabled
+WBMP Support enabled
+XBM Support enabled
+======================================
+
+4. 기존 패키지 백업
+다음의 디렉터리로 이름변경해두었습니다.
+-. apache
+/usr/local/apache-2.2.3.20080104
+-. php
+php-4.4.4.20080104

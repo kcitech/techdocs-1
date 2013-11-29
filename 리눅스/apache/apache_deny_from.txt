@@ -1,0 +1,17 @@
+
+
+서버 원격접속하여 점검해보니 특정아이피에서 80포트로
+공격성 접근이 확인되었습니다.
+
+
+이에 Apache 설정파일에 250번 아이피에서의 접근을 아래와같이
+차단설정해 드렸습니다.
+
+D:\APM_Setup\Server\Apache\con\httpd.conf
+< Directory \"D:/APM_Setup/Server/APM_Setup\" >
+Options FollowSymLinks MultiViews ExecCGI
+AllowOverride None
+Order allow,deny
+Deny from 192.168.2.250
+Allow from all
+< /Directory >

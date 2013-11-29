@@ -1,0 +1,116 @@
+httpd rpm은 기본 prefork방식입니다.
+
+이를 worker방식으로 운영하려면
+첨부 내용과 같이 /etc/sysconfig/httpd에서
+httpd.worker 주석을 해제하면 됩니다.
+
+단, php rpm역시 worker방식은 지원하지 않는데,
+첨부한 내용과 같이 worker방식 지원하게끔 옵션을 주고
+rebuild해서 rpm설치(upgrade)하면 됩니다.
+
+rebuild시에는 spec파일의 Release 부분에 이름을 추가해서
+rpm파일 생성시 구분되게 하는 것이 좋습니다.
+
+-----------------------------------------------------------------------------------------------------------------------------------
+[ centos4 + apache worker + php rpm ]
+
+일반적인 apm(rpm, 또는 소스컴파일)의 경우
+phpinfo에서 threadsafety를 확인할 수 있다.
+
+Thread Safety : disabled
+
+rpm환경에서 다음과 같이 apache worker를 사용할 수 있다.
+
+1. apache rpm
+   /etc/sysconfig/httpd
+   #HTTPD=/usr/sbin/httpd.worker  -> 주석해제
+
+2. php rpm
+   php는 threadsafe를 지원하지 않게 build되어 있다.
+   php.spec에 다음을 추가한다.  
+
+   configure 부분...
+     --enable-maintainer-zts 추가
+
+   build한다.
+
+3. php rpm upgrade
+
+4. apache start
+
+5. phpinfo 확인
+   Thread Safety : enabled
+
+[ worker mpm ]
+MinSpareThreads의 값은 ThreadsPerChild와 같게 설정.
+
+아래 주석은 기본값.
+<IfModule worker.c>
+#StartServers        10
+#MaxClients         150
+#MinSpareThreads     25
+#MaxSpareThreads     75
+#ThreadsPerChild     25
+#MaxRequestsPerChild  0
+
+StartServers        10
+MaxClients        1024
+MinSpareThreads     64
+MaxSpareThreads    100
+ThreadsPerChild     64
+MaxRequestsPerChild  0
+</IfModule>
+
+===============================================
+case 2
+===============================================
+
+[ centos4 + apache worker + php rpm ]
+
+일반적인 apm(rpm, 또는 소스컴파일)의 경우
+phpinfo에서 threadsafety를 확인할 수 있다.
+
+Thread Safety : disabled
+
+rpm환경에서 다음과 같이 apache worker를 사용할 수 있다.
+
+1. apache rpm
+   /etc/sysconfig/httpd
+   #HTTPD=/usr/sbin/httpd.worker  -> 주석해제
+
+2. php rpm
+   php는 threadsafe를 지원하지 않게 build되어 있다.
+   php.spec에 다음을 추가한다.  
+
+   configure 부분...
+     --enable-maintainer-zts 추가
+
+   build한다.
+
+3. php rpm upgrade
+
+4. apache start
+
+5. phpinfo 확인
+   Thread Safety : enabled
+
+[ worker mpm ]
+MinSpareThreads의 값은 ThreadsPerChild와 같게 설정.
+
+아래 주석은 기본값.
+<IfModule worker.c>
+#StartServers        10
+#MaxClients         150
+#MinSpareThreads     25
+#MaxSpareThreads     75
+#ThreadsPerChild     25
+#MaxRequestsPerChild  0
+
+StartServers        10
+MaxClients        1024
+MinSpareThreads     64
+MaxSpareThreads    100
+ThreadsPerChild     64
+MaxRequestsPerChild  0
+</IfModule>
+

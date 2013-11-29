@@ -1,0 +1,24 @@
+
+
+------
+현상
+------
+netstat -tnlp 시
+127.0.0.1:25 listen
+
+------
+조치
+-----
+환경설정 확인 : #postconf -n
+
+mail.TESTDOMAIN.com서버 /etc/postfix/main.cf 옵션 수정
+기존
+inet_interfaces=localhost
+
+수정후
+inet_interfaces=all
+
+------
+확인
+-----
+telnet mail.TESTDOMAIN.com 25 접속시 접속

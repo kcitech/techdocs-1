@@ -1,0 +1,67 @@
+[ centos3 install ]
+1. 0S 설치후 필수 사항
+   -. yum update
+      # rpm --import http://mirror.secuidc.com/centos/RPM-GPG-KEY-CentOS-3
+      (blackph) rpm --import http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-3
+      # vi /etc/yum.conf
+        =================================================
+        mirror.centos.org -> mirror.secuidc.com으로 수정
+        =================================================
+   -. openfiles 확장
+      메모리량에 준함. 메모리/4*256 정도.(1024M/4*256=65536)
+      # vi /etc/initscript
+        ==================
+        ulimit -Hn 65536
+        ulimit -Sn 65536
+        eval exec "$4"
+        ==================
+      # /etc/security/limits.conf
+        ===================================
+        *     hard    nofile          65536  <- 추가
+        *     soft    nofile          65536  <- 추가
+        ===================================
+   
+      새로 부팅해야 적용.
+      
+      확인. 
+      # ulimit -a  
+   
+   -. wget, lynx 삭제 및  curl 이름 변경
+      curl은 php의존성이기때문에 php가 rpm으로 설치되면,
+      삭제되지 않는다. 강제로 rpm 삭제해도 안되으로 이름을 변경한다.
+
+      # yum remove wget (rpm -e wget)
+      # yum remove lynx (rpm -e lynx)
+      # mv /usr/bin/curl /usr/bin/AAAA_curl
+      # mv /usr/bin/curl-config /usr/bin/AAAA_curl-config
+
+   -. ssh protocol 2버전만 가능.
+      # vi /etc/ssh/sshd_config
+        ==========================
+        Protocol 2,1 -> Protocol 2
+        ==========================
+   -. 데몬정리
+      ntsysv 또는 chkconfig이용
+      # ntsysv --level 3 (ntsysv는 현재의 부팅된 runlevel 수정)
+
+      서비스외 기본으로 활성화할 데몬.
+      crond, mdmonitor, microcode_ctl,network, sshd, syslog, xinetd
+
+   -. time sync
+      # rdate -s time.bora.net && hwclock -w
+      # vi /etc/crontab
+        매일 01시에 time.bora.net timeserver와 시간 동기화
+        ====================================================================
+        00 01 * * * root /usr/bin/rdate -s time.bora.net && /sbin/hwclock -w
+        ====================================================================
+
+   -. kernel parameter 보완
+      # vi /etc/sysctl.conf
+        ============================================
+        net.ipv4.tcp_syncookies = 1  <- DoS 공격대비
+        ============================================
+
+        그외 icmp, port range, memory, tcp관련 파라미터는
+        당장 중요하지 않음.
+
+끝.

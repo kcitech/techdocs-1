@@ -1,0 +1,516 @@
+
+sudo apt-get update
+sudo apt-get upgrade
+
+sudo apt-get install bridge-utils
+
+view /etc/network/interfaces
+
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+		address 10.10.10.2    <=== static ip ( public ip )
+		netmask 255.255.255.0
+		broadcast 10.10.10.255
+		gateway 10.10.10.1
+		dns-nameservers 10.10.8.3
+
+auto eth1
+iface eth1 inet static
+		address 192.168.3.1
+		netmask 255.255.255.0
+		network 192.168.3.0
+		broadcast 192.168.3.255
+
+sudo /etc/init.d/networking restart
+
+=============
+ntp
+=============
+sudo apt-get install ntp
+
+view /etc/ntp.conf
+
+server ntp.ubuntu.com
+server 127.127.1.0
+fudge 127.127.1.0 stratum 10
+
+sudo service ntp restart
+
+=============
+mysql
+=============
+sudo apt-get install mysql-server python-mysqldb
+
+view /etc/mysql/my.cnf
+bind-address = 127.0.0.1 ==> bind-address = 0.0.0.0
+
+sudo restart mysql
+
+mysql -uroot -p
+
+create database nova;
+grant all privileges on nova.* to 'novadbadmin'@'%' identified by 'PASSWORD';
+grant all privileges on nova.* to 'novadbadmin'@localhost identified by 'PASSWORD';
+grant all privileges on nova.* to 'novadbadmin'@servers1 identified by 'PASSWORD';
+
+create database glance;
+grant all privileges on glance.* to 'glancedbadmin'@'%' identified by 'PASSWORD';
+grant all privileges on glance.* to 'glancedbadmin'@localhost identified by 'PASSWORD';
+grant all privileges on glance.* to 'glancedbadmin'@servers1 identified by 'PASSWORD';
+
+create database keystone;
+grant all privileges on keystone.* to 'keystonedbadmin'@'%' identified by 'PASSWORD';
+grant all privileges on keystone.* to 'keystonedbadmin'@localhost identified by 'PASSWORD';
+grant all privileges on keystone.* to 'keystonedbadmin'@servers1 identified by 'PASSWORD';
+
+flush privileges;
+quit;
+
+=============
+keystone
+=============
+sudo apt-get install keystone python-keystone python-keystoneclient
+
+sudo view /etc/keystone/keystone.conf 
+admin_token = admintoken_admintoken
+connection = mysql://keystonedbadmin:PASSWORD@10.10.10.2/keystone
+
+sudo service keystone restart
+
+sudo keystone-manage db_sync
+
+view ~/.bashrc
+export SERVICE_ENDPOINT="http://localhost:35357/v2.0"
+export SERVICE_TOKEN=admintoken_admintoken
+
+>> creating Tenants <<
+
+localadmin@servers1:~$ keystone tenant-create --name admin
++-------------+----------------------------------+
+|   Property  |              Value               |
++-------------+----------------------------------+
+| description | None                             |
+| enabled     | True                             |
+| id          | e42f12be3d4e495fb7770db064906870 |
+| name        | admin                            |
++-------------+----------------------------------+
+localadmin@servers1:~$ keystone tenant-create --name service
++-------------+----------------------------------+
+|   Property  |              Value               |
++-------------+----------------------------------+
+| description | None                             |
+| enabled     | True                             |
+| id          | cc1cb0d600594d7d9cbd87f8c8d776d8 |
+| name        | service                          |
++-------------+----------------------------------+
+
+>> creating users <<
+keystone user-create --name admin  --pass admin  --email admin@foobar.com 
+keystone user-create --name nova   --pass nova   --email nova@foobar.com
+keystone user-create --name glance --pass glance --email glance@foobar.com
+keystone user-create --name swift  --pass swift  --email swift@foobar.com
+
++----------+-------------------------------------------------------------------------------------------------------------------------+
+| Property |                                                          Value                                                          |
++----------+-------------------------------------------------------------------------------------------------------------------------+
+| enabled  | True                                                                                                                    |
+| id       | eb5dad90974641c9976a21e7f9122be6                                                                                        |
+| name     | admin                                                                                                                   |
+| password | $6$rounds=40000$Rk97Km.cnvACSVNO$5lOMZxI49gXHF11mo5FhRlt0JHEFUST/vAXtW6Kn/Cyq6hSTSy4g.6PHiVZlThP7Eku8llgajU8bvfqnMolp7. |
+| tenantId | None                                                                                                                    |
++----------+-------------------------------------------------------------------------------------------------------------------------+
++----------+-------------------------------------------------------------------------------------------------------------------------+
+| Property |                                                          Value                                                          |
++----------+-------------------------------------------------------------------------------------------------------------------------+
+| enabled  | True                                                                                                                    |
+| id       | c410a4e9b81a4346b2ce1ebf0a6c767d                                                                                        |
+| name     | nova                                                                                                                    |
+| password | $6$rounds=40000$57MbRNaEulXIF//G$b5GuNxa.bFANixx1FjczV8fgd2aSVUcyx44emA/qiHQcVBl7PVHU491JOBUBhia/qgs7UREl67G9WAQtOYx1w1 |
+| tenantId | None                                                                                                                    |
++----------+-------------------------------------------------------------------------------------------------------------------------+
++----------+-------------------------------------------------------------------------------------------------------------------------+
+| Property |                                                          Value                                                          |
++----------+-------------------------------------------------------------------------------------------------------------------------+
+| enabled  | True                                                                                                                    |
+| id       | aa8ef3d9ea204ed587faec4a6a4c8ec9                                                                                        |
+| name     | glance                                                                                                                  |
+| password | $6$rounds=40000$lqc1AXJQeZkY7Cg0$y95ZJncsQFJFmJpK25LbSkoPunPHt7BwPZmjs0voFNfw0aqwGUQh3sQW/KWYJe8AATrIqENdLERgecHgIuDYO0 |
+| tenantId | None                                                                                                                    |
++----------+-------------------------------------------------------------------------------------------------------------------------+
++----------+-------------------------------------------------------------------------------------------------------------------------+
+| Property |                                                          Value                                                          |
++----------+-------------------------------------------------------------------------------------------------------------------------+
+| enabled  | True                                                                                                                    |
+| id       | 0441c53f39bf409f85050a79b7fac6ae                                                                                        |
+| name     | swift                                                                                                                   |
+| password | $6$rounds=40000$/h3nxchGwkEWQDNj$6tohUl4mMsrv7knzikjZvFJGTGzTgkCZMQlYcbRMDZEVwavW8fDlI3tKqNempcSpoh8OVPbw4qOjoWO7MdEG7. |
+| tenantId | None                                                                                                                    |
++----------+-------------------------------------------------------------------------------------------------------------------------+
+
+>> creating roles <<
+keystone role-create --name admin
+keystone role-create --name Member
+
++----------+----------------------------------+
+| Property |              Value               |
++----------+----------------------------------+
+| id       | b89624220b1441c39cd03ef6248594e5 |
+| name     | admin                            |
++----------+----------------------------------+
++----------+----------------------------------+
+| Property |              Value               |
++----------+----------------------------------+
+| id       | 25f586c479ba4325b41f8c18484fb9b0 |
+| name     | Member                           |
++----------+----------------------------------+
+
+>> listing Tenants,Users and Roles <<
+
+localadmin@servers1:~$ keystone tenant-list
++----------------------------------+---------+---------+
+|                id                |   name  | enabled |
++----------------------------------+---------+---------+
+| cc1cb0d600594d7d9cbd87f8c8d776d8 | service | True    |
+| e42f12be3d4e495fb7770db064906870 | admin   | True    |
++----------------------------------+---------+---------+
+
+localadmin@servers1:~$ keystone user-list
++----------------------------------+---------+----------------------+--------+
+|                id                | enabled |        email         |  name  |
++----------------------------------+---------+----------------------+--------+
+| 0441c53f39bf409f85050a79b7fac6ae | True    | EMAIL                | swift  |
+| aa8ef3d9ea204ed587faec4a6a4c8ec9 | True    | EMAIL                | glance |
+| c410a4e9b81a4346b2ce1ebf0a6c767d | True    | EMAIL                | nova   |
+| eb5dad90974641c9976a21e7f9122be6 | True    | EMAIL                | admin  |
++----------------------------------+---------+----------------------+--------+
+
+localadmin@servers1:~$ keystone role-list
++----------------------------------+--------+
+|                id                |  name  |
++----------------------------------+--------+
+| 25f586c479ba4325b41f8c18484fb9b0 | Member |
+| b89624220b1441c39cd03ef6248594e5 | admin  |
++----------------------------------+--------+
+
+>> Adding Roles to Users in Tenants <<
+
+>To add a role of 'admin' to the user 'admin' of the tenant 'admin'.
+keystone user-role-add --user $ADMIN_ID --role $ADMIN_ROLE_ID --tenant_id $ADMIN_TENANT_ID
+
+>add a role of 'admin' to the users 'nova', 'glance' and 'swift' of the tenant 'service'
+keystone user-role-add --user $nova_ID   --role $ADMIN_ROLE_ID --tenant_id $SERVICE_TENANT_ID
+keystone user-role-add --user $glance_ID --role $ADMIN_ROLE_ID --tenant_id $SERVICE_TENANT_ID
+keystone user-role-add --user $swift_ID  --role $ADMIN_ROLE_ID --tenant_id $SERVICE_TENANT_ID
+
+>To add a role of 'Member' to the user 'admin' of the tenant 'admin'
+keystone user-role-add --user $ADMIN_ID --role $member_ROLE_ID --tenant_id $ADMIN_TENANT_ID
+
+>> Creating Services <<
+
+keystone service-create --name nova     --type compute      --description 'OpenStack Compute Service'
+keystone service-create --name volume   --type volume       --description 'OpenStack Volume Service'
+keystone service-create --name glance   --type image        --description 'OpenStack Image Service'
+keystone service-create --name swift    --type object-store --description 'OpenStack Storage Service'
+keystone service-create --name keystone --type identity     --description 'OpenStack Identity Service'
+keystone service-create --name ec2      --type ec2          --description 'EC2 Service'
+
+keystone service-list
++----------------------------------+----------+--------------+----------------------------+
+|                id                |   name   |     type     |        description         |
++----------------------------------+----------+--------------+----------------------------+
+| 3e5995537c05468b8326b604998b9074 | keystone | identity     | OpenStack Identity Service |
+| 401d9ed3509c41d29396e35919c0ff96 | swift    | object-store | OpenStack Storage Service  |
+| 5e0fc40b555d468a91db77a8e3bcb98d | glance   | image        | OpenStack Image Service    |
+| 8f2a247955a649ea99a281c305378ad9 | volume   | volume       | OpenStack Volume Service   |
+| d13b2c5c468c4d6aa7cc3f5b1694cc9a | nova     | compute      | OpenStack Compute Service  |
+| edb78425dbbf4f44b3254ce714a4c802 | ec2      | ec2          | EC2 Service                |
++----------------------------------+----------+--------------+----------------------------+
+
+>> creating Endpoints <<
+
+keystone endpoint-create --region region_name --service_id service_id --publicurl public_url --adminurl admin_url  --internalurl internal_url
+
+> for creating an endpoint for nova-compute
+keystone endpoint-create --region myregion --service_id $nova_compute_service_id --publicurl 'http://10.10.10.2:8774/v2/$(tenant_id)s' --adminurl 'http://10.10.10.2:8774/v2/$(tenant_id)s' --internalurl 'http://10.10.10.2:8774/v2/$(tenant_id)s'
+
+> for creating an endpoint for nova-volume
+keystone endpoint-create --region myregion --service_id $nova_volume_service_id --publicurl 'http://10.10.10.2:8776/v1/$(tenant_id)s' --adminurl 'http://10.10.10.2:8776/v1/$(tenant_id)s' --internalurl 'http://10.10.10.2:8776/v1/$(tenant_id)s'
+
+> for creating an endpoint for glance
+keystone endpoint-create --region myregion --service_id $glance_service_id --publicurl 'http://10.10.10.2:9292/v1' --adminurl 'http://10.10.10.2:9292/v1' --internalurl 'http://10.10.10.2:9292/v1'
+
+> for creating an endpoint for swift
+keystone endpoint-create --region myregion --service_id $swift_service_id --publicurl 'http://10.10.10.2:8080/v1/AUTH_$(tenant_id)s' --adminurl 'http://10.10.10.2:8080/v1' --internalurl 'http://10.10.10.2:8080/v1/AUTH_$(tenant_id)s'
+
+> for creating an endpoint for keystone
+keystone endpoint-create --region myregion --service_id $keystone_service_id --publicurl http://10.10.10.2:5000/v2.0 --adminurl http://10.10.10.2:35357/v2.0 --internalurl http://10.10.10.2:5000/v2.0
+
+> for creating an endpoint for ec2
+keystone endpoint-create --region myregion --service_id $ec2_service_id --publicurl http://10.10.10.2:8773/services/Cloud --adminurl http://10.10.10.2:8773/services/Admin --internalurl http://10.10.10.2:8773/services/Cloud
+
+=============
+glance
+=============
+sudo apt-get install glance glance-api glance-client glance-common glance-registry python-glance
+
+>> glance configuration <<
+
+------
+sudo view /etc/glance/glance-api-paste.ini
+------
+admin_tenant_name = service
+admin_user = glance
+admin_password = glance <-- modify
+
+------
+sudo view /etc/glance/glance-registry-paste.ini 
+------
+admin_tenant_name = service
+admin_user = glance
+admin_password = glance <-- modify
+
+------
+sudo view /etc/glance/glance-registry.conf
+------
+sql_connection = mysql://glancedbadmin:glancesecret@10.10.10.2/glance <-- modify IP and password
+[paste_deploy]
+flavor = keystone
+
+------
+sudo view /etc/glance/glance-api.conf
+------
+[paste_deploy]
+flavor = keystone
+
+>> create glance schema <<
+sudo glance-manage version_control 0
+sudo glance-manage db_sync
+
+sudo restart glance-api
+sudo restart glance-registry
+
+sudo view openrc
+export SERVICE_TOKEN=admin
+export OS_TENANT_NAME=admin
+export OS_USERNAME=admin
+export OS_PASSWORD=admin
+export OS_AUTH_URL="http://localhost:5000/v2.0/"
+export SERVICE_ENDPOINT=http://localhost:35357/v2.0
+
+verify
+source openrc
+glance index 
+==> no output is ok 
+
+=============
+nova
+=============
+
+sudo apt-get install nova-api nova-cert nova-compute nova-compute-kvm nova-doc nova-network nova-objectstore nova-scheduler nova-volume rabbitmq-server novnc nova-consoleauth
+
+sudo view /etc/nova/nova.conf
+
+--dhcpbridge_flagfile=/etc/nova/nova.conf
+--dhcpbridge=/usr/bin/nova-dhcpbridge
+--logdir=/var/log/nova
+--state_path=/var/lib/nova
+--lock_path=/run/lock/nova
+--allow_admin_api=true
+--use_deprecated_auth=false
+--auth_strategy=keystone
+--scheduler_driver=nova.scheduler.simple.SimpleScheduler
+--s3_host=10.10.10.2
+--ec2_host=10.10.10.2
+--rabbit_host=10.10.10.2
+--cc_host=10.10.10.2
+--nova_url=http://10.10.10.2:8774/v1.1/
+--routing_source_ip=10.10.10.2
+--glance_api_servers=10.10.10.2:9292
+--image_service=nova.image.glance.GlanceImageService
+--iscsi_ip_prefix=192.168.4
+--sql_connection=mysql://novadbadmin:novasecret@10.10.10.2/nova
+--ec2_url=http://10.10.10.2:8773/services/Cloud
+--keystone_ec2_url=http://10.10.10.2:5000/v2.0/ec2tokens
+--api_paste_config=/etc/nova/api-paste.ini
+--libvirt_type=kvm
+--libvirt_use_virtio_for_bridges=true
+--start_guests_on_host_boot=true
+--resume_guests_state_on_host_boot=true
+# vnc specific configuration
+--novnc_enabled=true
+--novncproxy_base_url=http://10.10.10.2:6080/vnc_auto.html
+--vncserver_proxyclient_address=10.10.10.2
+--vncserver_listen=10.10.10.2
+# network specific settings
+--network_manager=nova.network.manager.FlatDHCPManager
+--public_interface=eth0
+--flat_interface=eth1
+--flat_network_bridge=br100
+--fixed_range=192.168.4.1/27
+--floating_range=10.10.10.2/27
+--network_size=32
+--flat_network_dhcp_start=192.168.4.33
+--flat_injected=False
+--force_dhcp_release
+--iscsi_helper=tgtadm
+--connection_type=libvirt
+--root_helper=sudo nova-rootwrap
+--verbose
+
+sudo pvcreate /dev/sdb1
+sudo vgcreate nova-volumes /dev/sdb1
+sudo chown -R nova:nova /etc/nova
+sudo chmod 644 /etc/nova/nova.conf
+
+------
+sudo view  /etc/nova/api-paste.ini 
+------
+admin_tenant_name = service
+admin_user = nova
+admin_password = nova <-- modify
+
+sudo nova-manage db sync
+
+>> provide a range of IPs to be associated to the instances.
+sudo nova-manage network create private --fixed_range_v4=192.168.4.0/24 --num_networks=1 --bridge=br100 --bridge_interface=eth1 --network_size=256
+
+source openrc
+export OS_TENANT_NAME=admin
+export OS_USERNAME=admin
+export OS_PASSWORD=admin
+export OS_AUTH_URL="http://localhost:5000/v2.0/"
+
+sudo /etc/init.d/libvirt-bin restart
+sudo /etc/init.d/nova-network restart
+sudo /etc/init.d/nova-compute restart
+sudo /etc/init.d/nova-api restart
+sudo /etc/init.d/nova-objectstore restart
+sudo /etc/init.d/nova-scheduler restart
+sudo /etc/init.d/nova-volume restart
+sudo /etc/init.d/nova-consoleauth restart
+sudo /etc/init.d/nova-cert restart
+
+sudo nova-manage service list
+
+Binary           Host                                 Zone             Status     State Updated_At
+nova-compute     servers1                             nova             enabled    :-)   2012-05-30 06:00:48
+nova-scheduler   servers1                             nova             enabled    :-)   2012-05-30 06:00:47
+nova-consoleauth servers1                             nova             enabled    :-)   2012-05-30 06:00:47
+nova-network     servers1                             nova             enabled    :-)   2012-05-30 06:00:50
+nova-volume      servers1                             nova             enabled    :-)   2012-05-30 06:00:52
+nova-cert        servers1                             nova             enabled    :-)   2012-05-30 06:00:43
+
+=============
+dashboard
+=============
+
+sudo apt-get install openstack-dashboard
+
+sudo /etc/init.d/apache2 restart
+
+http://10.10.10.2 
+
+=============
+only nova-compute
+=============
+
+sudo apt-get install bridge-utils
+
+view /etc/network/interfaces
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+		address 10.10.10.3
+		netmask 255.255.255.0
+		broadcast 10.10.10.255
+		gateway 10.10.10.1
+		dns-nameservers 10.10.8.3
+
+auto eth1
+iface eth1 inet static
+		address 192.168.3.2
+		netmask 255.255.255.0
+		network 192.168.3.0
+		broadcast 192.168.3.255
+
+>> ntp
+
+sudo apt-get install ntp
+
+sudo view /etc/ntp.conf
+server 10.10.10.2
+
+sudo service ntp restart
+
+>> nova-compute
+sudo apt-get install nova-compute
+
+sudo view /etc/nova/nova.conf
+
+--dhcpbridge_flagfile=/etc/nova/nova.conf
+--dhcpbridge=/usr/bin/nova-dhcpbridge
+--logdir=/var/log/nova
+--state_path=/var/lib/nova
+--lock_path=/run/lock/nova
+--allow_admin_api=true
+--use_deprecated_auth=false
+--auth_strategy=keystone
+--scheduler_driver=nova.scheduler.simple.SimpleScheduler
+--s3_host=10.10.10.2
+--ec2_host=10.10.10.2
+--rabbit_host=10.10.10.2
+--cc_host=10.10.10.2
+--nova_url=http://10.10.10.2:8774/v1.1/
+--routing_source_ip=10.10.10.2
+--glance_api_servers=10.10.10.2:9292
+--image_service=nova.image.glance.GlanceImageService
+--iscsi_ip_prefix=192.168.4
+--sql_connection=mysql://novadbadmin:novasecret@10.10.10.2/nova
+--ec2_url=http://10.10.10.2:8773/services/Cloud
+--keystone_ec2_url=http://10.10.10.2:5000/v2.0/ec2tokens
+--api_paste_config=/etc/nova/api-paste.ini
+--libvirt_type=kvm
+--libvirt_use_virtio_for_bridges=true
+--start_guests_on_host_boot=true
+--resume_guests_state_on_host_boot=true
+# vnc specific configuration
+--novnc_enabled=true
+--novncproxy_base_url=http://10.10.10.2:6080/vnc_auto.html
+--vncserver_proxyclient_address=10.10.10.2
+--vncserver_listen=10.10.10.2
+# network specific settings
+--network_manager=nova.network.manager.FlatDHCPManager
+--public_interface=eth0
+--flat_interface=eth1
+--flat_network_bridge=br100
+--fixed_range=192.168.4.1/27
+--floating_range=10.10.10.2/27
+--network_size=32
+--flat_network_dhcp_start=192.168.4.33
+--flat_injected=False
+--force_dhcp_release
+--iscsi_helper=tgtadm
+--connection_type=libvirt
+--root_helper=sudo nova-rootwrap
+--verbose
+
+sudo /etc/init.d/nova-compute restart
+
+on server2
+
+sudo nova-manage service list
+Binary           Host                                 Zone             Status     State Updated_At
+nova-compute     servers1                             nova             enabled    :-)   2012-05-30 07:37:06
+nova-scheduler   servers1                             nova             enabled    :-)   2012-05-30 07:37:00
+nova-consoleauth servers1                             nova             enabled    :-)   2012-05-30 07:37:00
+nova-network     servers1                             nova             enabled    :-)   2012-05-30 07:37:04
+nova-volume      servers1                             nova             enabled    :-)   2012-05-30 07:36:58
+nova-cert        servers1                             nova             enabled    :-)   2012-05-30 07:36:58
+nova-compute     servers2                             nova             enabled    :-)   2012-05-30 07:37:00
+
+

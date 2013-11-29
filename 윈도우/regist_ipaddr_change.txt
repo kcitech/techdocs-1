@@ -1,0 +1,16 @@
+
+고객이 IP변경 요청시 윈도우 ip 변경시 레지스트리에서 변경 후 다운 한 뒤 작업을 하시면 편리 하겠습니다.
+(레지스트리로 변경 하면 바로 적용이 안되고 부팅 후 부터 적용이 됩니다. 
+터미널로 작업을 한 뒤 셧다운 후 이동 작업을 하시길 바랍니다.. 
+콘솔 작업 필요 없음. 일반 구성 win2000 , 2003 및 AD 환경에서 모두 사용 가능)
+
+레지스트리 위치
+HKMH\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\ 
+
+밑의 레지스트리들이 1~4개 등록이 확인 될 터인데 이중 현재 IP가 할당된 레지스트리를 예비로 백업 하시고
+해당 IP에서 
+IPAddress
+SubnetMask
+DefaultGateway
+NameServer
+만 확인해 변경 하시면 됩니다.

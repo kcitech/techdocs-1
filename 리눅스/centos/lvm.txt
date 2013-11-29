@@ -1,0 +1,47 @@
+LVM
+
+1. fdisk /dev/sdb
+   n 1
+   t 8e
+
+   fdisk /dev/sdd
+   n 1
+   t 8e
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sdb1               1         130     1044193+  8e  Linux LVM
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sdd1               1         130     1044193+  8e  Linux LVM
+
+2. pvcreate /dev/sdb1
+   pvcreate /dev/sdd1
+   pvscan 
+
+3. vgcreate TestVG /dev/sdb1 /dev/sdd1
+   vgdisplay
+
+4. lvcreate -L 1G -n lv01 TestVG
+   lvcreate -L 1G -n lv02 TestVG
+   lvdisplay
+
+5. mkfs.ext3 /dev/TestVG/lv01
+   mkfs.ext3 /dev/TestVG/lv02
+   tune2fs -c 0 -i 0 /dev/TestVG/lv01
+   tune2fs -c 0 -i 0 /dev/TestVG/lv02
+
+6. Adding Physical Volumns to a Volumn Group
+
+   fdisk /dev/sde
+   n 1 t 8e
+
+   mkfs.ext3 /dev/sde1
+   pvcreate /dev/sde1
+   
+   vgextend TestVG /dev/sde1
+
+7. remove the physical volume from the volume group
+   vgreduce TestVG /dev/sde1
+
+8. pvremove /dev/sdb1
+   

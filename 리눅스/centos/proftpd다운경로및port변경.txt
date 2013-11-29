@@ -1,0 +1,38 @@
+
+proftpd 프로그램 경로
+http://dag.wieers.com/rpm/packages/proftpd/
+
+이 사이트에 접속해 보시면 여러가지 종류가 있습니다.
+
+각 파일의 설명에도 나와있습니다.
+
+el2 : redhat enterprise 2.1
+rh7 : redhat linux 7
+rh9 : redhat linux 9
+fc1 : fedora core 1
+fc2 : fedora core 2
+el3 : redhat enterprise 3
+el4 : redhat enterprise 4
+
+centos4는 el4 클론이므로 el4가 붙은 패키지를 다운받으시면 됩니다.
+
+위 사이트를 굳이 yum으로 받게끔 하실 필요는 없습니다.
+
+위 ftp패키지를 설치후 추가해야할 옵션은 다음과 같습니다.
+
+DefaultRoot ~ !adm  -> !adm제거 (모든 계정 상위로 이동하지 말라)
+timeGMT off   -> 이거 안해주면 서버시간과 맞지 않습니다.
+
+-. ftp port 변경 및 방화벽(iptables)사용
+리눅스의 경우입니다.
+
+-. ftp환경
+proftpd의 경우 다음 옵션을 추가합니다.
+
+PassivePorts 60000 62000
+
+60000 ~ 62000 포트를 passive포트로 지정
+
+
+-. iptables
+dport에 60000~62000포트를 accept합니다.

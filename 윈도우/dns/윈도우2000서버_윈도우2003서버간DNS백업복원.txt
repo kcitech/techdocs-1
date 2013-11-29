@@ -1,0 +1,68 @@
+
+
+--------------------------------------------------
+
+DNS 설정 백업 및 복원
+
+원본 : 192.168.58.158 (MS Windows 2000 Server)
+대상 : 192.168.75.244 (MS Windows 2003 Server)
+
+1. 원본 서버의 DNS Zone 파일 백업
+ - 위치 : %systemroot%\system32\dns (C:\WINNT\system32\dns)
+ - zone db 파일을 복사하여 백업 : 도메인명.dns 로 되어있음
+
+2. 원본 서버의 DNS 관련 레지스트리 백업
+ - 위치 : HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\DNS
+             HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\DNS Server\Zones
+ - regedit 를 이용하여 두 곳의 레지스트리를 '레지스트리' > '레지스트리 파일 내보내기' 를 이용하여 파일로 저장
+
+3. zone  파일과 레지스트리 파일을 대상 서버로 복사
+
+4. 대상 서버의 레지스트리 사전 백업
+
+5. '관리도구' > '서비스' 에서 'DNS Client'와 'DNS Server' 서비스 중지
+
+6. %systemroot%system32\dns 백업 후 백업 받은 DNS Zone 파일 복사
+   (C:\WINDOWS\system32\dns)
+
+7. DNS와 Zones 레지스트리 실행하여 입력
+
+8. '서비스'에서 'DNS Client'와 'DNS Server' 실행
+
+9. 'DNS' 콘솔에서 정상적으로 DNS 목록 출력되는지 확인
+
+※ 기술문서에는 Windows 2000 서버의 경우 Zone 파일 위치가
+    HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\DNS\Zones
+    로 되어 있다고 합니다만 SP4가 설치되어서 그런지 레지스트리 키 위치가
+    Windows 2003 서버와 동일하였습니다.
+    
+  ==========================================
+  case2
+  ==========================================
+  
+ 
+=== DNS서버의 백업 ===
+
+1.Regedit를 실행하고 HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\DNS를 찾습니다.
+
+2.DNS폴더를 마우스 오른쪽 버튼으로 클릭하고 내보내기를 실행 합니다.
+
+3.HKEY_LOCAL_MACHINE\Software\Microsoft\WindowNT\CurrentVersion\DNS Server를 찾습니다.
+
+4.DNS 서버 폴더를 마우스 오른쪽 버튼으로 클릭하고 내보내기를실행합니다.
+
+5.탐색기에서 C:\Windows\System32\dns 디렉토리를 찾아서 확장자가 .dns인 모든 파일을 백업합니다.
+
+=== DNS 서버의 복구 ===
+
+1.DNS서버를 설치 합니다.
+
+2.이전에 사용하던 DNS서버와 같은 컴퓨터 이름, DNS 접미사 그리고 IP주소를 부여합니다.
+
+3.이전에 복사한 .dns확장자를 가진 파일을 C:\Windows\System32\dns에 복사합니다.
+
+4.기존 DNS서버에서 백업해두었던 registry파일을 실행하여 레지스트리에 값을 설치합니다.
+
+5.DNS서비스를 재시작 합니다.
+
+

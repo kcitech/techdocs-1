@@ -1,0 +1,162 @@
+lighttpd
+squid
+apache
+- mod_proxy
+- mod_proxy_balancer
+- mod_rewrite (RewriteRule)
+- mod_deflate(압축)
+- mod_dosdetector
+- work model ( 1 client -> 1 thread ) vs prefork(1client->1process)
+  view /etc/sysconfig/httpd
+  HTTPD=/usr/sbin/httpd.worker
+  
+  ex) Memory 2~4GB 동시접속수 1,000~10,000정도 처리 가능 
+  
+  StartServers    2
+  ServerLimit     32
+  ThreadLimit     128
+  MaxClients      4096
+  MinSpareThreads 25
+  MaxSpareThreads 75
+  ThreadsPerChild 128
+  MaxRequestsPerChild 0
+  
+  최대 프로세스수 : 32 <= MaxClients / ThreadsPerChild 
+  프로세스당 최대 쓰레드수 : 128
+  동시에 처리할 수 있는 클라이언트 수 : 32 x 128 = 4096
+  
+  KeepAlive On
+  Keep-Alive 상태로 처리할 수 있는 최대 요청수는 100건
+  Keep-Alive 타임아웃(클라이언트와 접속을 계속 유지하는 시간)은 5초
+
+  mod_rewrite
+  mod_proxy
+  mod_proxy_http
+  mod_alias
+  
+  LoadModule alias_module modules/mod_alias.so
+  LoadModule rewrite_module modules/mod_rewrite.so
+  LoadModule proxy_module modules/mod_proxy.so
+  LoadModule proxy_http_module modules/mod_proxy_http.so
+  
+  RewriteRule setup
+  /images, /css, /js : reverseproxy에서 직접 전송(/path/to/images)
+  그외 url --> AP server
+  
+  Listen 80
+  <VirtualHost *:80>
+   ServerName naoya.hatena.ne.jp
+   
+   Alias /images/ "/path/to/images/"
+   Alias /css/    "/path/to/css/"
+   Alias /js/     "/path/to/js/"
+   
+   RewriteEngine on
+   RewriteRule ^/(images|css|js)/ - [L]
+   RewriteRule ^/(.*)$ http://192.168.0.100/$1 [P,L]
+  </VirtualHost>
+
+
+ 특정 호스트로부터 요청 금지
+ 
+ RewriteEngine on
+
+ # 192.168.0.200으로부터의 요청에 대해 403을 반환하고 종료
+ RewriteCond %{REMOTE_ADDR} ^192\.168\.0\.200$
+ RewriteCond .* - [F,L]
+
+ # 리버스 프록시 설정
+ RewriteRule ^/(images|css|js)/ - [L]
+ RewriteRule ^/(.*)$ http://192.168.0.100/$1 [P,L]
+
+
+ client ---> ReverseProxy --> AP1,AP2, ... AP11
+ 
+             mod_proxy_balancer
+             
+mod_proxy_balancer에 의한 리버스 프록시 구축 설정 예
+
+# mod_proxy_balancer 로드
+LoadModule proxy_balancer_module modules/mod_proxy_balancer.so
+
+# 프록시될 호스트 목록 정의
+<Proxy balancer://backend>
+ BalancerMember http://192.168.0.100 loadfactor=10
+ BalancerMember http://192.168.0.101 loadfactor=10
+ BalancerMember http://192.168.0.102 loadfactor=10
+</Proxy>
+
+Listen 80
+<VirtualHost *:80>
+ ServerName naoya.hatena.ne.jp
+
+ Alias /images/ "/path/to/images/"
+ Alias /css/    "/path/to/css/"
+ Alias /js/     "/path/to/js/"
+
+# 리버스 프록시 설정
+ RewriteEngine on
+ RewriteRule ^/(images|css|js)/ - [L]
+ RewriteRule ^/(.*)$ balancer://backend/$1 [P,L]
+</VirtualHost>
+             
+
+
+                                       backend
+        request
+client ---1---> Reverse Proxy ---2---> web server
+       <---4---               <--3----               
+        response
+        
+        dynamic req
+client -------> Reverse Proxy ------> APP server
+       =======>               ======> static content server
+        static req
+
+        dynamic req
+client -------> Reverse Proxy ------> APP server
+       =======> 
+       static req
+       <=======
+       static response
+
+        request
+client ---1---> Reverse Proxy    ---2---> web server
+       <---4--- gzip(mod_delate) <--3----               
+        response
+
+        request
+client ---1---> Reverse Proxy    ---2---> web server
+                mod_dosdetector
+                
+물리적인 호스트가 한 대밖에 없는 경우에도
+동일 호스트 내에 reverse proxy와 AP서버를 실행해서 
+'정적 컨텐츠 송신 역할과 백엔드인 AP서버'라는 역할 분담을 분명히 함으로써
+서버 리소스의 이용효율을 높일 수 있다.
+Reverse Proxy를 도입하지 않아야 할 이유는 어디서도 찾을 수가 없는 것이다.                 
+
+on centos 5.8 x64
+--------------------------------------------------------------
+installation squid
+--------------------------------------------------------------
+tar xvfz squid-3.1.19.tar.gz
+./configure --prefix=/usr/local/squid-3.1.19
+make all
+make install
+
+view /usr/local/squid-3.1.19/etc/squid.conf 수정
+
+chmod 777 /usr/local/squid-3.1.19/var/cache
+chmod 777 /usr/local/squid-3.1.19/var/logs
+---chmod 777 /usr/local/squid-3.1.19/var
+
+/usr/local/squid-3.1.19/sbin/squid -z  <== Create swap directories
+
+/usr/local/squid-3.1.19/sbin/squid restart 
+
+
+-------------------------------------------------------------
+reference 
+-------------------------------------------------------------
+
+http://littletrue.egloos.com/4355902

@@ -1,0 +1,20 @@
+ssh -i test01.pem ec2-user@xxx.xxx.xxx.xxx 시 
+Pemission denied(publickey) 오류 발생할때
+
+create instance on same region.
+detached volume
+attached volume to new same region
+
+modify below files
+
+/etc/ssh/sshd_config
+
+PasswordAuthentication yes
+
+PermitRootLogin yes
+
+---------------------------------------------------
+
+계정 암호 변경 : root / ec2-user
+
+---------------------------------------------------

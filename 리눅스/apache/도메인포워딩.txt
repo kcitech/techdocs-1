@@ -1,0 +1,49 @@
+
+http://rootbox.springnote.com/pages/498642
+
+
+출처: http://hmhm.net/entry/Many-ways-redirect-Visitors-To-a-New-Page-or-Site
+
+ 아파치 웹 서버 (Using .htaccess for Redirection)를 이용한 방법
+
+SEO(Search engine optimization) 관점에서 봤을 때 가장 유리한 방법이다. 물론 웹 서버가 아파치(Apache)여야 하는 단점이 있지만, 아파치의 웹서버 점유율이 꽤 높으니까 많은 사람들이 사용가능하리라 본다.
+하지만, 티스토리같이 접근 제한이 많은 서비스의 경우는 사용하지 못하는 방법이기도 하다.
+
+
+방법은 간단하다.
+
+먼저 텍스트 파일을 하나 만들고(메모장이나 아무 텍스트 에디터로) 아래와 같은 내용을 쓴 다음 해당하는 디렉토리로 업로드하면 된다.
+단지 파일 이름을 .htaccess 로 바꿔 주면 된다. (디폴트 아파치 웹 서버 설정상 그렇다. - 파일 확장자가 없다는 것에 유의하기를,..)
+
+한 페이지만 특정 페이지로 가게 하려면( 해당 폴더에 넣으면 된다)
+
+Redirect 301 /oldpage.html http://hmhm.net/index.php
+
+도메인 전체를 특정 도메인으로 이동했을 경우(보통은 public_html 폴더 밑에 넣으면 된다)
+
+Redirect 301 / http://hmhm.net/
+
+www 가 붙은 것을 www 안 붙은 것으로 이동하고자 할 때 ( www.hmhm.net -> hmhm.net)
+
+Options +FollowSymLinks
+RewriteEngine on
+RewriteCond %{HTTP_HOST} .
+RewriteCond %{HTTP_HOST} !^hmhm\.net
+RewriteRule (.*) http://hmhm.net/$1 [R=301,L]
+
+
+www 가 안 붙은 것을 www 붙은 것으로 이동하고자 할 때 ( hmhm.net -> www.hmhm.net)
+
+Options +FollowSymLinks
+RewriteEngine on
+RewriteCond %{HTTP_HOST} ^yoursite.com [NC]
+RewriteRule ^(.*)$ http://hmhm.net/$1 [L,R=301]
+
+
+! 주의: .htaccess 파일에 "Options" 지시어를 사용하려면 "AllowOverride Options"가 필요하다. 따라서 위의 것이 제대로 작동되지 않으면 Options 가 있는 줄을 삭제하고 재시도 해보기 바란다.
+! 참고로 위에서 쓰인 301은 HTTP status code로 영구적으로 옮겨졌다는 뜻이다.
+
+그리고 SEO(Search engine optimization) 관점에서 본다면 자신의 도메인을 www 를 쓰든, 안 쓰든 한가지만 사용하는 것이 유리하다.
+왜냐하면 www.hmhm.net 과 hmhm.net 으로 링크가 양분되면 다른 이들도 산술적으로 본다면 그 둘로 양분되서 링크를 걸 것이고 그러면 검색엔진 입장에서는 사이트의인기는 절반으로 떨어지는 것처럼 보일테니까
+HTTP status codes 에 대한 더 자세한 사항
+아파치 웹 서버의 .htaccess files에 대한 더 자세한 정보

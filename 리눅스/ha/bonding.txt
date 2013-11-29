@@ -1,0 +1,145 @@
+<centos 5.x>
+pcix형 인텔기가빗 콘트롤러: eth0, eth1
+온보드 브로드컴기가빗 콘트롤러 : eth2, eth3
+
+설정파일은 /etc/sysconfig/network-scripts에 있음.
+
+-. /etc/modprobe.conf
+----------------------------
+alias bond0 bonding
+alias bond1 bonding
+options bonding miimon=100 mode=1
+----------------------------
+위 options부분은 기존 서버의 설정대로 설정한 것입니다.
+
+-. 리얼ip용 bonding
+
+ifcfg-bond0
+-------------------------
+DEVICE=bond0
+BOOTPROTO=static
+ONBOOT=yes
+IPADDR=192.168.00.123
+NETMASK=255.255.255.224
+-------------------------
+
+ifcfg-eth0
+-------------------------
+DEVICE=eth0
+BOOTPROTO=none
+HWADDR=00:15:17:F7:67:CC
+ONBOOT=yes
+USERCTL=no
+MASTER=bond0
+SLAVE=yes
+-------------------------
+
+ifcfg-eth3
+-------------------------
+DEVICE=eth3
+BOOTPROTO=none
+HWADDR=5C:F3:FC:49:58:9A
+ONBOOT=yes
+USERCTL=no
+MASTER=bond0
+SLAVE=yes
+-------------------------
+
+-. 사설ip(DB간 연결)용 bondig
+
+ifcfg-bond1
+-------------------------
+DEVICE=bond1
+BOOTPROTO=static
+ONBOOT=yes
+IPADDR=10.10.10.1
+NETMASK=255.255.255.252
+-------------------------
+
+ifcfg-eth1
+-------------------------
+DEVICE=eth1
+BOOTPROTO=none
+HWADDR=00:15:17:F7:67:CD
+ONBOOT=yes
+USERCTL=no
+MASTER=bond1
+SLAVE=yes
+-------------------------
+
+ifcfg-eth2
+-------------------------
+DEVICE=eth2
+BOOTPROTO=none
+HWADDR=5C:F3:FC:49:58:98
+ONBOOT=yes
+USERCTL=no
+MASTER=bond1
+SLAVE=yes
+-------------------------
+
+-. gateway, hostname정보
+/etc/sysconfin/network
+-------------------------
+NETWORKING=yes
+NETWORKING_IPV6=no
+HOSTNAME=db1
+GATEWAY=192.168.00.97
+-------------------------
+
+<centos 6.x>
+-. /etc/modprobe.d/bonding.conf
+----------------------------
+alias bond0 bonding
+alias bond1 bonding
+options bonding miimon=100 mode=1
+----------------------------
+
+modprobe bonding 
+
+----------------------------------------------------------------------------
+other way
+----------------------------------------------------------------------------
+- environment
+VIP 192.168.0.101
+c1  192.168.0.102
+c2  192.168.0.103
+
+<centos 6.x>
+-. /etc/modprobe.d/bonding.conf
+----------------------------
+alias bond0 bonding
+----------------------------
+#modprobe bonding 
+
+ifcfg-bond0
+-------------------------
+DEVICE=bond0
+BOOTPROTO=static
+ONBOOT=yes
+IPADDR=192.168.0.102
+NETMASK=255.255.255.0
+GATEWAY=192.168.0.1
+BONDING_OPTS="miimon=100 mode=active-backup primary=eth1"
+-------------------------
+
+ifcfg-eth1
+-------------------------
+DEVICE=eth1
+BOOTPROTO=none
+ONBOOT=yes
+USERCTL=no
+MASTER=bond0
+SLAVE=yes
+-------------------------
+
+ifcfg-eth2
+-------------------------
+DEVICE=eth2
+BOOTPROTO=none
+ONBOOT=yes
+USERCTL=no
+MASTER=bond0
+SLAVE=yes
+-------------------------
+

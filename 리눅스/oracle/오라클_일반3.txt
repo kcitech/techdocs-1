@@ -1,0 +1,7 @@
+
+controlfiles 관련
+
+http://database.sarang.net/?inc=read&aid=23564&criteria=oracle&subcrit=&id=&limit=20&keyword=&page=1
+
+MEMORY_MAX_TARGET 관련
+http://arjudba.blogspot.com/2009/01/ora-00845-memorytarget-not-supported-on.html

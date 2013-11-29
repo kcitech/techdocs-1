@@ -1,0 +1,84 @@
+> http://www.mahome.net/index.php?document_srl=24703
+
+> http://blog.dasom.pe.kr/25
+
+
+
+DB작업전 반드시 data를 백업 후 작업을 진행하도록 합니다.
+# cp -arp /usr/local/mysql/data /usr/local/mysql/data_bak_100406
+ 
+mysql data 폴더를 보면
+ 
+mysql-bin.000001
+mysql-bin.000002
+mysql-bin.000003
+mysql-bin.000004, ...... 등의 파일이 있습니다.
+ 
+mysql 을 설치하고 부터 실행하는 모든 명령어들(create, update, delete, alter 등) 이 기록에 남는데
+- 웹사이트에서 게시글 등록 등의 작업도 로그에 남습니다. -
+이러한 기록을 이용하여 현재까지의 DB를 만들 수가 있습니다.
+물론 문제발생 시간을 확인하여 그 전 시간까지만 복구를 해야합니다.
+ 
+1. mysql 바이너리 로그 파일 확보 
+# mkdir /usr/local/src/mysql_bin_repair
+# cp -arp /usr/local/mysql/data/mysql-bin.0* /usr/local/src/mysql_bin_repair
+# cd /usr/local/src/mysql_bin_repair
+ 
+2. mysql 쿼리문 추출
+이제 바이너리 로그파일을 mysql 에 입력 가능한 쿼리문으로 변경해야 합니다.
+ 
+# /usr/local/mysql/bin/mysqlbinlog -d neulwon -s mysql-bin.000001 > mysql-bin.000001.sql
+# /usr/local/mysql/bin/mysqlbinlog -d neulwon -s mysql-bin.000002 > mysql-bin.000002.sql
+# /usr/local/mysql/bin/mysqlbinlog -d neulwon -s mysql-bin.000003 > mysql-bin.000003.sql
+# /usr/local/mysql/bin/mysqlbinlog -d neulwon -s mysql-bin.000004 > mysql-bin.000004.sql
+ 
+[옵션 설명]
+-d DB명 : 바이너리 로그파일에서 해당 DB에 관한 쿼리만 추출합니다. 예) neulwon 이라는 DB 복구
+-s : 주석처리된 내용은 추출대상에서 제외합니다.
+ 
+3. DB 삭제 및 복구
+위와같이 문제발생 시간 전까지의 모든 바이너리 로그를 새로운 파일로 생성을 합니다.
+생성된 *.sql 파일을 vi 로 열어보면 create database 에서부터 지금까지의 쿼리문이 기록이 되어있습니다. 
+이제 이 쿼리문을 이용하여 DB를 복구할 수 있습니다.
+ 
+# mysql -p
+Enter password: (mysql root 패스워드 입력)
+기존에 복구하고자 하는 DB가 있을 경우 복구가 되지 않으니 해당 DB를 삭제합니다.
+ 
+mysql> drop database neulwon;
+ 
+이제 아래와 같이 쿼리추출파일을 실행하여 data를 생성합니다.
+ 
+mysql> \. mysql-bin.000001.sql
+mysql> \. mysql-bin.000002.sql
+mysql> \. mysql-bin.000003.sql
+mysql> \. mysql-bin.000004.sql
+ 
+복구가 완료되었습니다. select 명령어를 이용하여 해당 DB에 데이타가 정상 입력되었는지 확인해봅니다.
+  
+ 
+[작성] 차동훈 (http://system.neulwon.com)
+ 
+ 
+이때 에러가 났습니다 저같은경우그래서 아래와같은걸 참조했더니 되긴하더라고요
+ 
+근데 100% 되는지는 모르겟네요
+ 
+mysqlbinlog 
+
+http://www.cyworld.com/henry23/485235 
+
+[root@ redcastle]# mysqlbinlog --start-datetime="2010-05-07 13:28:00" --stop-datetime="2010-05-07 13:34:00" /usr/local/mysql/ 
+data/mysql-bin.000005 --database="msggm" >temp20100507.sql 
+mysqlbinlog: unknown variable 'default-character-set=euckr' 
+
+==> 
+http://devideby0.egloos.com/2156239 
+
+/etc/my.cnf에 아래와 같이 설정되어 있습니다. 
+
+[client] 
+default-character-set=euckr  // <!--<-- 주석후 restart mysql5.x인데 restart안해도 됨 --> 
+
+[root@ redcastle]# mysqlbinlog --start-datetime="2010-05-07 13:28:00" --stop-datetime="2010-05-07 13:34:00" /usr/local/mysql/ 
+data/mysql-bin.000005 --database="msggm" >temp20100507.sql

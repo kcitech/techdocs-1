@@ -1,0 +1,94 @@
+
+--------------------------------------------------------------------------------------------------------
+clone
+--------------------------------------------------------------------------------------------------------
+
+
+# VBoxManage clonehd /home/virtualbox/centos5.2_01.vdi /home/virtualbox/centos5.2_02.vdi
+
+--------------------------------------------------------------------------------------------------------
+VBoxManage -startvm centos5.2_01
+--------------------------------------------------------------------------------------------------------
+
+1. 커맨드 상태에서 vm올리기(콘솔 출력은 못봄)
+# VBoxManage startvm "centos5.2_01" -type vrdp 
+
+[root@localhost ~]# VBoxManage startvm "centos5.2_01" -type vrdp
+VirtualBox Command Line Management Interface Version 2.1.4
+(C) 2005-2009 Sun Microsystems, Inc.
+All rights reserved.
+
+Waiting for the remote session to open...
+Remote session has been successfully opened.
+
+#exit (로그아웃해도 프로세스 남아있음)
+
+중지
+#VBoxManage controlvm centos5.2_01 poweroff
+
+
+2.커맨드 상태에서 vm올리기(콘솔 출력 볼수 있음, 3389/tcp 윈도우 원격 데스크탑 연결로)
+#VBoxHeadless -startvm centos5.2_01 -p 포트 
+
+#VBoxHeadless -startvm centos5.2_01 -p 3389
+<== 콘솔은 윈도원격터니널 접속(3389/tcp)로 접속하면 화면을 볼수 있다.
+
+
+--------------------------------------------------------------------------------------------------------
+VirtualBox 원격접속시 ctrl+alt+del --> ctrl+alt+end (냉무) 
+--------------------------------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------------------------------
+Virtualbox NAT
+--------------------------------------------------------------------------------------------------------
+
+VBoxManage setextradata "Linux Guest""VBoxInternal/Devices/pcnet/0/LUN#0/Config/guestssh/Protocol" TCP
+VBoxManage setextradata "Linux Guest""VBoxInternal/Devices/pcnet/0/LUN#0/Config/guestssh/GuestPort" 22
+VBoxManage setextradata "Linux Guest""VBoxInternal/Devices/pcnet/0/LUN#0/Config/guestssh/HostPort" 2222
+
+guestssh ==> 임의의 문자 입력
+
+
+VBoxManage setextradata "Linux Guest""VBoxInternal/Devices/e1000/0/LUN#0/Config/guestssh/Protocol" TCP
+VBoxManage setextradata "Linux Guest""VBoxInternal/Devices/e1000/0/LUN#0/Config/guestssh/GuestPort" 22
+VBoxManage setextradata "Linux Guest""VBoxInternal/Devices/e1000/0/LUN#0/Config/guestssh/HostPort" 2222
+
+
+--------------------------------------------------------------------------------------------------------
+Virtualbox License
+--------------------------------------------------------------------------------------------------------
+
+개인이 아니면 commercial license 가 필요하단다. 크,
+Xen으로 선회를 해야 되겠다.
+
+http://www.virtualbox.org/wiki/Licensing_FAQ
+
+
+
+1.What license is VirtualBox released under? 
+The Open Source Edition (OSE) is released under the GNU General Public License V2. Essentially, this means that you get the full source code of VirtualBox OSE, and you can distribute and modify it, provided that you ship all modifications under the GPL as well. 
+
+If you want the extra features that are missing from VirtualBox OSE, you can alternatively use the full VirtualBox package free of charge for personal use or evaluation purposes. Both versions -- VirtualBox OSE and VirtualBox -- are available from the Downloads page. 
+
+2.Can I buy a commercial license for VirtualBox? 
+If you are an individual end user, there is generally no need to purchase a commercial license, provided that you respect, in the case of VirtualBox OSE, the terms and conditions of the GPL, or, in the case of the full VirtualBox package, those of the Personal Use and Evaluation License. 
+
+As an enterprise customer, we encourage you to purchase commercial licenses from Sun and receive benefits such as access to enterprise features and support for mission-critical use of VirtualBox. We also encourage ISVs and IHVs to incorporate VirtualBox into their offerings, preferably through a custom license deal with Sun. Please contact Sun for additional information. 
+
+
+--------------------------------------------------------------------------------------------------------
+VBoxManage
+--------------------------------------------------------------------------------------------------------
+
+$ VBoxManage createvm -name "Ubuntu 8.10 Server" -register
+$ VBoxManage modifyvm "Ubuntu 8.10 Server" -memory "256MB" -acpi on -boot1 dvd -nic1 nat
+$ VBoxManage createvdi -filename "Ubuntu_8_10_Server.vdi" -size 10000 -register
+$ VBoxManage modifyvm "Ubuntu 8.10 Server" -hda "Ubuntu_8_10_Server.vdi"
+$ VBoxManage registerimage dvd /home/admin/ubuntu-8.10-server-i386.iso
+$ VBoxManage modifyvm "Ubuntu 8.10 Server" -dvd /home/admin/ubuntu-8.10-server-i386.iso
+
+
+
+
+http://www.howtoforge.com/vboxheadless-running-virtual-machines-with-virtualbox-2.0-on-a-headless-centos-5.2-server

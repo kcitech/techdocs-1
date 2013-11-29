@@ -1,0 +1,117 @@
+[ centos3 + apache2 + php + mysql ]
+
+1. os
+   CentOS 3.x 
+   설치시 옵션 : x software, x development가 설치해야 php의 gd관련 컴파일이 쉽다.
+                 (위 패키지를 설치하지 않고  gd관련 패키지를 일일이 컴파일해줘도 됨..번거로움)
+
+2. 소스 패키지
+   httpd-2.0.54
+   php-4.3.11
+   mysql-4.1.15
+
+3. 컴파일
+
+   1) mysql
+      4.1대에서는 한글 character를 디폴트로 해야 문제 없음.(하위버전의 mysqldump파일 사용시)
+      --enable-thread-safe-client : mysql과 연동하기위한 기타 패키지 rpmbuild하기 위해.
+
+      # cd mysq-4.1.15
+      # ./configure --prefix=/usr/local/mysql-4.1.15 --with-charset=euckr --enable-thread-safe-client
+      # make && make install
+
+      # groupadd mysql
+      # useradd -g mysql mysql
+      # cd /usr/local/mysql-4.1.15/bin
+      # ./mysql_install_db
+        이것을 하면 디폴트 mysql datadir인 var가 생성된다.(되어야 정상)
+      # chown -R mysql.mysql /usr/local/mysql-4.1.15/var
+
+      # cd /usr/local/mysql-4.1.15/share/mysql
+      # cp my-medium.cnf /etc/my.cnf
+      # cd /etc/init.d
+      # ln -s /usr/local/mysql-4.1.15/share/mysql/mysql.server mysqld
+      # chkconfig --add mysqld
+      # /etc/init.d/mysqld start
+
+      # vi /etc/ld.so.conf
+        /usr/local/mysql-4.1.15/lib/mysql  --> 추가
+      # ldconfig
+
+   2) apache
+      # cd httpd-2.0.54
+      # ./configure --prefix=/usr/local/httpd-2.0.54 --enable-mods-shared=all
+      # make && make install
+
+   3) php
+      gd는 따로 컴파일할 필요없으며, php에 bundle(2.0.28)되어 있는 것을 사용함.
+      아래 config는 mysql연동, gd(gif create 지원)지원, exif, xml, multibyte지원등.
+
+      # cd php-4.3.11
+      # ./configure \
+             --prefix=/usr/local/php-4.3.11 --with-config-file-path=/usr/local/php-4.3.11/etc \
+             --with-apxs2=/usr/local/httpd-2.0.54/bin/apxs \
+             --with-mysql=/usr/local/mysql-4.1.15 \
+             --with-gd --with-freetype-dir --with-png-dir  --with-jpeg-dir --with-zlib-dir --enable-exif \
+             --enable-gd-native-ttf \
+             --enable-track-vars --enable-sockets \
+             --with-iconv \
+             --enable-sysvsem --enable-sysvshm \
+             --with-dom --with-xml --with-expat-dir=/usr \
+             --enable-magic-quotes --enable-safe-mode \
+             --enable-ftp --enable-mbstring --with-zlib \
+             --enable-force-cgi-redirect --disable-debug  --enable-pic --disable-rpath \
+             --enable-inline-optimization --with-bz2 \
+             --with-gettext --with-gmp --with-pcre-regex \
+             --enable-bcmath \
+             --enable-discard-path \
+             --enable-yp --enable-wddx \
+             --enable-dbx --enable-dio --enable-mcal --enable-calendar
+      # make && make install
+
+      # cp php.ini-dist /usr/local/php-4.3.11/etc/php.ini
+      # vi /usr/local/httpd-2.0.54/conf/httpd.conf
+        LoadModule php4_module        modules/libphp4.so                             -> 확인
+        AddType application/x-httpd-php .php .php4 .php3 .html .htm .phtml .ph .inc  -> 추가
+        AddType application/x-httpd-php-source .phps                                 -> 추가
+        DirectoryIndex index.html index.html.var index.php                           -> index.php추가 
+       
+      # /usr/local/httpd-2.0.54/bin/apachectl start
+
+4. 환경설정
+   1) mysql 
+      -. datadir 변경
+         # /etc/init.d/mysqld stop
+         # cp -a /usr/local/mysql-4.1.15/var  /home/mysql-data
+         # vi /etc/my.cnf
+           [mysqld]
+           datadir	 = /home/mysql-data   -> 추가
+
+         # /etc/init.d/mysqld start
+
+      -. connections 개수 변경 및 wait timeout변경
+         # vi /etc/my.cnf
+           [mysqld]
+           set-variable    = max_connections=400  -> 추가
+           set-variable    = wait_timeout=300     -> 추가
+
+   2) php
+      register_globals = Off       -> On (세션 또는 쿠키가 제대로 작동하려면)
+      max_execution_time = 30      -> 시간 늘려준다
+      file_uploads = On            -> upload on
+      memory_limit = 8M            -> 늘려준다.(다람쥐 메일 전체선택 삭제시 유용)
+      upload_max_filesize = 20M
+      post_max_size = 20M           -> 위 upload_max_filesize와 같게 해준다.
+
+   3) apache
+      너무 많으므로 별도로..
+
+끝.
+
+---------------------
+mysql-5.0.67 src compile
+
+configure error
+checking for termcap functions library... configure: error: No curses/termcap library found
+
+==> yum install ncurses-devel 설치

@@ -1,0 +1,20 @@
+
+
+
+신규설치시 php.ini의 옵션중 다음을 기본적으로 off해주시기 바랍니다.
+rpm에서는 기본적으로 On입니다.
+
+allow_url_fopen = Off
+
+이 옵션때문에 안되는 사이트는 php.ini에서 수정하지 말고,
+httpd.conf에서 다음과 같이 설정하면 되겠습니다.
+
+<VirtualHost .....>
+ServerName ...
+DocumentRoot /home/websrc
+
+  <Directory /home/websrc/>
+       php_flag allow_url_fopen off
+ </Directory>
+
+</VirtualHost>

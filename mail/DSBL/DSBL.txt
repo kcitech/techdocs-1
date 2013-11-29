@@ -1,0 +1,72 @@
+DSBL(Distributed Sender Blackhole List)
+
+=> http://blog.naver.com/jabusunin/30002529602
+
+This is an automatically generated Delivery Status Notification.
+
+Delivery to the following recipients failed.
+
+       AAAA@CCCCC.com
+
+2007-05-17 06:35:28 192.168.14.72 OutboundConnectionCommand SMTPSVC1 GOSISERVER01 - 25 RCPT - TO:<USER@AAAA.co.kr> 0 0 4 0 0 SMTP - - - -
+2007-05-17 06:35:28 192.168.14.72 OutboundConnectionResponse SMTPSVC1 GOSISERVER01 - 25 - - 550+<USER@AAAA.co.kr>:+Recipient+address+rejected:+Your+MTA+is+listed+in+too+many+DNSBLs;+check+http://rbls.org/?q=192.168.123.145 0 0 136 0 766 SMTP - - - -
+2007-05-17 06:35:28 192.168.14.72 OutboundConnectionCommand SMTPSVC1 GOSISERVER01 - 25 RSET - - 0 0 4 0 766 SMTP - - - -
+2007-05-17 06:35:28 192.168.14.72 OutboundConnectionResponse SMTPSVC1 GOSISERVER01 - 25 - - 250+Ok 0 0 6 0 766 SMTP - - - -
+2007-05-17 06:35:28 192.168.14.72 OutboundConnectionCommand SMTPSVC1 GOSISERVER01 - 25 QUIT - - 0 0 4 0 829 SMTP - - - -
+2007-05-17 06:35:28 192.168.14.72 OutboundConnectionResponse SMTPSVC1 GOSISERVER01 - 25 - - 221+Bye 0 0 7 0 829 SMTP - - - -
+2007-05-17 06:35:32 192.168.123.145 USER2 SMTPSVC1 GOSISERVER01 192.168.123.145 0 QUIT - USER2 240 40531 61 4 0 SMTP - - - -
+                                                                                                                                                                                                                                                                                                이앤씨평생교육원/정인기 고객님,안녕하세요?
+
+여러가지를 점검해 본결과 고객님 서버(192.168.123.145)가 
+DSBL로 등록되어 있어 외부에서 고객님서버로 메일이 
+정상적으로 수신되지 않고 있습니다.
+
+---------
+현상
+---------
+ 리턴 메일 내용에 다음 메세지 출력
+
+ This is an automatically generated Delivery Status Notification.
+ Delivery to the following recipients failed.
+
+       AAAA@CCCCC.com
+
+---------
+확인1
+---------
+2007-05-17 06:35:28 192.168.14.72 OutboundConnectionCommand SMTPSVC1 GOSISERVER01 - 25 RCPT - TO:<USER@AAAA.co.kr> 0 0 4 0 0 SMTP - - - -
+2007-05-17 06:35:28 192.168.14.72 OutboundConnectionResponse SMTPSVC1 GOSISERVER01 - 25 - - 550+<USER@AAAA.co.kr>:+Recipient+address+rejected:+Your+MTA+is+listed+in+too+many+DNSBLs;+check+http://rbls.org/?q=192.168.123.145 0 0 136 0 766 SMTP - - - -
+2007-05-17 06:35:28 192.168.14.72 OutboundConnectionCommand SMTPSVC1 GOSISERVER01 - 25 RSET - - 0 0 4 0 766 SMTP - - - -
+2007-05-17 06:35:28 192.168.14.72 OutboundConnectionResponse SMTPSVC1 GOSISERVER01 - 25 - - 250+Ok 0 0 6 0 766 SMTP - - - -
+2007-05-17 06:35:28 192.168.14.72 OutboundConnectionCommand SMTPSVC1 GOSISERVER01 - 25 QUIT - - 0 0 4 0 829 SMTP - - - -
+2007-05-17 06:35:28 192.168.14.72 OutboundConnectionResponse SMTPSVC1 GOSISERVER01 - 25 - - 221+Bye 0 0 7 0 829 SMTP - - - -
+2007-05-17 06:35:32 192.168.123.145 USER2 SMTPSVC1 GOSISERVER01 192.168.123.145 0 QUIT - USER2 240 40531 61 4 0 SMTP - - - -
+                                                                                                            ---------                           ---------       
+확인2
+---------
+
+ http://openrbl.org/query?192.168.123.145 
+
+ 위 사이트 방문후 
+ DNSBL [CompleteWhois CGI] 클릭결과 5개사이트에 등록되어 있음
+  
+ SUMMARY 
+ dnsbl.ahbl.org
+ ircbl.ahbl.org
+ list.dsbl.org
+ auto.dnsbl.njabl.org
+ no-more-funn.moensted.dk  
+
+ please see below for details  TOTAL "RED" Listings:  5  
+
+---------
+참고자료
+---------
+ DSBL (Distributed Sender Blackhole List)
+ => http://blog.naver.com/jabusunin/30002529602
+
+ DNSBL/RBL 블랙홀 리스트 삭제 요청 절차
+ => http://blog.naver.com/wizardkyn/140029944801
+
+
+http://openrbl.org/query?192.168.123.145                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 

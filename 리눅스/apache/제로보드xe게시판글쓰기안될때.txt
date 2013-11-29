@@ -1,0 +1,25 @@
+
+ 
+httpd.conf 에서 가상호스팅 수정 하였습니다.
+Direcroty 부분 옵션 수정 하였습니다.
+ 
+    276 <Directory />
+    277     Options FollowSymLinks
+    278 #    AllowOverride None
+    279     AllowOverride All
+    280 </Directory>
+ 
+<VirtualHost *:80>
+    ServerAdmin USER@DOMAIN.SAMPLE
+    DocumentRoot /home/www/public_html
+    ServerName DOMAIN.SAMPLE2
+    ServerAlias www.DOMAIN.SAMPLE2
+    RewriteEngine on
+ 
+    JkMount /*.jsp ajp13
+    JkMount /TEST/* ajp13
+ 
+    ErrorLog logs/DOMAIN.SAMPLE2-error_log
+    CustomLog logs/DOMAIN.SAMPLE2-access_log common
+</VirtualHost>
+이상입니다.

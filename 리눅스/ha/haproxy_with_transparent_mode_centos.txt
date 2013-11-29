@@ -1,0 +1,159 @@
+Setting up HAProxy with Transparent Mode on Centos 6.x
+
+References : 
+ http://blog.loadbalancer.org/setting-up-haproxy-with-transparent-mode-on-centos-6-x/
+ http://blog.loadbalancer.org/configure-haproxy-with-tproxy-kernel-for-full-transparent-proxy/
+
+---------------------------------------------------------------
+Server1 (HAProxy compile with tproxy )
+---------------------------------------------------------------
+eth0 : 192.168.0.100(wan) / gw 192.168.0.1
+eth1 : 10.10.10.100(lan) / gw none
+
+---------------------------------------------------------------
+Server2 (Apache webserver)
+---------------------------------------------------------------
+eth0 : 10.10.10.101 / gw 10.10.10.100
+
+---------------------------------------------------------------
+Server1 (HAProxy compile with tproxy )
+---------------------------------------------------------------
+#yum update
+
+#yum install make wget gcc pcre-static pcre-devel
+
+#wget http://haproxy.1wt.eu/download/1.5/src/devel/haproxy-1.5-dev7.tar.gz
+
+#tar -zxf haproxy-1.5-dev7.tar.gz
+
+#cd haproxy-1.5-dev7
+
+#make TARGET=linux26 CPU=x86_64 USE_STATIC_PCRE=1 USE_LINUX_TPROXY=1
+
+#make install target=linux26
+
+#cp haproxy /usr/sbin/haproxy
+
+#cp examples/haproxy.cfg /etc/haproxy.cfg
+
+
+#view /etc/haproxy.cfg
+
+# HAProxy configuration file
+global
+#       uid 99
+#       gid 99
+        daemon
+        stats socket /var/run/haproxy.stat mode 600
+        log 127.0.0.1 local4
+        maxconn 40000
+        ulimit-n 80023
+        pidfile /var/run/haproxy.pid
+defaults
+        log global
+        mode    http
+        contimeout      4000
+        clitimeout      42000
+        srvtimeout      43000
+listen  VIP_name
+        bind     192.168.0.100:80
+        mode     http
+        option   http-server-close
+        option   forwardfor
+        source   0.0.0.0 usesrc clientip
+        server   http1_1 10.10.10.101:80 cookie http1_1 check inter 2000 rise 2 fall 3
+
+#view /root/onesetup.sh
+
+#!/bin/bash
+
+#----------------------
+#1
+#----------------------
+ip rule add fwmark 1 lookup 100
+ip route add local 0.0.0.0/0 dev lo table 100
+
+#---------------------
+#2
+#---------------------
+echo 1 > /proc/sys/net/ipv4/conf/all/forwarding
+echo 1 > /proc/sys/net/ipv4/conf/all/send_redirects
+echo 1 > /proc/sys/net/ipv4/conf/eth0/send_redirects
+
+#---------------------
+#3
+#---------------------
+iptables -t mangle -N DIVERT
+iptables -t mangle -A PREROUTING -p tcp -m socket -j DIVERT
+iptables -t mangle -A DIVERT -j MARK --set-mark 1
+iptables -t mangle -A DIVERT -j ACCEPT
+
+
+[root@localhost ~]# /etc/init.d/iptables status
+테이블: mangle
+Chain PREROUTING (policy ACCEPT)
+num  target     prot opt source               destination         
+1    DIVERT     tcp  --  0.0.0.0/0            0.0.0.0/0           socket 
+
+Chain INPUT (policy ACCEPT)
+num  target     prot opt source               destination         
+
+Chain FORWARD (policy ACCEPT)
+num  target     prot opt source               destination         
+
+Chain OUTPUT (policy ACCEPT)
+num  target     prot opt source               destination         
+
+Chain POSTROUTING (policy ACCEPT)
+num  target     prot opt source               destination         
+
+Chain DIVERT (1 references)
+num  target     prot opt source               destination         
+1    MARK       all  --  0.0.0.0/0            0.0.0.0/0           MARK set 0x1 
+2    ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0           
+
+
+---------------------------------------------------------------
+Server2
+---------------------------------------------------------------
+eth0 : 10.10.10.101 / gw 10.10.10.100
+
+[root@localhost ~]# cat /etc/sysconfig/network-scripts/ifcfg-eth0
+DEVICE="eth0"
+BOOTPROTO="static"
+NM_CONTROLLED="yes"
+ONBOOT="yes"
+TYPE="Ethernet"
+IPADDR=10.10.10.101
+NETMASK=255.255.255.0
+GATEWAY=10.10.10.100
+
+---------------------------------------------------------------
+확인 ( client ip : 192.168.0.9)
+---------------------------------------------------------------
+wget http://192.168.0.100/index.htm 했을때,
+Server2 httpd log에 client ip가 찍히면 됨. 
+
+Reference>
+
+http://www.serverphorums.com/read.php?10,120994
+
+http://helloworld.naver.com/helloworld/284659
+
+http://blog.loadbalancer.org/configure-haproxy-with-tproxy-kernel-for-full-transparent-proxy/
+
+http://www.snapt-ui.com/haproxy/snapt-haproxy-and-tproxy/
+
+http://mattiasgeniar.be/2010/09/01/compile-a-centos-kernel-and-iptables-with-tproxy-support/
+
+http://www.cyberciti.biz/files/linux-kernel/Documentation/networking/tproxy.txt
+
+http://www.toyaseta.com/squid-tproxy-bridge-centos-6-3.html
+
+http://haproxy.1wt.eu/download/1.4/doc/configuration.txt
+
+http://blog.loadbalancer.org/setting-up-haproxy-with-transparent-mode-on-centos-6-x/
+
+http://www.howtoforge.com/setting-up-a-high-availability-load-balancer-with-haproxy-keepalived-on-debian-lenny-p2
+
+http://www.webhostingtalk.com/showthread.php?t=1213327

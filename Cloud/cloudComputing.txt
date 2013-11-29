@@ -1,0 +1,27 @@
+
+IT변화
+server -> software -> service
+
+ex)
+server/pc -> os(window/linux) -> asp,saas,paas,cloud
+
+향휴전망
+core가 필요치 않은 부분 -> 아웃소싱 -> SaaS
+core가 필요한 부분 -> private cloud computing
+core가 필요치 않은 인프라 -> haas,(paas)
+
+cloud computing의 잇점
+: 비용절감(초기 투자비용없으). dedecated 호스팅의 절반,확장 용이,가용성 보장
+
+개발자
+=> 대형 업체의 paas기반의 개발을 시작해야 할때(google,amazon,saleforce.com등등)
+
+호스팅/임대사업
+=> 아마존,구글 cloud computing 가격경쟁에 이길수 없음. 부가서비스 창출및 활구모색 필요
+
+신규창업사
+=> haas,paas에서 시작하는것이 유리함.
+
+콘테이너 datecenter
+
+대형 벤터사 datacenter 신설 및 확장

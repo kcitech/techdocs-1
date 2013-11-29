@@ -1,0 +1,94 @@
+
+1. /etc/mail/virtusertable 를 열고, 아래에 다음을 추가합니다.
+
+2. adduser -d /dev/null USER && passwd USER
+
+3. makemap hash /etc/mail/virtusertable < /etc/mail/virtusertable
+
+ =========================================================
+ case 2
+ =========================================================
+  
+---------------------------------------
+1. /etc/mail/virtusertable에 다음 추가
+---------------------------------------
+...
+master2@TESTDOMAIN.com AAAAA2
+...
+
+#makemap hash /etc/mail/virtusertable < /etc/mail/virtusertable
+
+---------------------------------------
+2. /etc/aliases에 다음추가
+---------------------------------------
+...
+AAAAA2: master2,USER2@TESTDOMAIN2.co.kr,USER3@TESTDOMAIN2.co.kr
+...
+
+#newaliases
+#/etc/init.d/sendmail restart
+
+---------------------------------------
+3. 메일 테스트
+---------------------------------------
+parkjinwoo@AAAAA.co.kr ---> master2@TESTDOMAIN.com
+
+/var/log/maillog 확인
+
+to master2 : Sent (정상발송)
+to USER4 : Sent (정상발송)
+to USER2@TESTDOMAIN2.co.kr : User Unknown(계정 확인 바랍니다.)
+to USER3@TESTDOMAIN2.co.kr : Sent (정상발송)
+
+Jun 2 18:37:07 www sendmail[16104]: m529b7sd016104:
+from=, size=1635, class=0, nrcpts=1,
+msgid=<045301c8c494$37c2b410$6602a8c0@www>, proto=ESMTP,
+daemon=MTA, relay=[192.168.65.34]
+Jun 2 18:37:07 www sendmail[16105]: m529b7sd016104:
+to=master2, delay=00:00:00, xdelay=00:00:00, mailer=local,
+pri=121812, dsn=2.0.0, stat=Sent
+Jun 2 18:37:07 www sendmail[16105]: m529b7sd016104: to=USER4,
+delay=00:00:00, xdelay=00:00:00, mailer=local, pri=121812,
+dsn=2.0.0, stat=Sent
+Jun 2 18:37:12 www sendmail[16105]: m529b7sd016104:
+to=USER2@TESTDOMAIN2.co.kr, delay=00:00:05, xdelay=00:00:05,
+mailer=esmtp, pri=121812, relay=mail.TESTDOMAIN2.co.kr.
+[192.168.131.218], dsn=5.1.1, stat=User unknown
+Jun 2 18:37:12 www sendmail[16105]: m529b7sd016104:
+to=USER3@TESTDOMAIN2.co.kr, delay=00:00:05, xdelay=00:00:05,
+mailer=esmtp, pri=121812, relay=mail.TESTDOMAIN2.co.kr.
+[192.168.131.218], dsn=2.0.0, stat=Sent (m529b9si015571
+Message accepted for delivery)
+ 
+ 
+ ========================================================
+ case 2
+ ========================================================
+ 
+고객님께서도 알고 계시듯
+USER1@DOMAIN.co.jp 메일은 USER1.DOMAIN 계정으로 포워딩되도록 설정되어 있습니다.
+
+이 포워딩 설정은 /etc/mail/virtusertable에 되어 있습니다.
+
+이 설정파일의 db파일인 virtusertable.db를 확인해보니
+설정이 되어 있지 않아 포워딩이 되고 있지 않은 상태였습니다.
+
+# makemap hash virtusertable < virtusertable
+
+위와 같이 db재생성 명령을 수행한 후, USER1.DOMAIN 계정으로
+메일이 받아짐을 확인했습니다.
+
+혹시 안들어 오기 시작한 시점에 고객님께서 위 명령을 내려준 적
+이 있는지요?
+
+문제가 있을 만한 소지는 없는 부분인데, db가 정상적이지 않아서
+발생한
+문제였습니다.
+
+참고로 virtusertable db를 확인하는 명령은 다음과 같습니다.
+
+# strings /etc/mail/virtusertable.db
+
+이렇게 해보면 virtusertable파일에 설정한 내용으로 hash DB화 되
+어 있는 것을
+text 로 확인해볼 수 있습니다.

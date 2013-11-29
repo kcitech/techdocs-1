@@ -1,0 +1,191 @@
+[ lvs director server ]
+
+lvs서버 real ip : eth0
+실제 서비스 ip  : eth0:1  <- 설정하는 것 아님.lvs.cf에 설정.
+
+
+1. os install & lvs패키지 설치
+   centos 3.9
+   일반적 설치.
+
+   update후 yum 으로 패키지 설치.
+
+   /etc/yum.conf
+   csgfs 블록이 없으면 아래와 같이 추가해서 yum install.
+   ======================================================================
+   [csgfs]
+   name=CentOS-$releasever - Fasttrack
+   baseurl=http://mirror.tini4u.net/centos/$releasever/csgfs/$basearch/
+   gpgcheck=1
+   ======================================================================
+
+   # yum install piranha ipvsadm
+
+2. kernel parameter
+   /etc/sysctl.conf에 아래 내용 추가
+   =============================================
+   net.ipv4.ip_forward = 1
+   net.ipv4.conf.all.send_redirects = 1
+   net.ipv4.conf.default.send_redirects = 1
+   net.ipv4.conf.eth0.send_redirects = 1
+   net.ipv4.tcp_syncookies = 1
+   =============================================
+
+3. lvs 설정
+   -. piranha를 이용한 lvs 설정
+
+      # vi /etc/sysconfig/ha/lvs.cf
+고객에 설정했던 config.
+
+
+환경설정에서 아래 부분의 값만 수정.
+나머지는 대부분 그대로.
+timeout등 조금씩 수정할 수 있음.
+scheduler는 서비스에 따라 조정되어야 함.
+(대부분 client의 쿠키값으로 세션 유지하는 형태일 경우 wlc가 적당)
+
+primary : lvs master서버 ip
+backup  : lvs backup서버 ip
+
+virtual 블록에서 address : 실제 웹서비스 ip (vip)와 장치
+scheduler : 부하분산 방법
+virtual 블록 내 server블록 : 실제 웹서버의 ip
+                           
+=============================================
+serial_no = 7
+primary = 192.168.3.181
+service = lvs
+rsh_command = ssh
+backup_active = 1
+backup = 192.168.3.182
+heartbeat = 1
+heartbeat_port = 1050
+keepalive = 2
+deadtime = 5
+network = direct
+reservation_conflict_action = preempt
+debug_level = NONE
+virtual http {
+     active = 1
+     address = 192.168.3.180 eth0:1
+     vip_nmask = 255.255.255.255
+     port = 80
+     persistent = 10
+     pmask = 255.255.255.255
+     send = "GET / HTTP/1.0\r\n\r\n"
+     expect = "HTTP"
+     load_monitor = none
+     scheduler = wlc
+     protocol = tcp
+     timeout = 5
+     reentry = 10
+     quiesce_server = 0
+     server web1 {
+         address = 192.168.3.185
+         active = 1
+         weight = 1
+     }
+     server web2 {
+         address = 192.168.3.186
+         active = 1
+         weight = 1
+     }
+     server web3 {
+         address = 192.168.3.187
+         active = 1
+         weight = 1
+     }
+}
+======================================================================
+
+이렇게 master, backup서버 마련.
+
+master에서 pulse start 후 backup에서 pulse start
+
+      # /etc/rc.d/init.d/pulse start
+
+master에서 연결상태 확인하면 아래와 같이 보일 것임.
+backup에서 보면 pulse데몬이 lvs역할 대기하므로 리스트 보이지 않음.
+
+# ipvsadm -Ln
+IP Virtual Server version 1.0.8 (size=65536)
+Prot LocalAddress:Port Scheduler Flags
+  -> RemoteAddress:Port           Forward Weight ActiveConn InActConn
+TCP  192.168.3.180:80 wlc persistent 10
+  -> 192.168.3.186:80            Route   1      152        332
+  -> 192.168.3.185:80            Route   1      138        430
+  -> 192.168.3.187:80            Route   1      129        446
+  -> 192.168.3.188:80            Route   1      146        474
+  -> 192.168.3.166:80            Route   1      126        412
+
+[ real server ]
+1. kernel patch & compile
+
+   centos4.x 이후(kernel 2.4.26이후/2.6.4이후)사용하면
+   hidden패치 필요없음.
+
+2. real server network
+   centos4.x 이후일때 다음 설정.
+
+   /etc/sysctl.conf
+   =======================================================
+   net.ipv4.conf.all.arp_ignore = 1
+   net.ipv4.conf.all.arp_announce = 2
+   net.ipv4.conf.eth0.arp_ignore = 1
+   #net.ipv4.conf.lo.arp_ignore = 1
+   #net.ipv4.conf.lo.arp_announce = 2
+   =======================================================
+
+   vip 설정.
+   =======================================================
+   # vi /etc/sysconfig/networ-scripts/ifcfg-lo:0
+     DEVICE=lo:0
+     IPADDR=192.168.3.180
+     NETMASK=255.255.255.255
+     ONBOOT=yes
+     ARP=no
+   =======================================================
+
+   2.3 윈도우에서 loopback 
+       ========================================================================
+        수동 설치
+       1. 시작을 누르고 설정을 가리키고 제어판을 누른 다음 하드웨어 추가/제거를
+          두 번 누릅니다.
+       2. 장치 추가/문제 해결을 누르고 다음을 누릅니다.
+       3. 새 장치 추가를 누르고 다음을 누릅니다.
+       4. 아니오, 목록에서 하드웨어를 선택합니다를 누르고 다음을 누릅니다.
+       5. 네트워크 어댑터를 누르고 다음을 누릅니다.
+       6. 제조업체 상자에서 Microsoft를 누릅니다.
+       7. 네트워크 어댑터 상자에서 Microsoft Loopback Adapter를 누르고 다음을
+          누릅니다.
+       8. 마침을 누릅니다.
+       ========================================================================
+       ip는 리눅스와 마찬가지이나 netmask는 255.255.255.255가 에러발생.
+       (레지스트리 변경해야 가능)
+
+       =======================================================================
+       레지스트리 편집기를 열어 다음을 편집.
+       HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Tcpip\Parameters\Interfaces
+       --> Subnetmask 항목에서 255.255.255.255로 수정 후 리부팅.
+       --> KS는 레지스트리 부분은 안해주고 loopback디바이스만 생성.
+           netmask는 255.255.255.0으로 줬던 것으로 기억.
+           (이부분이 브로드캐스팅원인으로 생각됨. 255.255.255.255 해야 함)
+       =======================================================================
+
+       다른 설명으로는 다음이 있다.
+       기존 고객01 real서버가 윈도우라면 설정되어 있는 loopback의 netmask와 비교요망.
+       ===================================================================
+       netmask를 255.0.0.0으로 설정한다.
+       윈도우는 디폴트로 가장 작은 subnet을 가장 먼저 라우팅으로 사용하기
+       때문이다. 그리고 A 클래스는 C클래스 대신 사용되지 않는다.
+       -> 적용해봐야 함.
+       ===================================================================
+
+3. 확인
+   -. real server
+      # ifconfig
+      lo:0      Link encap:Local Loopback
+      inet addr:192.168.3.180  Mask:255.255.255.255
+      UP LOOPBACK RUNNING  MTU:16436  Metric:1
+
+끝.

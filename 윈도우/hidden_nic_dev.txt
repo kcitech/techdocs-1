@@ -1,0 +1,25 @@
+http://support.microsoft.com/kb/269155/ko
+
+네트워크 어댑터에서 IP 주소를 설정하려고 하면 오류 메시지가 나타남
+
+시작, 실행을 차례로 클릭하고 cmd.exe를 입력한 다음 Enter 키를 누릅니다.
+set devmgr_show_nonpresent_devices=1을 입력한 다음 Enter 키를 누릅니다.
+Start DEVMGMT.MSC를 입력한 다음 Enter 키를 누릅니다.
+보기를 클릭한 다음 숨김 장치 표시를 클릭합니다.
+네트워크 어댑터 트리를 확장합니다.
+희미하게 표시된 네트워크 어댑터를 마우스 오른쪽 단추로 클릭한 다음 제거를 클릭합니다.
+방법 2
+
+DevCon 유틸리티는 장치 관리자 대신 사용할 수 있는 명령줄 유틸리티입니다. DevCon을 사용하면 개별 장치나 장치 그룹을 사용 또는 사용하지 않도록 설정, 다시 시작, 업데이트, 제거 및 쿼리할 수 있습니다. DevCon을 사용하려면 다음과 같이 하십시오.
+다음 Microsoft 기술 자료 문서로 이동하여 DevCon 도구를 다운로드합니다.
+311272 장치 관리자 대신 사용할 수 있는 DevCon 명령줄 유틸리티
+로컬 폴더에 32비트 또는 64비트 DevCon 도구 바이너리의 압축을 풉니다.
+시작, 실행을 차례로 클릭하고 cmd를 입력한 다음 Enter 키를 누릅니다.
+CD:\path_to_binaries를 입력하여 devcon.exe가 있는 위치로 이동합니다.
+다음 구문을 사용하여 설치된 네트워크 어댑터를 찾습니다. 
+devcon findall =net 또는 
+devcon listclass net 
+참고 위의 명령을 실행하면 고스트된 네트워크 어댑터를 나타내는 다음과 유사한 줄이 출력됩니다.
+PCI\VEN_10B7&DEV_9200&SUBSYS_00D81028&REV_78\4&19FD8D60&0&58F0: 3Com 3C920 Integrated Fast Ethernet Controller (3C905C-TX Compatible)
+다음 구문을 입력하여 고스트된 장치를 제거합니다.
+devcon -r remove "@PCI\VEN_10B7&DEV_9200&SUBSYS_00D81028&REV_78\4&19FD8D60&0&58F0"

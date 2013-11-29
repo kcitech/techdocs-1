@@ -1,0 +1,63 @@
+
+일반적으로  IPSEC 또는 방화벽을 구성하게 되면 웹에서 FTP접속시
+
+접속은 되나 디렉토리를 리스팅하지 못하게됩니다.
+
+원인은 웹으로  FTP 접속시 passive mode로 접속하게 되어 client쪽에서는 21번포트로
+접속을하나 서버쪽에선 랜덤포트로 데이타를 받아오기 때문에 방화벽에 막히게 됩니다.
+
+이에 아래와 같은 방법으로 서버쪽 포트를 고정하여 조치하였습니다.
+
+Passive-Mode를 사용하기 위한 포트 고정방법
+ 
+1) Window 시스템
+원문 : http://www.newagedigital.com/cgi-bin/newagedigital/articles/ms-firewall-ftp.html
+ 
+Windows 2000 Server 및 Windows Server 2003 모두  PassivePortRange 값을 이용하여 조정이 가능하다.
+Windows Server 2003 의 경우는 메타베이스를 수정
+
+1. 인터넷 정보 서비스 관리] - [로컬 컴퓨터] - [속성 ] - [메타베이스 직접 편집 허용]에 체크
+ 
+2. C:\WINDOWS\system32\inetsrv 밑에 metabase.xml 을 메모장으로 연다.
+ 
+3. 고정해야될 패시브 데이타 포트항목을 아래 라인과 같이 추가한다.
+
+PassivePortRange="5001-5001"
+.................................................................................
+.................................................................................
+.................................................................................
+<IIsFtpService Location ="/LM/MSFTPSVC"
+  AdminACL="XXXXXXXX"
+  AllowAnonymous="TRUE"
+  AnonymousOnly="FALSE"
+  ......
+  ....
+  MaxConnections="100000"
+  PassivePortRange="5001-5001"  <--- 코드추가
+ >
+</IIsFtpService>
+.................................................................................
+.................................................................................
+.................................................................................
+
+
+
+4. 편집한 metabase.xml 파일을 저장한다
+ 
+5. IIS 를 다시한번 재시작한다.
+ 
+6. Ipsec 이나 방화벽이 설정되어있다면 tcp 5001을 추가한다.
+
+# 추가해야할 포트
+TCP20
+TCP21
+TCP5001
+
+Windows 2000 Server 의 경우는 레지스트리 값을 추가
+HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Msftpsvc\Parameters\
+에서 REG_SZ 타입의 PassivePortRange 값이름을 추가한다.
+값으로는, 5500-5700 을 설정한다
+
+이상입니다.
+
+

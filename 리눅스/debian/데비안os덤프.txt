@@ -1,0 +1,80 @@
+
+하드디스크 복제를 통한
+설치가 가능합니다.
+
+이에 확인, 참고 부탁드립니다.
+
+-------------------------------------------------------------------------
+
+[System Rescued CD 및 rsync를 이용한 OS 복제]
+
+1. 복제 원본이 될 OS를 설치
+
+2. 설치 후 시스템 종료
+
+3. 복사할 대상 디스크를 서버의 슬레이브에 장착
+  (원본 : /dev/sda  |  대상 : /dev/sdb)
+
+4. System Rescued CD (이하 rescue cd) 를 이용하여 CD-ROM으로 부팅
+
+5. 프롬프트 창에서 다음의 순서로 작업
+  (디스크는 80G SATA, 파티션은 /dev/sda1-/boot-512MB | /dev/sda2-/-20G |
+                               /dev/sda3-/var-58.5G | /dev/sda4-swap-1G 가정)
+ - mkdir /src
+ - mkdir /dst
+
+ - fdisk -l (대상 하드디스크가 파티션닝 되어있는지, 파일시스템 확인
+             /dev/sda1-ext3, /dev/sda2-xfs, /dev/sda3-xfs, /dev/sda4-swap)
+ - fdisk /dev/sdb (파티션닝 되어있으면 패스)
+
+ - mount -t xfs /dev/sda2 /src
+ - mount -t ext3 /dev/sda1 /src/boot
+ - mount -t xfs /dev/sda3 /src/var
+
+ - mkfs.ext3 /dev/sda1
+ - tune2fs -c 0 -i 0 /dev/sda1 (maximum mount count 및 check interval 조절)
+ - mkfs.xfs /dev/sdb2 (만약, 기존 파티션이 존재한다면 -f 옵션을 사용)
+ - mkfs.xfs /dev/sdb3
+ - mkswap /dev/sdb4
+
+ - mount -t xfs /dev/sdb2 /dst
+ - mkdir /dst/boot (마운트할 디렉토리 생성)
+ - mkdir /dst/var
+ - mount -t ext3 /dev/sdb1 /dst/boot
+ - mount -t xfs /dev/sdb3 /dst/var
+
+ - rsync -av /src/* /dst/
+
+ - vi /dst/etc/sysconfig/network-scripts/ifcfg-eth0 (IP 수정 및 MAC 주소 삭제)
+
+※ Debian GNU/Linux의 경우
+ - vi /dst/etc/network/interfaces
+
+※ 만약 Debian GNU/Linux 4.0 버전인 경우
+ - rm /dst/etc/udev/rules.d/z25_persistent-net.rules
+   (위 파일은 이더넷 컨트롤러의 MAC 주소를 기록하고 있음)
+
+ - umount /src/boot
+ - umount /src/var
+ - umount /src
+ - umount /dst/boot
+ - umount /dst/var
+ - umount /dst
+
+ - shutdown -r now
+
+6. CD를 제거하고 하드디스크(/dev/sda)로 부팅합니다.
+
+7. 부팅 후 /dev/sdb에 부팅영역을 만들어주기 위해 다음과 같이 진행
+ - root로 로그인
+
+ - grub
+   grub> root (hd1,0) : 두 번째 하드디스크의 첫 번째 파티션을 root로 지정
+   grub> setup (hd1)  : 두 번째 하드디스크에 grub을 install
+   grub> quit
+
+ - shutdown -h now
+
+8. 슬레이브에 장착된 디스크를 분리하여 본래 서버에 장착
+
+9. 정상 부팅여부, 네트워크 정상 여부 확인

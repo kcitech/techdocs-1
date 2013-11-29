@@ -1,0 +1,9 @@
+rsync -av --progress --bwlimit=460 / /mnt/os.new/ --exclude=/proc --exclude=/backup
+
+--progress 옵션만 실행시 최대 허용 bandwidth 를 알수 있음
+--bwlimit 옵션은 KBPS임 
+
+예) 
+rsync -av --progress / /mnt/os.new/ --exclude=/proc --exclude=/backup
+
+1.5MB/s   => 1536 KB/s

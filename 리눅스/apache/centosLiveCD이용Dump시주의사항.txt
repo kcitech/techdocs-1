@@ -1,0 +1,53 @@
+
+다음과 같이 가정하겠습니다.
+
+dump 할 source서버 : centos3.x
+CD부팅 : centos 4.x LiveCD
+
+OS마다 패키지에 대한 소유자의 uid가 다릅니다.
+예를들면, mysql이란 uid가 레뎃에서 100이라면
+debian에서는 30 이런 식입니다.
+
+debian계열을 dump하면 sysresCD로 부팅해서 dump해도 무난합니다.
+레뎃계열(centos)은 uid 문제 때문에 centos LiveCD로 부팅해서
+dump하는 것이 뒤탈이 없습니다.
+
+livecd로 부팅해서 dump할때 OS버전에 따라 주의해야 할 부분이 있습니다.
+앞에서 가정한 것을 가지고 dump순서를 적겠습니다.
+===============================================
+1 ~ 3번이 제일 중요합니다.
+
+1. centos 3.x 설치CD로 부팅.
+   설치하듯이..
+
+2. 파티션 부분에서 shell로 빠짐
+   ctl + alt + F2
+  
+3. 파티셔닝 및 포맷
+   # fdisk -l
+     디스크 확인. ( hda 로 가정)
+   # fdisk /dev/hda
+   파티션 저장
+   # mkfs.ext3 /dev/hda1
+   # tune2fs -c 0 -i 0 /dev/hda1
+
+4. 전원 OFF
+
+다음 부터는 일반적인 dump 순서
+5. centos 4.x livecd로 부팅
+
+
+6. 디스크 마운트 및  rsync로 dump
+
+7. chroot 후 grub-install
+
+8. 부팅 및 확인.
+
+centos4.x LiveCD로 파티셔닝 및 파일시스템 만들면
+dump된 OS인 3.x의 파일시스템 관련 e2fsprogs버전이
+낮아 파일 시스템 체크도 되지 않는 등
+정상부팅이 되지 않습니다.
+(수동 mount는 가능)
+
+그래서, 포맷까지는 centos3 설치 CD에서 진행하고,
+그 후는 LiveCD로 진행하면 됩니다.

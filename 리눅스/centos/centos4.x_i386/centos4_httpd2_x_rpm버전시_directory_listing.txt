@@ -1,0 +1,18 @@
+
+
+
+centos4의 httpd 2.0.x rpm버전에서는
+DirectoryIndex에서 지정한 파일이 없으면
+안에 있는 내용이 보이지 않습니다.
+
+centos5에서는 내용이 보입니다.
+
+다음과 같이 옵션을 추가설정을 해서
+내용이 보이지 않게 설정해야 할 것으로 보입니다.
+
+httpd.conf
+
+IndexOptions FancyIndexing VersionSort NameWidth=* HTMLTable
+IndexIgnore *  -> 위 옵션라인 아래에 추가
+
+수정 후 apache restart.

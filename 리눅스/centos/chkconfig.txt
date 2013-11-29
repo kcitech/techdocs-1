@@ -1,0 +1,26 @@
+
+Coordd데몬이 S99번으로 rc.local과 같지만 우선순위(스펠링)로 인해
+먼저 부팅되는 데몬임.
+
+이 데몬 때문에 정상부팅이 안되어 shift + i 로 Coordd빼고 부팅을 했다고
+하는데,
+rc.local도 실행되지 않았음.
+
+로그인 정보를 모르기 때문에 이와 같은 상황에선
+single부팅을 해서 해당 데몬의 부팅을 제거하고 정상부팅을 하는 것이
+좋음.
+
+-. single모드일때 runlevel 3의 부팅데몬 제거 또는 추가 할때
+
+single모드 부팅.
+# ntsysv --level 3
+해당 데몬이 활성(*)화 되어 있으면 제거 후 확인.
+
+이와 같은 기능으로..
+
+# chkconfig --list
+# chkconfig --level 3 Coordd off
+
+조금씩만 주의를 기울입시다.
+
+끝.

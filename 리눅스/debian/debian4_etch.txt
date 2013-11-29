@@ -1,0 +1,11 @@
+-- references --
+
+http://minimalite.com/2012/04/linux/apt-update-fails-with-debian-4-etch-use-archive-debian-org-in-sources-list/
+
+
+view /etc/apt/sources.list
+
+deb http://archive.debian.org/debian/ etch main contrib
+
+apt-get update
+

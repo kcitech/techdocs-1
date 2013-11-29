@@ -1,0 +1,318 @@
+<보안서버>
+- geotrust 계약일 경우 
+  => 무상지원
+	CSR 파일생성 및 제출
+	CRT 파일의 웹 설정 및 정상구동확인
+
+- apache 컴파일 버전일경우 
+  => modules/mod_ssl.so 확인 
+
+- 컴파일 지원 시간은 10 ~ 20시
+
+
+참고사이트 
+1) http://comodossl.co.kr/SSL/InstallGuide.aspx
+2) http://www.geotrust.com/quickssl/install/index.htm
+
+다음에 생성하는 키에 들어 가는 값은 ROOT 인증서에서 입력한 값과 동일한 값을 입력해야 한다. 
+
+#----------------------------
+# RSA 비밀키 생성
+#----------------------------
+openssl genrsa -des3 -out /usr/local/httpd-2.0.48/conf/ssl.key/server.key 1024
+# key 확인
+openssl rsa -noout -text -in /usr/local/httpd-2.0.48/conf/ssl.key/server.key
+
+#--------------------------------------------------------
+# 비밀키를 이용하여 CSR(Certificate Signing Request) 생성
+# 위의 명령어를 수행하는 도중 CommonName을 물어볼때에 Server의 FQDN(Fully Qualified Domain Name --> host.domain.com의 형태)로
+# 적어야 한다. 생성된 화일은 다음 명령으로 내용을 확인 할 수 있다.
+#-----------------------------p---------------------------
+/usr/local/openssl/bin/openssl req -new -days 365 
+        -key /usr/local/httpd-2.0.48/conf/ssl.key/server.key 
+        -out /usr/local/httpd-2.0.48/conf/ssl.csr/server.csr
+# key 확인
+/usr/local/openssl/bin/openssl req -noout -text -in /usr/local/httpd-2.0.48/conf/ssl.csr/server.csr
+
+#----------------------------
+# CRT 파일 생성)
+# 생성된 CSR화일은 유료서비스를 하는 VeriSign이나 Thawte등의 rootCA로 보내면 server.crt화일을 받을수 있다. OpenSSL을 이용할 때에는 위에서
+# Self Sign할 때처럼 "openssl ca"명령을 이용한다. 이때 반드시 /path/to/openssldir/openssl.cnf의 내용중 nsCertType을 Server로
+# 해놓아야 한다.( nsCertType = Server) (요거 빼먹으면 Netscape에서 https로 접속 할 수가 없어요..  -.-)
+# (CA.pl이나 CA.sh를 적절히 수정하였다면 "CA.xx -sign"을 이용해도 됩니다. 그리고 기존의 OpenSSL과 충돌하지 않는지 확인하시고 사용하십시요.)
+#----------------------------
+/usr/local/openssl/bin/openssl ca -in /usr/local/httpd-2.0.48/conf/ssl.csr/server.csr -out /usr/local/httpd-2.0.48/conf/ssl.crt/server.crt
+
+#---------------------
+# crt 파일생성 2
+#---------------------
+openssl req -key ssl.key/server.key -x509 -nodes -sha1 -days 3650 -in ssl.csr/server.csr -out ssl.crt/server.crt
+
+/usr/local/apache/bin/apachectl {sslstart|stop}
+
+
+
+# 비밀번호 파일 생성
+[root@localhost home]# vi /usr/local/apache/conf/ssl/passwd.sh
+
+#!/bin/sh
+echo "비밀번호"
+
+chmod 700 /usr/local/apache/conf/ssl/passwd.sh
+
+
+위와 같이 입력후 httpd.conf 파일을 수정한다.
+
+# httpd.conf 파일 수정 (혹은 extra/httpd-ssl.conf)
+[root@localhost home]# vi /usr/local/apache/conf/httpd.conf
+
+<IfModule mod_ssl.c>
+..
+..
+# SSLPassPhraseDialog  builtin
+SSLPassPhraseDialog  exec:/usr/local/apache/conf/ssl/passwd.sh
+</ifModule>
+
+
+#=====================================================================================================
+#정리 
+#-----------------------------------------------------------------------------------------------------
+#생성
+#-----------------------------------------------------------------------------------------------------
+[RSA비밀키생성          ] openssl genrsa -des3 -out domainname.key 1024
+[비밀키를이용하여CSR생성] openssl req -new           -key server.key -out domainname.csr ----> CSR제출
+			  openssl req -new -days 365 -key server.key -out domainname.csr ----> CSR제출
+
+[루트인증서] 
+			  openssl req -new -x509 -days 365 -key domainname.key -out dominname.crt
+			  openssl x509 -req -days 60 -in domainname.csr -signkey domainname.key -out domainname.crt
+
+#[CRT생성]openssl ca -in server.csr -out server.crt
+
+#-----------------------------------------------------------------------------------------------------
+#생성(OK) http://slacksite.com/apache/certificate.html
+#-----------------------------------------------------------------------------------------------------
+openssl genrsa -des3 -rand file1:file2:file3:file4:file5 -out server.key 1024
+openssl rsa -in server.key -out server.pem
+openssl req -new -key server.key -out server.csr
+openssl x509 -req -days 60 -in server.csr -signkey server.key -out server.crt
+#-----------------------------------------------------------------------------------------------------
+#확인 
+openssl rsa -noout -text -in server.key
+openssl req -noout -text -in server.csr
+#-----------------------------------------------------------------------------------------------------
+/usr/local/apache/bin/apachectl {sslstart|stop}
+#=====================================================================================================
+
+example)
+인증서 발급(crt)에 필요한 CSR파일을 만들때
+입력해야할 필드값입니다.
+
+이해를 돕기위해 lpcs를 예로...
+
+Country Name (2 letter code) [GB]:KR
+State or Province Name (full name) [Berkshire]:Seoul <-- 도시
+Locality Name (eg, city) [Newbury]:Seochogu <-- 구
+Organization Name (eg, company) [My Company Ltd]:LPCS inc.
+Organizational Unit Name (eg, section) []:Technical support
+Common Name (eg, your name or your server's hostname) []:www.lpcs.co.kr
+Email Address []:admin@lpcs.co.kr
+
+빨간색이 입력부분입니다.
+
+참고하시기 바랍니다.
+
+----------------------
+1.httpd.conf 설정
+----------------------
+<IfDefine SSL>
+ LoadModule ssl_module modules/mod_ssl.so
+</IfDefine>
+
+<IfModule mod_ssl.c>
+ Include conf/ssl.conf
+</IfModule>
+
+NameVirtualHost 192.168.2.100:443
+
+<VirtualHost 192.168.2.100:443>
+ ServerName   domainname.co.kr
+ ServerAlias  www.domainname.co.kr
+ ServerAdmin  admin@domainname.co.kr
+ DocumentRoot /home/domainname
+</VirtualHost>
+
+----------------------
+2.ssl.conf 설정
+----------------------
+SLRandomSeed startup builtin
+SSLRandomSeed connect builtin
+
+<IfDefine SSL>
+Listen 443
+AddType application/x-x509-ca-cert .crt
+AddType application/x-pkcs7-crl    .crl
+
+SSLPassPhraseDialog  exec:/usr/local/httpd-2.0.58/conf/ssl-pass
+
+SLSessionCache         dbm:/usr/local/httpd-2.0.58/logs/ssl_scache
+SSLSessionCacheTimeout  300
+
+SSLMutex  file:/usr/local/httpd-2.0.58/logs/ssl_mutex
+
+<VirtualHost 192.168.2.100:443>
+ServerName www.domainname.co.kr
+ServerAlias domainname.co.kr
+DocumentRoot /home/domainname.co.kr
+#AddDefaultCharset EUC-JP
+#LanguagePriority
+
+SSLEngine on
+SSLCertificateFile /usr/local/httpd-2.0.58/conf/domainname.crt
+SSLCertificateKeyFile /usr/local/httpd-2.0.58/conf/domainname.key
+
+#SSLCACertificateFile /usr/local/httpd-2.0.59-ssl-new/conf/ssl.crt/UTNAddTrustServerCA.crt
+
+<FilesMatch "\.(cgi|shtml|phtml|php?)$">
+    SSLOptions +StdEnvVars
+</FilesMatch>
+<Directory "/usr/local/httpd-2.0.58/cgi-bin">
+    SSLOptions +StdEnvVars
+</Directory>
+
+SetEnvIf User-Agent ".*MSIE.*" \
+         nokeepalive ssl-unclean-shutdown \
+         downgrade-1.0 force-response-1.0
+
+CustomLog /usr/local/httpd-2.0.58/logs/ssl_request_log \
+          "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+
+</VirtualHost>
+</IfDefine>
+
+----------------------
+3.ssl-pass 생성(chmod 500 ssl-pass)
+----------------------
+#!/bin/bash
+
+echo "PASSWORD"
+
+----------------------
+etc. httpd.conf 설정2 
+----------------------
+<VirtualHost 127.0.0.1:443>
+ DocumentRoot "/home/domainname/www" 
+ ServerName www.domainname.com
+ ServerAdmin admin@domainname.com
+ ErrorLog /usr/local/apache/logs/error_log
+ TransferLog /usr/local/apache/logs/access_log 
+
+ SSLCertificateFile /usr/local/apache/conf/ssl.crt/server.crt 
+ SSLCertificateKeyFile /usr/local/apache/conf/ssl.key/server.key
+ SSLPassPhraseDialog  exec:/usr/local/apache/conf/ssl-pass
+<VirtualHost>
+ 
+/usr/local/apache/bin/apachectl startssl or resart
+/usr/sbin/httpd startssl or restart
+/usr/sbin/httpsd startssl or restart
+
+----------------------
+리부팅시 암호 안물어보게
+----------------------
+1. ssl.conf 
+   httpd.conf에서 지정하는 ssl.conf나 httpd.conf의 ssl관련 환경중에서...
+
+   SSLPassPhraseDialog  exec:/usr/local/httpd-2.0.58/conf/ssl-pass
+
+2. ssl-pass생성
+   # vi /usr/local/httpd-2.0.58/conf/ssl-pass
+   =================================
+   #!/bin/sh
+   echo "PASSWORD"  <-- ssl 패스워드
+   =================================
+
+3. 권한 수정
+   # chmod 500 ssl-pass
+
+
+-------------------------
+2011.10.01
+-------------------------
+
+폴더생성
+cd /usr/local/apache2/conf
+mkdir ssl.key ssl.csr ssl.crt 
+
+key 생성
+#openssl genrsa -des3 -out /usr/local/apache2/conf/ssl.key/server.key 1024  
+
+key확인
+#openssl rsa -noout -text -in /usr/local/apache2/conf/ssl.key/server.key
+ 
+ csr생성
+#openssl req -new -days 365 -key /usr/local/apache2/conf/ssl.key/server.key -out /usr/local/apache2/conf/ssl.csr/server.csr
+ 
+ crt생성
+#openssl x509 -req -days 365 -in /usr/local/apache2/conf/ssl.csr/server.csr -signkey /usr/local/apache2/conf/ssl.key/server.key -out /usr/local/apache2/conf/ssl.crt/server.crt
+
+1. /usr/local/apache2/conf/extra/httpd-ssl.conf
+
+   SSLPassPhraseDialog  exec:/usr/local/httpd-2.0.58/conf/ssl-pass
+
+2. ssl-pass생성
+   # vi /usr/local/apche2/conf/ssl-pass
+   =================================
+   #!/bin/sh
+   echo "PASSWORD"  <-- ssl 패스워드
+   =================================
+
+3. 권한 수정
+   # chmod 500 ssl-pass
+
+
+conf/extra/httpd-ssl.conf
+
+Listen 443
+
+AddType application/x-x509-ca-cert .crt
+AddType application/x-pkcs7-crl    .crl
+
+SSLPassPhraseDialog  exec:/usr/local/apache2/conf/ssl-pass
+
+SSLSessionCache        "shmcb:/usr/local/apache2/logs/ssl_scache(512000)"
+SSLSessionCacheTimeout  300
+
+SSLMutex  "file:/usr/local/apache2/logs/ssl_mutex"
+
+<VirtualHost *:443>
+
+DocumentRoot "/home/www/project/site_www"
+ServerName dummy-host.example.com
+ServerAdmin you@example.com
+ErrorLog "/usr/local/apache2/logs/dummy-host.example.com443_error_log"
+TransferLog "/usr/local/apache2/logs/dummy-host.example.com443_access_log"
+
+JkMount /*.jsp ajp13
+JkMount /examples/servlets/* ajp13
+
+SSLEngine on
+SSLCipherSuite ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eNULL
+SSLCertificateFile "/usr/local/apache2/conf/ssl.crt/server.crt"
+SSLCertificateKeyFile "/usr/local/apache2/conf/ssl.key/server.key"
+SSLCertificateChainFile "/usr/local/apache2/conf/ssl.crt/server.crt"
+
+<FilesMatch "\.(cgi|shtml|phtml|php)$">
+    SSLOptions +StdEnvVars
+</FilesMatch>
+<Directory "/usr/local/apache2/cgi-bin">
+    SSLOptions +StdEnvVars
+</Directory>
+
+BrowserMatch ".*MSIE.*" \
+         nokeepalive ssl-unclean-shutdown \
+         downgrade-1.0 force-response-1.0
+
+CustomLog "/usr/local/apache2/logs/ssl_request_log" \
+          "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+
+</VirtualHost>

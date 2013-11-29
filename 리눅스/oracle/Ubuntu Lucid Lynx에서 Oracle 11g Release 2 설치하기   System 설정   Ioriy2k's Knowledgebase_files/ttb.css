@@ -1,0 +1,1295 @@
+﻿@charset "utf-8";
+
+
+	body {
+	    background-color:#E7E7E7;
+		text-align:center;
+		padding: 0px;
+		margin: 0px;
+		font-size: 12px;
+		line-height:1.5em;
+		color : #333;		
+		font-family:dotum;
+	}
+	
+	tr,td {
+	   padding: 0px;
+	   margin: 0px;
+	   font-size: 12px;
+	   line-height:1.5em;
+	   color : #333;
+	   word-break: break-all;
+	    }
+	
+	form { padding:0px; margin:0px }
+	/*input.box { font-family:dotum; font-size:12px; color:#2675B1; border:1px solid #236DA6;padding:3px; height:15px;}*/
+	input.box2 { font-family:dotum; font-size:12px; color:#666; border:1px solid #8B8B8B;padding:3px;}
+	input.box3 { font-family:dotum; font-size:12px; color:#666; border:1px solid #BDBDBD;padding:3px;}
+	input.box4 { font-family:dotum; font-size:12px; color:#2675B1; border:1px solid #236DA6;padding:3px; }
+
+	textarea.box { font-size:12px; color:#686868; border:1px solid #BDBDBD; padding:3px; }
+	select { font-family:dotum; font-size:12px; color:#686868; }
+	input.checkbox { width:14px; height:14px; margin:0px; border:0px; }
+	
+	img {border:0px;padding:0;margin:0;}
+	
+	div{
+	scrollbar-3dlight-color:#FFFFFF;
+	scrollbar-arrow-color:#FFFFFF;
+	scrollbar-darkshadow-color:#FFFFFF;
+	scrollbar-face-color:#DBDBDB;
+	scrollbar-highlight-color:#BBBBBB;
+	scrollbar-shadow-color:#BBBBBB;
+	scrollbar-track-color:#F3F3F3; 
+    }
+	
+	label{
+		cursor:pointer;
+	}
+	
+    .fl { float:left; }
+	.fr { float:right; }
+	.textALR {text-align:right;}
+	.textALL {text-align:left; }
+	.textALC {text-align:center; }
+	.spaceL5 { padding-left:5px;}
+	
+	
+	a:link {text-decoration: none;color: #333;}
+	a:visited {	text-decoration: none; color : #333;}
+	a:hover { color:#fff;background-color:#336699;}
+	
+	a.bold33:link {text-decoration: none;color: #333;font-weight:bold;}
+	a.bold33:visited {	text-decoration: none;	color : #333;font-weight:bold;}
+	a.bold33:hover { color:#fff;background-color:#336699;font-weight:bold;}
+	
+	a.blue:link {color: #2675B1;text-decoration:underline; font-size:11px; font-family:dotum;}
+	a.blue:visited {color : #2675B1;text-decoration:underline; font-size:11px; font-family:dotum;}
+	a.blue:hover { color:#fff;background-color:#336699;text-decoration:none;font-size:11px; font-family:dotum;}	
+	
+	a.blue_0083CC:link { font-size:12px; color:#0083CC; font-weight:bold;text-decoration:underline;}
+    a.blue_0083CC:visited { font-size:12px; color:#0083CC; font-weight:bold;text-decoration:underline; }
+    a.blue_0083CC:hover { font-size:12px; color:#FFFFFF; background-color:#336699; font-weight:bold; }	
+	
+	a.info2:link { font-size:12px; color:#FF6633; font-weight:bold;text-decoration:underline;}
+    a.info2:visited { font-size:12px; color:#FF6633; font-weight:bold;text-decoration:underline; }
+    a.info2:hover { font-size:12px; color:#FFFFFF; background-color:#336699; font-weight:bold; }
+	
+	/*이미지 호버시 색 안나오게 */
+	a.bg_none:link {color:#333;}
+	a.bg_none:hover  {background-color: transparent; }	
+	
+	.red {color:#C8191F;}
+	.red_bold {color:#C8191F;font-weight:bold;}
+	.red2 {color:#C82C5F;font-weight:bold;}
+	.org {color:#F29041;font-weight:bold;}
+	.org2 {color:#F29041;}
+	.bold {font-weight:bold; }
+	.ADADAD {color:#ADADAD; }
+	.blue {color:#2675B1;}
+	.s999 {color:#999; font:11px, dotum; line-height:130%;}
+	.blue_bold {color:#156492;font-weight:bold;}
+	.copyT {color:#4E7A97;font-weight:bold;}
+	.copy {color:#4E7A97;}
+	.pp {color:#A82E77; }
+	.blue2 {color:#2995BC;font-size:11px;}
+	.blue3 {color:#1a76a4;}
+	.small {font-size:11px;font-weight:bold;}
+	
+	
+	/*****br태그를 쓰기엔 공백이 큰 곳에 사용 ************/	
+    .space {padding:3px;}
+	
+	/****div float 클리어하고싶은 곳에 쓰세요***/
+	.clearboth{clear:both;}
+	
+	/****div 박스에 패딩 5정도 들어간 거***/
+	.padding5 {padding:5px;}
+	.padding1 {padding:1px;}
+	.spimg {margin:7px 0 10px 0 ; }
+	
+	
+/*****************************************************************/	
+#container {
+text-align:left;
+clear:both; 
+width:861px;
+background: url(http://image.aladin.co.kr/img/ttb/body_bg.gif);
+margin:0px auto;
+position:relative;
+}
+
+#container_event {
+text-align:left;
+clear:both; 
+width:861px;
+background: url(http://image.aladin.co.kr/img/ttb/body_bg2.gif);
+margin:0px auto;
+position:relative;
+}
+
+.Topbar {  
+    text-align:center;
+	position:relative;margin:0px auto;
+    width:840px;
+	padding: 5px;
+	/*padding: 5px 5px 0px 10px;*/
+	}
+
+.header {
+	padding :0px 0px 13px 15px;
+	overflow: hidden;
+	}
+	
+.footer { 
+    width:834px;
+	padding:15px 0 30px 0;
+	text-align:center;
+	color:#666;
+	font:11px, dotum;
+	margin:0px auto;
+	}
+	
+/********************************** 메뉴바 영역 *******************/	
+	
+.menubar {
+	margin-left:15px;
+	padding:0px 0px 50px 0px;
+	width:165px;
+	display: inline;
+    float:left;
+	}
+.menubar .title{
+	padding:0px 0px 5px 6px;
+	}
+.menubar .listbox{
+	padding:3px 0px 30px 6px;
+	width:150px;
+	font-size:12px;
+	}
+	
+.menubar ul{
+	list-style: none;
+	margin: 0px;
+	padding: 0px;
+	}	
+
+.menubar li{
+	line-height:16px;
+	padding:3px 0px 0px 10px;
+	background:url(http://image.aladin.co.kr/img/ttb/dot_menu.gif) no-repeat 3px 8px;
+	}
+
+.menubar li a:link{color:#333;}	
+.menubar li a:visited{color:#333;}		
+.menubar li a:hover{color:#fff;background-color:#336699;}	
+
+
+/********************************** 컨텐츠 영역 *******************/
+
+.content {
+    float: right;
+	width:649px;
+	overflow: hidden;
+	margin-right:17px;
+	display: inline;
+	padding-bottom:50px;
+	/*background-color:#336699;*/
+	}		
+.content p {padding-left:10px; }
+		
+.content .login{
+    float:left;
+	width:375px;
+	padding:10px 0px 5px 0px;
+	color:#333;
+	/*background-color:#F0C657;*/
+	}
+
+.content .loginbox{
+	padding:35px 0px 5px 0px;
+	color:#333;
+	height:130px;
+	background:url(http://image.aladin.co.kr/img/ttb/loginbox.gif);
+	}
+	
+.content .loginbox form dl{
+	padding:0px;
+	margin:0px; }
+	
+.content .loginbox form dt{
+    float:left;
+	width:70px;
+	color:#333;
+	padding:2px;
+	margin:0px;
+	}	
+.content .loginbox form dd{
+	padding:2px;
+	color:#333;
+	padding:2px;
+	margin:0px;
+	}	
+.content .tit {padding:0px 0px 5px 0px; /*background-color:#9DEC84;*/}
+.content .subtit {
+    padding:0px 0px 5px 23px; 
+	background:url(http://image.aladin.co.kr/img/ttb/blet01.gif) no-repeat 5px 3px;
+	font-weight:bold;
+	}
+	
+.content .join{
+    float:right;
+	width:260px;;
+	padding:50px 0px 10px 10px;
+	color:#333;
+	/*background-color:#EEBAF8;*/
+	background:url(http://image.aladin.co.kr/img/ttb/loginbox_line.gif) top left no-repeat;
+	}
+	
+.content .block {margin-left:26px; padding:5px 0px 0px 0px;}
+.content .block2 {margin-left:15px; padding:0px 20px 0px 0px;}
+
+.content .bluebox {
+	float:left;
+	padding:0px;
+	width:149px;
+    border:1px solid #236DA6; 
+	background-color:#E9F5F9;
+	font:12px;
+	font-weight:bold;
+	color:#2675B1;
+
+	cursor:pointer;
+	}	
+.content .bluebox .optionList {
+	position:absolute; 
+	padding:0px 0 2px 4px;
+	margin-left:-1px; 
+	width:131px; 
+	background-color:#E9F5F9;
+    border:1px solid #236DA6; 
+	font:12px;
+	font-weight:bold;
+	color:#2675B1;
+	}	
+.content .bluebox .optionList div{
+	padding:4px 0 0px 4px;
+}
+.content .manage {
+	margin-left:140px;
+	width:430px;
+	color:#2675B1;
+	padding:0px 0px 3px 0px;
+	/*background-color:#B17E26;*/}
+
+.content .manage2 {  
+	float:right;
+	width:440px;
+	padding:0px;	
+	text-align:left;
+	margin:0px;
+	background-color:#B17E26;}			
+			
+.content .td_tit {
+    background-color:#B3D1E9; 
+	text-align:center;
+	color:#4C5E7A;
+	font-weight:bold;
+	padding:4px;
+	text-align:center;
+	}	
+	
+.content .td_list01 {
+    background-color:#EEF6FA; 
+	text-align:left;
+	color:#4C5E7A;
+	padding:4px;
+	text-align:center;
+	}
+		
+.content .td_list02 {
+    background-color:#E7F1F6; 
+	text-align:left;
+	color:#4C5E7A;
+	padding:4px;
+	text-align:center;
+	}
+	
+	
+/**************** 가입신청 부분 ***********/
+.content .box {padding:0px 5px 0px 0px;}
+
+.content .member01 { 
+	padding:3px 3px 3px 11px ;
+	width:140px;
+	color:#666;
+	font-weight:bold;
+	background-color:#F0F5F7;
+	}
+	
+.content .member02 { 
+	padding:3px 3px 3px 5px ;
+	color:#666;
+	background-color:#FFF;
+	}
+.content .member03 { 
+	padding:3px 3px 3px 5px ;
+	color:#666;
+	background-color:#D7F3F4;
+	border:1px solid #B7D7D9;
+	margin-bottom:5px;
+	text-align:left;
+	}
+.content .member03 a {color:#333;font-weight:bold; }	
+.content .member03 a:hover {color:#FFF;font-weight:bold;background-color:#369; }		
+.content .line { background:url(http://image.aladin.co.kr/img/ttb/dot_line.gif) repeat-x; margin:2px 2px 0px 2px;padding:2px;}	
+input.member{ font-family:dotum; font-size:12px; color:#666; border:1px solid #909090;padding:3px;}
+
+/**************** 가이드 부분 ***********/
+
+.content .guide {width:644px; }
+.content .guide .td_tit { 
+	color:#4C5E7A;
+	font-weight:bold;
+	background-color:#B3D1E9;
+	text-align:center;
+	}
+	
+.content .guide .td_list01 { 
+	color:#4C5E7A;
+	background-color:#EEF6FA;
+	text-align:left;
+	}
+	
+.content .guide .td_list02 { 
+	color:#4C5E7A;
+	background-color:#E7F1F6;
+	text-align:left;
+	}
+.content .guide .td_list03 { 
+	color:#46708F;
+	background-color:#FFF;
+	text-align:left;
+	}	
+.content .guide2 { border:1px solid #B3D1E9;width:644px; background:#FFF;} 
+.content .guide2 .td_tit { 
+	color:#4C5E7A;
+	font-weight:bold;
+	background-color:#B3D1E9;
+	text-align:center;
+	}
+.content .guide2 .td_list01 { 
+	color:#4C5E7A;
+	background-color:#FFF;
+	text-align:left;
+	}	
+	
+.content .guide2 .td_line { background:url(http://image.aladin.co.kr/img/ttb/dot_line.gif) repeat-x 3px; margin:2px 2px 0px 2px;}
+
+.content .guide h1 {font-size:16px; color:#315B7B; background:url(http://image.aladin.co.kr/img/ttb/subtit_bg.gif) no-repeat;height:36px;padding:8px 0 0 15px;}
+.content .guide h2 {font-size:12px; color:#1EA8DA; padding:0 0 0 15px;/*color:#AA3D80;*/ }
+.content .guide h3 {font-size:12px; color:#2CC8EA;padding-left:15px; }
+	
+/**************** 리포트 부분 ***********/
+.content .report { width:644px;/*background-color:red;*/}
+.content .report .tap {padding:0px 0px 0px 10px; }
+.content .report .tapbar {border-top:1px solid #D8E6F0;padding:0px 0px 4px 0px;}
+.content .report .btnbox {padding:10px 5px 5px 0px;text-align:right; }
+.content .report .box1 {padding:1px;background-color:#FFF; border:1px solid #E7E7E7; }
+.content .report .box2 {padding:1px;background-color:#F5F5F5; text-align:center;}
+
+.content .report .td_tit { 
+	color:#4E7EA8;
+	font-weight:bold;
+	background-color:#BDDAF0;
+	text-align:center;
+	}
+	
+.content .report .td_list01 { 
+	color:#46708F;
+	background-color:#EBF9FC;
+	text-align:right;
+	}
+	
+.content .report .td_list02 { 
+	color:#46708F;
+	background-color:#D9F0F6;
+	text-align:right;
+	}
+.content .report .td_end { 
+	color:#5F7E8B;
+	background-color:#D1F1DB;
+	text-align:right;	
+	font-weight:bold;
+	padding:5px;	}
+
+.content .report .td_list01 a {color:#46708F;}
+.content .report .td_list01 a:hover {color:#fff;background-color:#336699; }
+
+.content .report .td_list02 a {color:#46708F;}
+.content .report .td_list02 a:hover {color:#fff;background-color:#336699; }
+
+/***********레이어**********************/
+#blogSettingLayer{
+	position:absolute;
+	top:350px;
+	left:260px;
+	  z-index:13
+}
+
+#blogItSettingLayer{
+	position:absolute;
+	top:370px;
+	left:260px;
+	  z-index:12
+}
+
+.layertop {
+    background:url(http://image.aladin.co.kr/img/ttb/layer_top.gif) no-repeat top;
+	width:427px;
+	height:11px;
+	}
+	
+.layermidwrap {
+    background:url(http://image.aladin.co.kr/img/ttb/layer_middle.gif) repeat-y ;
+	margin:0px; 
+	padding:0px;
+	width:427px;
+	}
+	
+.layermid {
+    margin:0px; 
+	padding:0px 11px 0px 11px; 
+	color:#3D79A7;
+	text-align:left;
+	}
+	
+.layermid p{
+    margin:0px; 
+	padding:5px 10px 7px 10px;
+	}	
+	
+.layerfoot {
+    background:url(http://image.aladin.co.kr/img/ttb/layer_foot.gif) no-repeat bottom;
+	width:427px;
+	height:14px;
+	}
+	
+.layermid .td01 {color:#595959; font-weight:bold; padding:5px; text-align:right;}
+	
+.layermid .td02 {color:#236DA6; padding:5px; text-align:left;}
+.layermid .td03 {color:#C82C5F;font-weight:bold; padding:5px; text-align:left;}
+.layermid .td02 a {color:#236DA6;text-decoration:underline;}
+.layermid .td02 a:hover {color:#FFF;text-decoration:none;background-color:#369;}
+.layermid .line { background:url(http://image.aladin.co.kr/img/dot_line.gif) repeat-x; margin:0px;padding:3px;}	
+
+
+/***********레이어**********************/
+.layertop {
+    background:url(http://image.aladin.co.kr/img/ttb/layer_top.gif) no-repeat top;
+	width:427px;
+	height:11px;
+	}
+	
+.layermidwrap {
+    background:url(http://image.aladin.co.kr/img/ttb/layer_middle.gif) repeat-y ;
+	margin:0px; 
+	padding:0px;
+	width:427px;
+	}
+	
+.layermid {
+    margin:0px; 
+	padding:0px 11px 0px 11px; 
+	color:#3D79A7;
+	text-align:left;
+	}
+	
+.layermid p{
+    margin:0px; 
+	padding:5px 10px 7px 10px;
+	}	
+	
+.layerfoot {
+    background:url(http://image.aladin.co.kr/img/ttb/layer_foot.gif) no-repeat bottom;
+	width:427px;
+	height:14px;
+	}
+	
+.layermid .td01 {color:#595959; font-weight:bold; padding:5px; text-align:right;}
+	
+.layermid .td02 {color:#236DA6; padding:5px; text-align:left;}
+.layermid .td02 a {color:#236DA6;text-decoration:underline;}
+.layermid .td02 a:hover {color:#FFF;text-decoration:none;background-color:#369;}
+.layermid .line { background:url(http://image.aladin.co.kr/img/ttb/dot_line.gif) repeat-x; margin:0px 5px 0px 5px;padding:3px;}	
+/*****************blog it*****************/
+.blogitwrap {background-color:#B8E2F1;width:800px; }
+.blogCopywrap {background-color:#B8E2F1;width:430px;}
+.blogitwrap2 {padding:8px 6px 8px 6px; /*text-align:center;*/ }
+
+.blogCopywrap .blogit { background:url(http://image.aladin.co.kr/img/ttb/layer_blogit_bg.gif) repeat-y ;padding:15px 0px 0px 0px;text-align:left;}
+.blogitwrap .blogit { background:url(http://image.aladin.co.kr/img/ttb/layer_blogit_bgnew.gif) repeat-y ;padding:15px 0px 0px 0px;text-align:left; }
+.blogit .btnbox { background-color:#EBF7FB;padding:10px 0px 10px 0px;text-align:center;}
+.blogit .text {padding:0px 30px 0px 30px; text-align:left;}
+.blogit .td01 {color:#595959; /*font-weight:bold;*/ padding:5px 0px 5px 10px; text-align:left;}
+.blogit .td02 {color:#595959; padding:3px 0px 3px 0px; text-align:left;}
+
+.blogit p {padding:0px; margin-left:30px;}
+.blogit .wrapbox {margin:0px 10px 0px 30px; }/*{margin:0px 30px 0px 30px; }*/
+.blogit .wrapbox2 {margin-left:0px; }
+.blogit .line { 
+    background:url(http://image.aladin.co.kr/img/ttb/dot_line2.gif) repeat-x top; 
+	margin:0px; 
+	padding:0px 0px 0px 1px; 
+	height:10px;
+}
+
+.blogit .line2 {background-color:#009966; 
+    background:url(http://image.aladin.co.kr/img/ttb/dot_line3.gif) repeat-x top ; 
+	margin:0px; 
+	padding:0px 0px 0px 1px; 
+	height:10px;
+}	
+
+.blogit .wrapbox2 a{ color:#369;font-weight:bold;}
+.blogit .wrapbox2 a:hover{color:#FFF;background-color:#369;font-weight:bold; }
+.blogit .btnbox2 {float:right;padding:8px 23px 0px 0px;}/*{float:right;padding:8px 31px 0px 0px;}*/
+
+.sebox01 {float:left; width:390px;/*background-color:#009966;*/ }
+.sebox02 {float:left; width:390px;/*background-color:red;*/ }
+.sebox03 {clear:left;padding:0 30px 0 30px; /*background-color:blue;*/}
+
+
+/*****************product *****************/
+
+.loginbox {
+	padding:15px 0px 0px 0px;
+	color:#5C5C5C;
+	/*width:360px;*/
+	text-align:center;
+	}
+	
+.loginbox  dl{
+	padding:0px;
+	margin:0px; }
+	
+.loginbox  dt{
+    float:left;
+	width:70px;
+	color:#333;
+	padding:2px 5px 2px 2px ;
+	margin:0px;
+	text-align:right;
+	}	
+.loginbox  dd{
+	padding:2px;
+	color:#333;
+	padding:2px;
+	margin:0px;
+	}
+
+.loginbox .line { 
+    background:url(http://image.aladin.co.kr/img/ttb/dot_line2.gif) repeat-x top; 
+	margin:0px; 
+	padding:0px 0px 0px 1px; 
+	height:10px;
+	/*background-color:red;*/}	
+
+.loginbox .help { 
+    color:#1B6583;
+	padding:10px 0px 10px 0px;
+	}
+
+.loginbox .copy {
+    color:#2977B4;
+	border:2px solid #CFEDF6;
+	background-color:#F3FAFD;
+	margin:0px 30px 0px 30px; 
+	padding:10px 12px 10px 12px;
+	text-align:left;
+    }
+.loginbox .copy2 {
+    color:#FF6633;
+	border:2px solid #FFE7A6;
+	background-color:#FFF4DD;
+	margin:0px 30px 0px 30px; 
+	padding:5px 12px 4px 12px;
+	text-align:left;
+    }
+	
+/*****************블로그 사이트 관리 풀다운 레이어*****************/
+
+.fulldown { width:149px; border:1px solid #236DA6; background-color:#FFF; text-align:left; position:absolute;}
+.fulldown ul {list-style:none; padding:0px; margin:0px; }
+.fulldown li { padding:0px; }
+.fulldown li a:link { width:139px; color:#2675B1; display:block; padding:2px 0px 2px 5px;}
+.fulldown li a:visited { width:139px; color:#2675B1; display:block;padding:2px 0px 2px 5px; }
+.fulldown li a:hover {width:139px; background-color:#D8F5FD; color:#2675B1; display:block;padding:2px 5px 2px 5px; }
+
+#blogService_needNotCustom{
+	margin-left:0px; 
+	margin-top:-22px;
+}
+
+#blogService_needCustom{
+	_margin-left:0px; 
+	margin-top:-6px;
+}
+
+
+/*****************레이어 액션 텍스트 레이어*****************/
+.actionbox {background-color:#CB2229; color:#FFF; padding:2px; }
+
+/***************** 통계 - 날짜 제목 *****************/
+.titleDate{
+	font-size:12px; 
+	font-weight:bold;
+	color:#F29041;
+}
+
+nk.titleDate p{ padding:3px 0 3px 12px;margin:0;}
+/***********ttb manager**********************/
+.content .report .mger {padding:0px;margin:0;width:644px; }
+.content .report .mger tr {text-align:center;}
+
+.content .report .mger .trtit { 
+	color:#4E7EA8;
+	font-weight:bold;
+	background-color:#BDDAF0;
+	}
+.content .report .mger .tr01 { 
+	color:#46708F;
+	background-color:#EBF9FC;	
+	}
+.content .report .mger .tr02 { 
+	color:#46708F;
+	background-color:#E3F4F8;
+	}
+
+.content .report .mgerbtn {margin:20px 0 5px 0; color:#CCCCCC;}
+.content .report .mgerbtn2 {margin:20px 0 5px 0;text-align:center;}
+.content .report .mgerbtn a {color:#006699;text-decoration:none;}
+
+.content .report .mger .tr01 a {color:#46708F;text-decoration:underline;}
+.content .report .mger .tr01 a:hover {color:#fff;background-color:#336699; }
+
+.content .report .mger .tr02 a {color:#46708F;text-decoration:underline;}
+.content .report .mger .tr02 a:hover {color:#fff;background-color:#336699; }
+
+.content .report .mger .tdspot {background-color:#DDF2F6;color:#333; }
+
+
+/**********/
+.ulstyle { padding:5px 0 0 20px; margin:0;}
+.listyle { list-style:none; background:url(http://image.aladin.co.kr/img/ttb/blet03.gif) no-repeat 5px 5px;padding-left:13px; }
+.content h2 {font-size:14px; padding:0; color:#952A6E; }
+.info { color:#FF6633;background:url(http://image.aladin.co.kr/img/ttb/blet04.gif) no-repeat 0 3px;list-style:none;padding:0 20px 0 20px;}
+.infoul {margin:0 10px 10px 20px;padding:0; }
+
+.permaEdit{
+	/* display:none;*/ 
+	position:absolute; 
+	background-color:pink; 
+	width:400px; 
+	left:300px; 
+	text-align:left;
+	border:1px solid red; 
+	padding:2px;
+}
+
+/***********ttb2 새로 추가한 사항 2007.11.2**********************/
+.subtext {color:#929292;font-size:11px;}
+.subtext2 {color:#929292;}
+.pixbox {width:644px;}
+.content .statistics .td_tit { 
+	color:#4E7EA8;
+	font-weight:bold;
+	background-color:#BDDAF0;
+	
+	}
+	
+.content .statistics .td_list01 { 
+	color:#46708F;
+	background-color:#EBF9FC;
+	
+	}
+	
+.content .statistics .td_list02 { 
+	color:#46708F;
+	background-color:#D9F0F6;
+	
+	}
+.content .statistics .td_end { 
+	color:#5F7E8B;
+	background-color:#D1F1DB;
+	text-align:center;	
+	font-weight:bold;
+	padding:5px;	}
+	
+.advert h2 {color:#2995BC;font-weight:bold;font-size:12px; padding-left:10px;margin:0; }	
+.advert p {padding-left:22px;margin-top:5px; }
+.advert input.ad {color:#686868; font-family:doutom; font-size:12px;padding:2px;}
+.aditembox {float:left; width:124px;text-align:center;}
+.adtextbox {border:1px solid #E4E4E4; background-color:#F3F3F3;padding:11px; }
+.redorg {color:#FF6600; margin-top:5px;}
+.advert h3 {color:#333333;font-weight:bold;font-size:12px; padding:0 0 0 23px;margin:0;background:url(http://image.aladin.co.kr/img/ttb/addot.gif) no-repeat 10px 4px; }	
+.advert ul {padding:0;margin:0; }
+.advert li { float:left;width:122px;height:25px;list-style:none;  display:inline;padding:0;margin:0;}
+.advert .box {float:left;width:240px;margin:10px 0 0 10px; }
+.advert .box input {width:70px;height:15px;font:normal 12px Dotum,'돋움';color:#737373;border:1px solid #CCC; }
+.advert .box .hover_bg{float:left;margin:1px 0 0 3px;width:15px;height:15px;border:1px solid #666;}
+
+
+/*팝업-작은사이즈*/
+.advertpop {float:left; width:403px; background:url(http://image.aladin.co.kr/img/ttb/advert_pop_bg.gif) repeat-y;}
+.advertpop h2 {color:#3399CC; font-family:돋움; font-size:14px;margin:15px 0 5px 30px;padding: 0; }
+/*팝업-큰사이즈,디자인,코드 미리보기*/
+.advertpopw {float:left;width:644px; background:url(http://image.aladin.co.kr/img/ttb/advert_wpop_bg.gif) repeat-y; text-align:left;}
+.advertpopw h2 {color:#3399CC; font-family:돋움; font-size:12px;margin:15px 0 5px 30px;padding: 0 ; }
+.advertpopw ul {list-style:none;}
+.advertpopw li {background:url(http://image.aladin.co.kr/img/ttb/addot.gif) no-repeat 0 3px;padding:0 0 0 10px; }
+
+/*회색박스*/
+.advert_gbox {float:left;width:578px;background:url(http://image.aladin.co.kr/img/ttb/advert_gbox_bg.gif) repeat-y;}
+.advert_gbox h2 {float:left;margin:0;padding:0;}
+.advert_fix {height:120px;overflow:auto; text-align:left;word-break:break-all;word-wrap:break-word;}
+
+/*스킨설정- 공통*/
+.ttb2ad { clear:both;float:left;text-align:left;border:1px #DDDDDD solid; background-color:#FFFFFF;line-height:140%;} /*광고 박스 테두리 설정부분*/
+.ttb2ad .tit {color:#FFFFFF; background-color:#DDDDDD;font-weight:bold;text-align:left;font-size:11px;padding:1px 0 0 3px; } /*상단 타이틀 배경색과 글자색 설정부분*/
+.ttb2ad .asbyttb2 {clear:both; background-color:#DDDDDD;text-align:right;padding:1px 3px 0 0; } /*하단 에드즈 바이 배경 설정부분*/
+.ttb2ad .text {color:#999999;font-weight:normal;font-size:11px;word-break:break-all;word-wrap:break-word;} /*광고안에 들어가는 광고설명구 글자색*/
+.ttb2ad a:hover {text-decoration:underline; background-color:transparent;}
+
+.ttb2ad a.bo:link {color:#0086CC; text-decoration:underline;font-weight:bold;font-size:12px;background-color:transparent; } /*광고안에 들어가는 광고제목(책제목 혹은 이벤트제목) 글자색*/
+.ttb2ad a.bo:visited {color:#0086CC;text-decoration:underline; font-weight:bold;font-size:12px;background-color:transparent; }
+.ttb2ad a.bo:hover {color:#0086CC;text-decoration:underline; font-weight:bold;font-size:12px;background-color:transparent; }
+
+.ttb2ad a.asby:link {color:#FFFFFF;font-weight:normal;font-size:11px;background-color:transparent; }/*하단 에드즈 바이 글자색 설정부분-링크가 걸릴경우에 대비..링크 안걸리면 배경에 넣어도 됨*/
+.ttb2ad a.asby:visited {color:#FFFFFF;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2ad a.asby:hover {color:#FFFFFF;font-weight:normal;font-size:11px;background-color:transparent; } 
+
+/****************제공스킨*********************************/
+/*스킨설정- 테두리,색상없는 기본형- offer01 흰배경+무테 *****/
+.ttb2ad_offer01 { clear:both;float:left;text-align:left;/*border:1px #DDDDDD solid; background-color:#FFFFFF;*/line-height:140%;} 
+.ttb2ad_offer01 .tit {color:#666666; /*background-color:#DDDDDD;*/font-weight:bold;text-align:left;font-size:11px;padding:1px 0 0 3px; }
+.ttb2ad_offer01 .asbyttb2 {  clear:both; /*background-color:#DDDDDD;*/text-align:right;padding:1px 3px 0 0; }
+.ttb2ad_offer01 .text {color:#999999;font-weight:normal;font-size:11px;word-break:break-all;word-wrap:break-word;} 
+.ttb2ad_offer01 a:hover {text-decoration:underline; background-color:transparent;}
+
+.ttb2ad_offer01 a.bo:link {color:#006ECC; font-weight:bold;font-size:12px;background-color:transparent; } 
+.ttb2ad_offer01 a.bo:visited {color:#006ECC; font-weight:bold;font-size:12px;background-color:transparent; } 
+.ttb2ad_offer01 a.bo:hover {color:#006ECC; font-weight:bold;font-size:12px;background-color:transparent; } 
+
+.ttb2ad_offer01 a.asby:link  {color:#ABABAB;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2ad_offer01 a.asby:visited {color:#ABABAB;font-weight:normal;font-size:11px;background-color:transparent; } 
+.ttb2ad_offer01 a.asby:hover {color:#ABABAB;font-weight:normal;font-size:11px;background-color:transparent; }  
+
+/*스킨설정- 회색 테두리,색상 - offer02 흰배경+회색테두리*****/
+.ttb2ad_offer02 { clear:both;float:left;text-align:left;border:1px #EDEDED solid; background-color:#FFFFFF;line-height:140%;} 
+.ttb2ad_offer02 .tit {color:#666666;background-color:#EDEDED;font-weight:bold;text-align:left;font-size:11px;padding:1px 0 0 3px; }
+.ttb2ad_offer02 .asbyttb2 {  clear:both;background-color:#EDEDED;text-align:right;padding:1px 3px 0 0; }
+.ttb2ad_offer02 .text {color:#999999;font-weight:normal;font-size:11px;word-break:break-all;word-wrap:break-word;}
+.ttb2ad_offer02 a:hover {text-decoration:underline; background-color:transparent;}
+ 
+.ttb2ad_offer02 a.bo:link {color:#0083CC; font-weight:bold;font-size:12px;background-color:transparent; }
+.ttb2ad_offer02 a.bo:visited {color:#0083CC; font-weight:bold;font-size:12px;background-color:transparent; } 
+.ttb2ad_offer02 a.bo:hover {color:#0083CC; font-weight:bold;font-size:12px;background-color:transparent; }  
+
+.ttb2ad_offer02 a.asby:link {color:#666666;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2ad_offer02 a.asby:visited {color:#666666;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2ad_offer02 a.asby:hover {color:#666666;font-weight:normal;font-size:11px;background-color:transparent; } 
+
+/*스킨설정- 검정테두리,색상 - offer03 검정배경+야광폰트 *****/
+.ttb2ad_offer03 { clear:both;float:left;text-align:left;border:1px #4C4C4C solid; background-color:#000000;line-height:140%;} 
+.ttb2ad_offer03 .tit {color:#CCCCCC;background-color:#4C4C4C;font-weight:bold;text-align:left;font-size:11px;padding:1px 0 0 3px; }
+.ttb2ad_offer03 .asbyttb2 {  clear:both;background-color:#4C4C4C;text-align:right;padding:1px 3px 0 0; }
+.ttb2ad_offer03 .text {color:#999999;font-weight:normal;font-size:11px;word-break:break-all;word-wrap:break-word;} 
+.ttb2ad_offer03 a:hover {text-decoration:underline; background-color:transparent;}
+
+.ttb2ad_offer03 a.bo:link  {color:#00CCCA; font-weight:bold;font-size:12px;background-color:transparent; }
+.ttb2ad_offer03 a.bo:visited {color:#00CCCA; font-weight:bold;font-size:12px;background-color:transparent; } 
+.ttb2ad_offer03 a.bo:hover {color:#00CCCA; font-weight:bold;font-size:12px;background-color:transparent; }  
+
+.ttb2ad_offer03 a.asby:link  {color:#CCCCCC;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2ad_offer03 a.asby:visited {color:#CCCCCC;font-weight:normal;font-size:11px;background-color:transparent; } 
+.ttb2ad_offer03 a.asby:hover {color:#CCCCCC;font-weight:normal;font-size:11px;background-color:transparent; }  
+
+/*스킨설정- 갈색테두리,색상 - offer04 흰배경+브라운색*****/
+.ttb2ad_offer04 { clear:both;float:left;text-align:left;border:1px #D8C371 solid; background-color:#FFFFFF;line-height:140%;} 
+.ttb2ad_offer04 .tit {color:#FFFFFF;background-color:#D8C371;font-weight:bold;text-align:left;font-size:11px;padding:1px 0 0 3px; }
+.ttb2ad_offer04 .asbyttb2 {  clear:both;background-color:#E7D991;text-align:right;padding:1px 3px 0 0; }
+.ttb2ad_offer04 .text {color:#999999;font-weight:normal;font-size:11px;word-break:break-all;word-wrap:break-word;} 
+.ttb2ad_offer04 a:hover {text-decoration:underline; background-color:transparent;}
+
+.ttb2ad_offer04 a.bo:link  {color:#CC7A00; font-weight:bold;font-size:12px;background-color:transparent; }
+.ttb2ad_offer04 a.bo:visited {color:#CC7A00; font-weight:bold;font-size:12px;background-color:transparent; } 
+.ttb2ad_offer04 a.bo:hover {color:#CC7A00; font-weight:bold;font-size:12px;background-color:transparent; } 
+
+.ttb2ad_offer04 a.asby:link  {color:#A58803;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2ad_offer04 a.asby:visited {color:#A58803;font-weight:normal;font-size:11px;background-color:transparent; } 
+.ttb2ad_offer04 a.asby:hover {color:#A58803;font-weight:normal;font-size:11px;background-color:transparent; } 
+
+/*스킨설정- 초록테두리,색상 - offer05 흰배경+초록테두리*****/
+.ttb2ad_offer05 { clear:both;float:left;text-align:left;border:1px #DEEE92 solid; background-color:#FFFFFF;line-height:140%;} 
+.ttb2ad_offer05 .tit {color:#94BB00;background-color:#FFFFFF;font-weight:bold;text-align:left;font-size:11px;padding:1px 0 0 3px; }
+.ttb2ad_offer05 .asbyttb2 {  clear:both;background-color:#DEEE92;text-align:right;padding:1px 3px 0 0; }
+.ttb2ad_offer05 .text {color:#999999;font-weight:normal;font-size:11px;word-break:break-all;word-wrap:break-word;} 
+.ttb2ad_offer05 a:hover {text-decoration:underline; background-color:transparent;}
+
+.ttb2ad_offer05 a.bo:link  {color:#6E9C00; font-weight:bold;font-size:12px;background-color:transparent; }
+.ttb2ad_offer05 a.bo:visited {color:#6E9C00; font-weight:bold;font-size:12px;background-color:transparent; } 
+.ttb2ad_offer05 a.bo:hover {color:#6E9C00; font-weight:bold;font-size:12px;background-color:transparent; } 
+
+.ttb2ad_offer05 a.asby:link  {color:#6E9C00;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2ad_offer05 a.asby:visited {color:#6E9C00;font-weight:normal;font-size:11px;background-color:transparent; } 
+.ttb2ad_offer05 a.asby:hover {color:#6E9C00;font-weight:normal;font-size:11px;background-color:transparent; } 
+
+/*스킨설정- 하늘테두리,색상 - offer06 흰배경+파란테두리 *****/
+.ttb2ad_offer06 { clear:both;float:left;text-align:left;border:1px #ABC6E4 solid; background-color:#FFFFFF;line-height:140%;} 
+.ttb2ad_offer06 .tit {color:#6CA0D6;background-color:#FFFFFF;font-weight:bold;text-align:left;font-size:11px;padding:1px 0 0 3px; }
+.ttb2ad_offer06 .asbyttb2 {  clear:both;background-color:#DBE9F6;text-align:right;padding:1px 3px 0 0; }
+.ttb2ad_offer06 .text {color:#999999;font-weight:normal;font-size:11px;word-break:break-all;word-wrap:break-word;} 
+.ttb2ad_offer06 a:hover {text-decoration:underline; background-color:transparent;}
+
+.ttb2ad_offer06 a.bo:link  {color:#3A66A2; font-weight:bold;font-size:12px;background-color:transparent; }
+.ttb2ad_offer06 a.bo:visited {color:#3A66A2; font-weight:bold;font-size:12px;background-color:transparent; } 
+.ttb2ad_offer06 a.bo:hover {color:#3A66A2; font-weight:bold;font-size:12px;background-color:transparent; }  
+
+.ttb2ad_offer06 a.asby:link  {color:#5994CF;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2ad_offer06 a.asby:visited {color:#5994CF;font-weight:normal;font-size:11px;background-color:transparent; } 
+.ttb2ad_offer06 a.asby:hover {color:#5994CF;font-weight:normal;font-size:11px;background-color:transparent; }  
+
+/*스킨설정- 핑크테두리,색상 - offer07 분홍색 배경*****/
+.ttb2ad_offer07 { clear:both;float:left;text-align:left;border:1px #FFCBBA solid; background-color:#FFE9E3;line-height:140%;} 
+.ttb2ad_offer07 .tit {color:#828282;background-color:#FFE9E3;font-weight:bold;text-align:left;font-size:11px;padding:1px 0 0 3px; }
+.ttb2ad_offer07 .asbyttb2 {  clear:both;background-color:#FFE9E3;text-align:right;padding:1px 3px 0 0; }
+.ttb2ad_offer07 .text {color:#999999;font-weight:normal;font-size:11px;word-break:break-all;word-wrap:break-word;}
+.ttb2ad_offer07 a:hover {text-decoration:underline; background-color:transparent;}
+ 
+.ttb2ad_offer07 a.bo:link {color:#FF4A83; font-weight:bold;font-size:12px;background-color:transparent; }
+.ttb2ad_offer07 a.bo:visited {color:#FF4A83; font-weight:bold;font-size:12px;background-color:transparent; } 
+.ttb2ad_offer07 a.bo:hover {color:#FF4A83; font-weight:bold;font-size:12px;background-color:transparent; }  
+
+.ttb2ad_offer07 a.asby:link {color:#828282;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2ad_offer07 a.asby:visited {color:#828282;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2ad_offer07 a.asby:hover {color:#828282;font-weight:normal;font-size:11px;background-color:transparent; }
+
+/*스킨설정- 하늘색테두리,색상 - offer08 하늘색 배경*****/
+.ttb2ad_offer08 { clear:both;float:left;text-align:left;border:1px #EEEEEE solid; background-color:#E9F9FF;line-height:140%;} 
+.ttb2ad_offer08 .tit {color:#313131;background-color:#E9F9FF;font-weight:bold;text-align:left;font-size:11px;padding:1px 0 0 3px; }
+.ttb2ad_offer08 .asbyttb2 {  clear:both;background-color:#FFFFFF;text-align:right;padding:1px 3px 0 0; }
+.ttb2ad_offer08 .text {color:#999999;font-weight:normal;font-size:11px;word-break:break-all;word-wrap:break-word;} 
+.ttb2ad_offer08 a:hover {text-decoration:underline; background-color:transparent;}
+
+.ttb2ad_offer08 a.bo:link {color:#4B9BD6; font-weight:bold;font-size:12px;background-color:transparent; } 
+.ttb2ad_offer08 a.bo:visited {color:#4B9BD6; font-weight:bold;font-size:12px;background-color:transparent; }
+.ttb2ad_offer08 a.bo:hover {color:#4B9BD6; font-weight:bold;font-size:12px;background-color:transparent; }
+
+.ttb2ad_offer08 a.asby:link {color:#36C6FF;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2ad_offer08 a.asby:visited {color:#36C6FF;font-weight:normal;font-size:11px;background-color:transparent; } 
+.ttb2ad_offer08 a.asby:hover {color:#36C6FF;font-weight:normal;font-size:11px;background-color:transparent; }
+
+/****************스킨 기본 설정**************************/
+/*스킨설정-170as text형*/
+.text_170as {width:168px; }
+.text_170as dl { margin:8px;}
+.text_170as dt { padding:0; }
+.text_170as dd { margin:0;padding:0;}
+.text_170as dd img {padding:0;margin:0;}
+
+/*스킨설정-170as text+IMG형*/
+.textIMG_170as {width:168px;}
+.textIMG_170as dl {margin:8px;}
+.textIMG_170as dt { padding:0; }
+.textIMG_170as dd {margin:0;padding:0; }
+.textIMG_170as dd img {padding:0;margin:0;}
+
+/*스킨설정-170as IMG형*/
+.IMG_170as {width:168px;}
+.IMG_170as dl {margin:8px;}
+.IMG_170as dt { padding:0; }
+.IMG_170as dd {margin:0;padding:0;text-align:center; }
+.IMG_170as dd img { padding:0;}
+
+/*스킨설정-350as text형*/
+.text_350as {width:348px; }
+.text_350as dl { margin:8px;}
+.text_350as dt { padding:0; }
+.text_350as dd { margin:0;padding:0;}
+.text_350as dd img {padding:0;}
+
+/*스킨설정-350as text+IMG형-coversum*/
+.textIMG_350as {width:348px;}
+.textIMG_350as dl { float:left; padding:8px;}
+.textIMG_350as dt { float:left; padding:0; width:237px;margin-left:10px; }
+.textIMG_350as dd {margin:0;padding:0; }
+.textIMG_350as dd img {float:left;}
+
+/*스킨설정-350as text+IMG형-covermini*/
+.textIMG2_350as {width:348px;}
+.textIMG2_350as dl { float:left; padding:8px;}
+.textIMG2_350as dt { float:left; padding:0; width:257px;margin-left:10px;  }
+.textIMG2_350as dd {margin:0;padding:0; }
+.textIMG2_350as dd img {float:left;}
+
+/*스킨설정-350as text+IMG형-cover*/
+.textIMG3_350as {width:348px;}
+.textIMG3_350as dl {margin:8px;}
+.textIMG3_350as dt {margin-top:5px; padding:0;text-align:center;  }
+.textIMG3_350as dd {margin:0;padding:0;text-align:center; }
+.textIMG3_350as dd img {margin:0;}
+.textIMG3_350as dd .img {margin:0;border:1px solid #E3E2DE;}
+
+/*스킨설정-350as IMG형-cover*/
+.IMG_350as {width:350px;}
+.IMG_350as dl {margin:8px;}
+.IMG_350as dt { padding:0; }
+.IMG_350as dd {margin:0;padding:0;text-align:center; }
+.IMG_350as dd img {margin:0;}
+.IMG_350as dd .img {margin:0;border:1px solid #E3E2DE;}
+
+/*스킨설정-491as text형-한줄에 1씩 보여줌*/
+.text_491as {width:489px; }
+.text_491as dl { margin:8px;}
+.text_491as dt { padding:0; }
+.text_491as dd { margin:0;padding:0;}
+.text_491as dd img {padding:0;}
+
+/*스킨설정-491as text형-한줄 옆으로 2개씩 보여줌*/
+.text2_491as {width:489px; }
+.text2_491as dl { float:left; padding:8px;width:223px;}
+.text2_491as dt { padding:0; }
+.text2_491as dd { margin:0;padding:0;}
+.text2_491as dd img {padding:0;}
+
+/*스킨설정-491as text+IMG형-3칸짜리+제목 하단 조합 coversum, covermini 공통*/
+.textIMG_491as {width:489px;}
+.textIMG_491as dl {float:left; padding:8px;width:147px; margin-top:0px; margin-bottom:0px;  }
+.textIMG_491as dt { padding:0; }
+.textIMG_491as dd {margin:0;padding:0;text-align:center; }
+.textIMG_491as dd img {padding:0;}
+
+/*스킨설정-491as text+IMG형-3칸짜리+제목 옆으로 오는 조합 */
+.textIMG2_491as {width:489px;}
+.textIMG2_491as dl {float:left; padding:8px;width:223px; }
+.textIMG2_491as dt { float:left;padding:0;margin-left:8px;width:130px;  }
+.textIMG2_491as dd {margin:0;padding:0; }
+.textIMG2_491as dd img {float:left;}
+
+/*스킨설정-491as text+IMG형-2칸짜리+제목하단 조합 - cover */
+.textIMG3_491as {width:489px;}
+.textIMG3_491as dl {float:left; padding:8px;width:223px; }
+.textIMG3_491as dt { margin-top:5px;padding:0; text-align:center;}
+.textIMG3_491as dd {margin:0;padding:0;text-align:center; }
+.textIMG3_491as dd img {margin:0;}
+.textIMG3_491as dd .img {margin:0; border:1px solid #E3E2DE;}
+
+/*스킨설정-491as IMG형-4개씩 옆으로 coversum */
+.IMG_491as {width:489px;}
+.IMG_491as dl {float:left; padding:8px;width:106px; }
+.IMG_491as dt { padding:0; text-align:center;}
+.IMG_491as dd {margin:0;padding:0;text-align:center;}
+.IMG_491as dd img {padding:0;}
+
+
+/*스킨설정-710as text형-한줄에 1씩 보여줌*/
+.text_710as {width:708px; }
+.text_710as dl { margin:8px;}
+.text_710as dt { padding:0; }
+.text_710as dd { margin:0;padding:0;}
+.text_710as dd img {padding:0;}
+
+/*스킨설정-710as text형-한줄 옆으로 3개씩 보여줌*/
+.text2_710as {width:708px; }
+.text2_710as dl { float:left; padding:8px;width:220px; }
+.text2_710as dt { padding:0; }
+.text2_710as dd { margin:0;padding:0;}
+.text2_710as dd img {padding:0;}
+
+/*스킨설정-710as text+IMG형-4칸짜리+제목 하단 조합 coversum, covermini 공통*/
+.textIMG_710as {width:708px;}
+.textIMG_710as dl {float:left; padding:8px;width:161px; }
+.textIMG_710as dt { padding:0;text-align:center;}
+.textIMG_710as dd {margin:0;padding:0;text-align:center; }
+.textIMG_710as dd img {padding:0;}
+
+/*스킨설정-710as text+IMG형-3칸짜리+제목 옆으로 오는 조합 */
+.textIMG2_710as {width:708px;}
+.textIMG2_710as dl {float:left; padding:8px;width:220px; }
+.textIMG2_710as dt { float:left;padding:0;margin-left:8px;width:127px;  }
+.textIMG2_710as dd {margin:0;padding:0; }
+.textIMG2_710as dd img {float:left;}
+
+/*스킨설정-710as text+IMG형-3칸짜리+제목하단 조합 - cover */
+.textIMG3_710as {width:708px;}
+.textIMG3_710as dl {float:left; padding:8px;width:220px; }
+.textIMG3_710as dt { margin-top:5px;padding:0; text-align:center;}
+.textIMG3_710as dd {margin:0;padding:0;text-align:center; }
+.textIMG3_710as dd img {margin:0 ;}
+.textIMG3_710as dd .img {margin:0; border:1px solid #E3E2DE;}
+
+/*스킨설정-710as IMG형-6개씩 옆으로 coversum */
+.IMG_710as {width:708px;}
+.IMG_710as dl {float:left; padding:8px;width:102px; }
+.IMG_710as dt { padding:0; text-align:center;}
+.IMG_710as dd {margin:0;padding:0;text-align:center;}
+.IMG_710as dd img {padding:0;}
+
+/*스킨설정-710as IMG형-3개씩 옆으로 cover */
+.IMG2_710as {width:708px;}
+.IMG2_710as dl {float:left; padding:8px;width:220px;}
+.IMG2_710as dt { padding:0; text-align:center;}
+.IMG2_710as dd {margin:0;padding:0;text-align:center;}
+.IMG2_710as dd img {margin:0;}
+.IMG2_710as dd .img {margin:0; border:1px solid #E3E2DE;}
+
+/*스킨설정-350as event+IMG형*/
+.eventIMG_350as {width:350px;}
+.eventIMG_350as dl { float:left; padding:8px;}
+.eventIMG_350as dt { float:left; padding:0; width:283px;margin-left:7px; }
+.eventIMG_350as dd {margin:0;padding:0; }
+.eventIMG_350as dd img {float:left;border:1px solid #E3E2DE;}
+
+/*스킨설정-491as event+IMG형*/
+.eventIMG_491as {width:491px;}
+.eventIMG_491as dl { float:left; margin:8px;}
+.eventIMG_491as dt { float:left; padding:0; width:180px;margin-left:7px; }
+.eventIMG_491as dd {margin:0;padding:0; }
+.eventIMG_491as dd img {float:left;border:1px solid #E3E2DE;}
+
+/*스킨설정-710as event+IMG형*/
+.eventIMG_710as {width:710px;}
+.eventIMG_710as dl { float:left; margin:8px;}
+.eventIMG_710as dt { float:left; padding:0; width:172px;margin-left:7px; }
+.eventIMG_710as dd {margin:0;padding:0; }
+.eventIMG_710as dd img {float:left;border:1px solid #E3E2DE;}
+
+/*스킨설정 eventIMG 배너형*/
+.eventBN_as {border:1px solid #E3E2DE;}
+
+/*스킨설정- 책장형-아쿠아스타일 *********************************************************/
+.bcase_imgbox1 { position:absolute;bottom:19px;} /*책이미지에 그림자를 없음*/
+/*.bcase_imgbox1 { position:absolute;bottom:0;filter:progid:DXImageTransform.Microsoft.Shadow(color='#91783C', Direction=-1000, Strength=4);}책이미지에 그림자를 널 경우*/
+.bcase_cover {float:left;width:100px;height:172px;padding:0 0 0 20px;margin:00;position:relative;overflow:hidden;} /*커버 정렬 하단으로*/
+.bcase_space { float:left;width:53px;height:160px;}
+
+.bcase_imgbox2 { position:absolute;bottom:0;} /* 일반책장용 책이미지에 그림자를 없음*/
+.bcase_cover2 {float:left;width:120px;height:162px;padding:0;margin:00;position:relative;overflow:hidden;} /*일반책장용 커버 정렬 하단으로*/
+.bcase_space2 { float:left;width:38px;height:160px;}/**일반책장용 여유공간*/
+
+.ttbad_BookCase {clear:both;float:left;text-align:left; }
+
+/*스킨설정- 입체 책장형-아쿠아스타일*/ 
+.ttbad_BookCase .aqua_2tan {float:left;width:346px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_aqua2tan_bg.gif) repeat-y; }
+.ttbad_BookCase .aqua_3tan {float:left;width:466px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_aqua3tan_bg.gif) repeat-y; }
+.ttbad_BookCase .aqua_4tan {float:left;width:586px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_aqua4tan_bg.gif) repeat-y; }
+.ttbad_BookCase .aqua_5tan {float:left;width:706px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_aqua5tan_bg.gif) repeat-y; }
+
+/*스킨설정- 입체 책장형-블랙스타일*/
+.ttbad_BookCase .black_2tan {float:left;width:346px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_black2tan_bg.gif) repeat-y; }
+.ttbad_BookCase .black_3tan {float:left;width:466px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_black3tan_bg.gif) repeat-y; }
+.ttbad_BookCase .black_4tan {float:left;width:586px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_black4tan_bg.gif) repeat-y; }
+.ttbad_BookCase .black_5tan {float:left;width:706px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_black5tan_bg.gif) repeat-y; }
+
+/*스킨설정- 입체 책장형-체리스타일*/
+.ttbad_BookCase .cherry_2tan {float:left;width:346px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_cherry2tan_bg.gif) repeat-y; }
+.ttbad_BookCase .cherry_3tan {float:left;width:466px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_cherry3tan_bg.gif) repeat-y; }
+.ttbad_BookCase .cherry_4tan {float:left;width:586px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_cherry4tan_bg.gif) repeat-y; }
+.ttbad_BookCase .cherry_5tan {float:left;width:706px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_cherry5tan_bg.gif) repeat-y; }
+
+/*스킨설정- 입체 책장형-앤틱스타일*/
+.ttbad_BookCase .antique_2tan {float:left;width:346px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_antique2tan_bg.gif) repeat-y; }
+.ttbad_BookCase .antique_3tan {float:left;width:466px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_antique3tan_bg.gif) repeat-y; }
+.ttbad_BookCase .antique_4tan {float:left;width:586px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_antique4tan_bg.gif) repeat-y; }
+.ttbad_BookCase .antique_5tan {float:left;width:706px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_antique5tan_bg.gif) repeat-y; }
+
+/*스킨설정- 입체 책장형-오크스타일*/
+.ttbad_BookCase .oak_2tan {float:left;width:346px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_oak2tan_bg.gif) repeat-y; }
+.ttbad_BookCase .oak_3tan {float:left;width:466px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_oak3tan_bg.gif) repeat-y; }
+.ttbad_BookCase .oak_4tan {float:left;width:586px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_oak4tan_bg.gif) repeat-y; }
+.ttbad_BookCase .oak_5tan {float:left;width:706px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_oak5tan_bg.gif) repeat-y; }
+
+/*스킨설정- 일반 책장형-체리스타일*/
+.ttbad_BookCase .ncherry_2tan {float:left;width:284px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_ncherry2tan_bg.gif) repeat-y; }
+.ttbad_BookCase .ncherry_3tan {float:left;width:404px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_ncherry3tan_bg.gif) repeat-y; }
+.ttbad_BookCase .ncherry_4tan {float:left;width:523px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_ncherry4tan_bg.gif) repeat-y; }
+.ttbad_BookCase .ncherry_5tan {float:left;width:644px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_ncherry5tan_bg.gif) repeat-y; }
+
+/*스킨설정- 일반 책장형-오크스타일*/
+.ttbad_BookCase .noak_2tan {float:left;width:284px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_noak2tan_bg.gif) repeat-y; }
+.ttbad_BookCase .noak_3tan {float:left;width:404px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_noak3tan_bg.gif) repeat-y; }
+.ttbad_BookCase .noak_4tan {float:left;width:524px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_noak4tan_bg.gif) repeat-y; }
+.ttbad_BookCase .noak_5tan {float:left;width:644px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_noak5tan_bg.gif) repeat-y; }
+
+/*스킨설정- 일반 책장형-앤틱스타일*/
+.ttbad_BookCase .nantique_2tan {float:left;width:284px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_nantique2tan_bg.gif) repeat-y; }
+.ttbad_BookCase .nantique_3tan {float:left;width:404px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_nantique3tan_bg.gif) repeat-y; }
+.ttbad_BookCase .nantique_4tan {float:left;width:524px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_nantique4tan_bg.gif) repeat-y; }
+.ttbad_BookCase .nantique_5tan {float:left;width:644px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bcase_nantique5tan_bg.gif) repeat-y; }
+
+
+/*스킨설정- 책꽂이형 ************************************************/
+.ttbad_BookStand {clear:both;float:left;text-align:left; }
+
+.bstand_cover1 {float:left;width:155px;height:181px;padding:0;margin:0;position:relative;overflow:hidden;} /* 커버미니 혹은 커버썸용 정렬 하단으로*/
+.bstand_cover2 {float:left;width:272px;height:377px;padding:0;margin:0;position:relative;overflow:hidden;} /* 커버200용 정렬 하단으로*/
+.bstand_cover3 {float:left;width:222px;height:280px;padding:0;margin:0;position:relative;overflow:hidden;} /* 커버150용 정렬 하단으로*/
+
+.bstand_imgbox1 { position:absolute;bottom:25px;left:35px;} /*커버미니 혹은 커버썸*/
+.bstand_imgbox2 { position:absolute;bottom:25px;left:35px;border:1px solid #E3E2DE;} /*커버*/
+
+.bstand_space { float:left;width:20px;height:160px;}
+
+.ttbad_BookStand dl {margin:0;}
+.ttbad_BookStand dt { padding:0;text-align:center; }
+.ttbad_BookStand dd {margin:0;padding:0; }
+.ttbad_BookStand dd img {margin:0;}
+
+.ttbad_BookStand .text {color:#999999;font-weight:normal;font-size:11px;word-break:break-all;word-wrap:break-word;}
+.ttbad_BookStand a:hover {text-decoration:underline; background-color:transparent;}
+
+.ttbad_BookStand a.bo:link {color:#666666; font-weight:bold;font-size:12px;background-color:transparent; }
+.ttbad_BookStand a.bo:visited {color:#666666; font-weight:bold;font-size:12px;background-color:transparent; }
+.ttbad_BookStand a.bo:hover {color:#666666; font-weight:bold;font-size:12px;background-color:transparent; }
+
+.ttbad_BookStand a.asby:link {color:#666;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttbad_BookStand a.asby:visited {color:#666;font-weight:normal;font-size:11px;background-color:transparent; } 
+.ttbad_BookStand a.asby:hover {color:#666;font-weight:normal;font-size:11px;background-color:transparent; }  
+
+.ttbad_BookStand .oak_s {float:left;width:155px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bstand_oak_sbg2.gif) bottom no-repeat; }/*커버미니 혹은 커버썸 배경**책꽂이ui-오크*/
+.ttbad_BookStand .oak_b {float:left;width:272px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bstand_oak_bbg2.gif) bottom no-repeat; }/*커버용 배경*/
+.ttbad_BookStand .oak_b150 {float:left;width:222px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bstand_oak_b150bg2.gif) bottom no-repeat; }/*150짜리 커버일 경우*/
+
+.ttbad_BookStand .black_s {float:left;width:155px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bstand_black_sbg2.gif) bottom no-repeat; }/*책꽂이ui-블랙패널*/
+.ttbad_BookStand .black_b {float:left;width:272px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bstand_black_bbg2.gif) bottom no-repeat; }
+.ttbad_BookStand .black_b150 {float:left;width:222px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bstand_black_b150bg2.gif) bottom no-repeat; }/*150짜리 커버일 경우*/
+
+.ttbad_BookStand .aqua_s {float:left;width:155px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bstand_aqua_sbg2.gif) bottom no-repeat; }/*책꽂이ui-아쿠아*/
+.ttbad_BookStand .aqua_b {float:left;width:272px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bstand_aqua_bbg2.gif) bottom no-repeat; }
+.ttbad_BookStand .aqua_b150 {float:left;width:222px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bstand_aqua_b150bg2.gif) bottom no-repeat; }/*150짜리 커버일 경우*/
+
+.ttbad_BookStand .antique_s {float:left;width:155px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bstand_antique_sbg2.gif) bottom no-repeat; }/*책꽂이ui-앤틱*/
+.ttbad_BookStand .antique_b {float:left;width:272px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bstand_antique_bbg2.gif) bottom no-repeat; }
+.ttbad_BookStand .antique_b150 {float:left;width:222px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bstand_antique_b150bg2.gif) bottom no-repeat; }/*150짜리 커버일 경우*/
+
+.ttbad_BookStand .cherry_s {float:left;width:155px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bstand_cherry_sbg2.gif) bottom no-repeat; }/*책꽂이ui-앤틱*/
+.ttbad_BookStand .cherry_b {float:left;width:272px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bstand_cherry_bbg2.gif) bottom no-repeat; }
+.ttbad_BookStand .cherry_b150 {float:left;width:222px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bstand_cherry_b150bg2.gif) bottom no-repeat; }/*150짜리 커버일 경우*/
+
+.ttbad_BookStand .beige_s {float:left;width:155px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bstand_beige_sbg2.gif) bottom no-repeat; }/*책꽂이ui-베이지*/
+.ttbad_BookStand .beige_b {float:left;width:272px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bstand_beige_bbg2.gif) bottom no-repeat; }
+.ttbad_BookStand .beige_b150 {float:left;width:222px;padding:0;margin:0;background:url(http://image.aladin.co.kr/img/ttb/bstand_beige_b150bg2.gif) bottom no-repeat; }/*150짜리 커버일 경우*/
+
+/*스킨설정- 위젯형 ************************************************/
+.ttbad_Wzd {clear:both;float:left;text-align:center; }
+/*.Wzd_cover1 {float:left;width:125px;height:165px;padding:0;margin:0;position:relative;overflow:hidden;background-color:red;}*/
+.Wzd_imgbox1 { position:absolute;bottom:15px;left:20px;} /*커버미니 혹은 커버썸*/
+
+.ttbad_Wzd .white_s150 {float:left;width:144px;padding:0;margin:0;border:3px solid #FFFFFF; background:url(http://image.aladin.co.kr/img/ttb/wzd_white_bg.gif) top repeat-x; }
+.ttbad_Wzd .white_s150 .Wzd_cover1 {float:left;width:125px;height:165px;padding:0;margin:0;position:relative;overflow:hidden;background:url(http://image.aladin.co.kr/img/ttb/wzd_white_bg2.gif) bottom repeat-x;}
+
+.ttbad_Wzd .black_s150 {float:left;width:144px;padding:0;margin:0;border:3px solid #000; background:url(http://image.aladin.co.kr/img/ttb/wzd_black_bg.gif) top repeat-x; }
+.ttbad_Wzd .black_s150 .Wzd_cover1 {float:left;width:125px;height:165px;padding:0;margin:0;position:relative;overflow:hidden;background:url(http://image.aladin.co.kr/img/ttb/wzd_black_bg2.gif) bottom repeat-x;}
+
+.ttbad_Wzd .brown_s150 {float:left;width:144px;padding:0;margin:0;border:3px solid #FFFFFF; background:url(http://image.aladin.co.kr/img/ttb/wzd_brown_bg.gif) top repeat-x; }
+.ttbad_Wzd .brown_s150 .Wzd_cover1 {float:left;width:125px;height:165px;padding:0;margin:0;position:relative;overflow:hidden;background:url(http://image.aladin.co.kr/img/ttb/wzd_brown_bg2.gif) bottom repeat-x;}
+
+.ttbad_Wzd .violet_s150 {float:left;width:144px;padding:0;margin:0;border:3px solid #979ebb; background:url(http://image.aladin.co.kr/img/ttb/wzd_violet_bg.gif) top repeat-x; }
+.ttbad_Wzd .violet_s150 .Wzd_cover1 {float:left;width:125px;height:165px;padding:0;margin:0;position:relative;overflow:hidden;background:url(http://image.aladin.co.kr/img/ttb/wzd_violet_bg2.gif) bottom repeat-x;}
+
+
+/*스킨설정- 위젯형- 바디용*/
+/*위젯스킨 - 그라데이션 + 회색 테두리 *****/
+.ttb2Wzd_grey { clear:both;float:left;text-align:left;border:3px #d6d7cf solid; background:url(http://image.aladin.co.kr/img/ttb/ttb2Wzd_grey_bg.gif) top repeat-x;} 
+.ttb2Wzd_grey .tit {color:#626262;font-weight:bold;text-align:left;font-size:11px;padding:5px 0 0 10px; }
+.ttb2Wzd_grey .asbyttb2 {  clear:both;text-align:right;padding:1px 5px 2px 0; }
+.ttb2Wzd_grey a:hover {text-decoration:underline; background-color:transparent;}
+
+.ttb2Wzd_grey a.asby:link {color:#626262;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2Wzd_grey a.asby:visited {color:#626262;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2Wzd_grey a.asby:hover {color:#626262;font-weight:normal;font-size:11px;background-color:transparent; }
+
+.ttb2Wzd_grey .Wzd_cover1 {float:left;width:132px;height:165px;padding:0;margin:0;position:relative;overflow:hidden;background:url(http://image.aladin.co.kr/img/ttb/ttb2Wzd_grey_bg2.gif) bottom repeat-x;}
+
+/*위젯스킨 - 그라데이션 + 검정 테두리 *****/
+.ttb2Wzd_black { clear:both;float:left;text-align:left;border:3px #000000 solid; background:url(http://image.aladin.co.kr/img/ttb/ttb2Wzd_grey_bg.gif) top repeat-x;} 
+.ttb2Wzd_black .tit {color:#626262;font-weight:bold;text-align:left;font-size:11px;padding:5px 0 0 10px; }
+.ttb2Wzd_black .asbyttb2 {  clear:both;text-align:right;padding:1px 5px 2px 0; }
+.ttb2Wzd_black a:hover {text-decoration:underline; background-color:transparent;}
+
+.ttb2Wzd_black a.asby:link {color:#626262;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2Wzd_black a.asby:visited {color:#626262;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2Wzd_black a.asby:hover {color:#626262;font-weight:normal;font-size:11px;background-color:transparent; }
+
+.ttb2Wzd_black .Wzd_cover1 {float:left;width:132px;height:165px;padding:0;margin:0;position:relative;overflow:hidden;background:url(http://image.aladin.co.kr/img/ttb/ttb2Wzd_grey_bg2.gif) bottom repeat-x;}
+
+/*위젯스킨 - 브라운 *****/
+.ttb2Wzd_brown { clear:both;float:left;text-align:left;border:3px #f2ede7 solid; background-color:#f2ede7;} 
+.ttb2Wzd_brown .tit {color:#c19270;font-weight:bold;text-align:left;font-size:11px;padding:5px 0 0 8px; }
+.ttb2Wzd_brown .asbyttb2 {  clear:both;text-align:right;padding:1px 5px 2px 0; }
+.ttb2Wzd_brown a:hover {text-decoration:underline; background-color:transparent;}
+
+.ttb2Wzd_brown a.asby:link {color:#7d7d7d;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2Wzd_brown a.asby:visited {color:#7d7d7d;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2Wzd_brown a.asby:hover {color:#7d7d7d;font-weight:normal;font-size:11px;background-color:transparent; }
+
+.ttb2Wzd_brown .Wzd_cover1 {float:left;width:132px;height:165px;padding:0;margin:0;position:relative;overflow:hidden;background:url(http://image.aladin.co.kr/img/ttb/ttb2Wzd_brown_bg2.gif) bottom repeat-x;}
+
+/*위젯스킨 - 검정 *****/
+.ttb2Wzd_blackbg { clear:both;float:left;text-align:left;border:3px #000000 solid; background:url(http://image.aladin.co.kr/img/ttb/ttb2Wzd_blackbg_bg.gif) top repeat-x;} 
+.ttb2Wzd_blackbg .tit {color:#FFFFFF;font-weight:bold;text-align:left;font-size:11px;padding:5px 0 0 10px; }
+.ttb2Wzd_blackbg .asbyttb2 {  clear:both;text-align:right;padding:1px 5px 2px 0; }
+.ttb2Wzd_blackbg a:hover {text-decoration:underline; background-color:transparent;}
+
+.ttb2Wzd_blackbg a.asby:link {color:#FFFFFF;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2Wzd_blackbg a.asby:visited {color:#FFFFFF;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2Wzd_blackbg a.asby:hover {color:#FFFFFF;font-weight:normal;font-size:11px;background-color:transparent; }
+
+.ttb2Wzd_blackbg .Wzd_cover1 {float:left;width:132px;height:165px;padding:0;margin:0;position:relative;overflow:hidden;background:url(http://image.aladin.co.kr/img/ttb/ttb2Wzd_blackbg_bg2.gif) bottom repeat-x;}
+
+/*위젯스킨 - 그린 *****/
+.ttb2Wzd_green { clear:both;float:left;text-align:left;border:3px #e1f7a2 solid; background:url(http://image.aladin.co.kr/img/ttb/ttb2Wzd_green_bg.gif) top repeat-x;} 
+.ttb2Wzd_green .tit {color:#6fab0f;font-weight:bold;text-align:left;font-size:11px;padding:5px 0 0 10px; }
+.ttb2Wzd_green .asbyttb2 {  clear:both;text-align:right;padding:1px 5px 2px 0; }
+.ttb2Wzd_green a:hover {text-decoration:underline; background-color:transparent;}
+
+.ttb2Wzd_green a.asby:link {color:#6fab0f;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2Wzd_green a.asby:visited {color:#6fab0f;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2Wzd_green a.asby:hover {color:#6fab0f;font-weight:normal;font-size:11px;background-color:transparent; }
+
+.ttb2Wzd_green .Wzd_cover1 {float:left;width:132px;height:165px;padding:0;margin:0;position:relative;overflow:hidden;background:url(http://image.aladin.co.kr/img/ttb/ttb2Wzd_green_bg2.gif) bottom repeat-x;}
+
+/*위젯스킨 - 블루 *****/
+.ttb2Wzd_blue { clear:both;float:left;text-align:left;border:3px #d8e9f1 solid; background:url(http://image.aladin.co.kr/img/ttb/ttb2Wzd_blue_bg.gif) top repeat-x;} 
+.ttb2Wzd_blue .tit {color:#5b97c8;font-weight:bold;text-align:left;font-size:11px;padding:5px 0 0 6px; }
+.ttb2Wzd_blue .asbyttb2 {  clear:both;text-align:right;padding:1px 5px 2px 0; }
+.ttb2Wzd_blue a:hover {text-decoration:underline; background-color:transparent;}
+
+.ttb2Wzd_blue a.asby:link {color:#5b97c8;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2Wzd_blue a.asby:visited {color:#5b97c8;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2Wzd_blue a.asby:hover {color:#5b97c8;font-weight:normal;font-size:11px;background-color:transparent; }
+
+.ttb2Wzd_blue .Wzd_cover1 {float:left;width:132px;height:165px;padding:0;margin:0;position:relative;overflow:hidden;background:url(http://image.aladin.co.kr/img/ttb/ttb2Wzd_blue_bg2.gif) bottom repeat-x;}
+
+/*위젯스킨 - 보라 *****/
+.ttb2Wzd_violet { clear:both;float:left;text-align:left;border:3px #c3c7df solid; background:url(http://image.aladin.co.kr/img/ttb/ttb2Wzd_violet_bg.gif) top repeat-x;} 
+.ttb2Wzd_violet .tit {color:#6871a9;font-weight:bold;text-align:left;font-size:11px;padding:5px 0 0 10px; }
+.ttb2Wzd_violet .asbyttb2 {  clear:both;text-align:right;padding:1px 5px 2px 0; }
+.ttb2Wzd_violet a:hover {text-decoration:underline; background-color:transparent;}
+
+.ttb2Wzd_violet a.asby:link {color:#6871a9;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2Wzd_violet a.asby:visited {color:#6871a9;font-weight:normal;font-size:11px;background-color:transparent; }
+.ttb2Wzd_violet a.asby:hover {color:#6871a9;font-weight:normal;font-size:11px;background-color:transparent; }
+
+.ttb2Wzd_violet .Wzd_cover1 {float:left;width:132px;height:165px;padding:0;margin:0;position:relative;overflow:hidden;background:url(http://image.aladin.co.kr/img/ttb/ttb2Wzd_violet_bg2.gif) bottom repeat-x;}
+
+
+
+
+
+
+
+
+
+

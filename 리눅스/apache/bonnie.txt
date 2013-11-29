@@ -1,0 +1,8 @@
+
+./configure --prefix=/usr/local/bonnie++ && make && make install
+
+use)
+/usr/local/bonnie++/sbin/bonnie++ -d /tmp -s 1024MB:1024 -n 10 -m `hostname` -r 512MB -u0:0 > `hostname`.10_result2.txt
+
+
+tail -n 1 68_xwindows.10_result2.txt | /usr/local/bonnie++/bin/bon_csv2html > /usr/local/src/re.html

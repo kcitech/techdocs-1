@@ -1,0 +1,8 @@
+
+아래의 명령어를 이용하여 트랜젝션 로그를 줄여 드렸습니다.
+
+use test_db
+backup log test_db with no_log
+DBCC SHRINKFILE (test_db_log,TRUNCATEONLY)
+DBCC SHRINKDATABASE(test_db,10)
+go

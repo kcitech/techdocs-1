@@ -1,0 +1,32 @@
+
+
+-----------------
+데몬 구동
+-----------------
+#/etc/init.d/hpasm start
+(/etc/rc.d/rc.local에 추가함)
+
+-----------------
+데몬 구동 확인
+-----------------
+# hpasmcli -s "show"
+
+-----------------
+체크
+-----------------
+Check Fans
+#hpasmcli -s  "show fans "
+
+Check DIMMS
+#hpasmcli -s  "show dimm "
+
+Check Powersupply
+#hpasmcli -s  "show powersupply "
+
+Check Temperature
+#hpasmcli -s  "show temp "
+
+-----------------
+참고 사이트
+-----------------
+http://gentoo-wiki.com/HOWTO_Use_Hpasm

@@ -1,0 +1,79 @@
+[ centos5.0 install후 수정사항 ]
+
+1. install시 설치 옵션:
+
+   SElinux 설정하는 부분 없음. 설치 완료후 selinux설정파일 수정요망.
+
+   지역 선택시 시간이 UTC가 기본으로 체크되어 있음 -> 체크 해제(GMT사용)
+
+   Development : development tool, x software development
+   Servers : 선택되어 있는 부분 해제
+   Base System : Base
+   language : korean 선택
+
+   특기사항) 커널패키지가 smp, up 커널 구분이 없다.
+
+2. selinux수정
+   # vi /etc/sysconfig/selinux
+     SELINUX=disabled
+
+3. install후 조정사항:
+  -. 메모리 인식이 제대로 안될때
+     ex. 4G인데 2.5G 와 같이 인식될때
+
+     kernel-PAE 패키지를 설치하면 됨.
+     (사이트에 있음)
+
+  -. nosmp로 돌릴때 grub.conf에 파라미터 추가.
+     kernel /boot/vmlinuz......  acpi=off noapic  nosmp maxcpus=0
+
+  -. /etc/sysconfig/i18n
+     LANG="ko_KR.UTF-8"  -> LANG="ko_KR.eucKR"
+
+  -. /etc/ssh/sshd_config
+     Protocol 2
+
+  -. /etc/crontab
+     매일 01시 sync
+     0 1 * * * root rdate -s time.bora.net && hwclock -w
+
+  -. /etc/initscript
+     이 파일은 생성을 해야 함. openfiles 관련임.
+     이 파일은 리부팅해야 적용되므로 initscript를 작성 및 수정하게되면
+     부팅을 반드시 해야 한다.
+     =================
+     ulimit -Hn 65536
+     ulimit -Sn 65536
+
+     eval exec "$4"
+     =================
+  
+  -. /etc/sysctl.conf
+     아래 라인 추가. DoS공격 대응.
+     ====================================================
+     net.ipv4.tcp_syncookies = 1
+     ====================================================
+
+4. 패키지 확인
+   wget, lynx, curl 패키지는 해킹에 악용될 우려가 있으므로 
+   os설치 후 삭제.
+
+   # yum remove wget   
+   # yum remove lynx   <-- 패키지 설치 안되어 있을 수 있다.
+   # cd /usr/bin
+   # mv curl AAAA_curl <-- curl패키지는 php에 의존적이라 mv.
+   # mv curl-config AAAA_curl-config
+
+   
+5. 프로세스 정리
+   기본 프로세스 : crond, network, sshd, syslog, xinetd
+   이외 서비스하려는 프로세스 체크한다.
+
+   runlevel 3에서 start프로세스 확인
+   # ntsysv --level 3 
+
+   또는 
+
+   # chkconfig이용해서 .. 
+
+끝.

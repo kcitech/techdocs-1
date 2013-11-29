@@ -1,0 +1,40 @@
+
+
+기존 : eth0 --> e100사용
+           eth1 --> e1000사용
+
+변경 :  eth0 --> e1000사용
+            eth1 --> e100사용
+
+[ debian 3.0 R2 ]
+
+1. 모듈 설정 변경
+     # vi /etc/modules
+     /etc/modules에 네트웍 모듈을 주석처리 또는 삭제
+    (이 파일은 boot시 맨 처음 load되기 때문에 여기에 모듈이 있으면 reboot시 변경이 안됨)
+
+     # vi /etc/modutils/aliases
+         아래와 같이 추가
+         alias eth0              e1000
+          alias eth1              e100
+
+     # update-modules
+        /etc/modules.conf에 변경된 부분이 적용된다.
+
+2. 변경된 모듈 변경
+     reboot
+     또는
+     network stop
+     rmmod 네크웍 모듈
+     network start
+
+[ debian 4.0 ]
+# cd /etc/udev/rules.d/
+# vi z25_persistent-cd.rules
+   열어보면 eth1, eth0에 대한 mac address가 있는데,
+   이를 바꿔주면 된다.
+
+# vi /etc/network/interfaces
+   z25_persistent-cd.rules에서 설정한 eth장치로 설정.
+
+# shutdown -r now

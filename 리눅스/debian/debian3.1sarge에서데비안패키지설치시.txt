@@ -1,0 +1,20 @@
+
+
+debian 3.1 버전에서 데비안패키지를 설치시
+현재 etch 버전(4.0x)이  stable이기 때문에  source.list를 수정 후
+진행해야 합니다.
+
+다음과 같이 확인하시기 바랍니다.
+
+# cat /etc/debian_version
+
+# cat /etc/apt/source.list
+#deb http://ftp.kr.debian.org/debian stable main contrib non-free
+--> deb http://ftp.kr.debian.org/debian sarge main contrib non-free
+
+#deb http://security.debian.org/ stable/updates main contrib non-free
+--> deb http://security.debian.org/ sarge/updates main contrib non-free
+
+# apt-get update
+
+# apt-get install 패키지

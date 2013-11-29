@@ -1,0 +1,15 @@
+
+
+고객님서버쪽으로 SYN Flooding 공격이 유입되고 있습니다.
+
+http://blog.naver.com/goskang?Redirect=Log&logNo=90010814677
+상기 사이트를 참조하여,
+
+HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters
+
+상기 레지스트리에, 4개의 파라미터를 설정하고 리부팅하였습니다.
+SynAttackProtect
+TcpMaxPortsExhausted
+TcpMaxHalfOpen
+TcpMaxHalfOpenRetried
+

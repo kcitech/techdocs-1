@@ -1,0 +1,173 @@
+--------------------------------------------------------
+ references
+--------------------------------------------------------
+
+<powerdns,poweradmin>
+http://www.howtoforge.com/installing-powerdns-with-mysql-backend-and-poweradmin-on-centos-5.2
+
+<powerdns-gui>
+http://code.google.com/p/pdns-gui/
+
+Installation
+1. Install Apache, PHP, MySQL and PowerDNS server - on Ubuntu/Debian Linux:
+
+apt-get install apache2 php5 php5-cli php5-mysql php5-xsl mysql-server pdns-server pdns-backend-mysql
+2. Download PowerDNS GUI from this page and decompress
+
+tar xvf pdns-gui.x.x.tgz
+3. Run install script
+
+cd /var/www/pdns-gui.x.x/batch
+
+./install.sh
+If you want to upgrade existing PowerDNS GUI installation follow this instructions: Upgrade
+
+
+http://pdns-gui.googlecode.com/files/pdns-gui.0.3.3.tgz
+
+Now you need to edit your PowerDNS config file
+(most likely /etc/powerdns/pdns.d/pdns.local)
+to set correct DB connection details
+
+Add the following to your Apache configuration:
+
+------------------------------
+<VirtualHost *:80>
+
+  DocumentRoot /var/www/pdns-gui.0.3.3/web
+
+  DirectoryIndex index.php
+
+  <Directory /var/www/pdns-gui.0.3.3/web>
+    AllowOverride All
+  </Directory>
+
+</VirtualHost>
+------------------------------
+
+
+
+And make sure 'mod_rewrite' is enabled.
+
+--------------------------------------------------------
+ Installing PowerDNS (With MySQL Backend) And Poweradmin On CentOS 5.2
+--------------------------------------------------------
+http://www.howtoforge.com/installing-powerdns-with-mysql-backend-and-poweradmin-on-centos-5.2
+
+#yum install httpd httpd-devel php-* mysql mysql-server mysql-devel pdns pdns-backend-mysql
+
+#chkconfig --levels 235 httpd on
+#/etc/init.d/httpd start
+
+#view /etc/my.cnf
+[...]
+#skip-networking
+[...]
+
+[mysqld]
+[...]
+datadir=/home/mysql-data
+default-character-set=euckr
+[...]
+
+#chkconfig --levels 235 mysqld on
+#/etc/init.d/mysqld restart
+
+mysql -uroot -p mysql
+update user set password=password('PASSWORD') where user='root';
+flush privileges;
+create database powerdns;
+grant all privileges on powerdns.* to powerdns@localhost identified by 'PASSWORD';
+flush privileges;
+
+#view pdns_db.sql
+
+CREATE TABLE domains (
+id INT auto_increment,
+name VARCHAR(255) NOT NULL,
+master VARCHAR(128) DEFAULT NULL,
+last_check INT DEFAULT NULL,
+type VARCHAR(6) NOT NULL,
+notified_serial INT DEFAULT NULL,
+account VARCHAR(40) DEFAULT NULL,
+primary key (id)
+);
+
+CREATE UNIQUE INDEX name_index ON domains(name);
+
+CREATE TABLE records (
+id INT auto_increment,
+domain_id INT DEFAULT NULL,
+name VARCHAR(255) DEFAULT NULL,
+type VARCHAR(6) DEFAULT NULL,
+content VARCHAR(255) DEFAULT NULL,
+ttl INT DEFAULT NULL,
+prio INT DEFAULT NULL,
+change_date INT DEFAULT NULL,
+primary key(id)
+);
+
+CREATE INDEX rec_name_index ON records(name);
+CREATE INDEX nametype_index ON records(name,type);
+CREATE INDEX domain_id ON records(domain_id);
+
+CREATE TABLE supermasters (
+ip VARCHAR(25) NOT NULL,
+nameserver VARCHAR(255) NOT NULL,
+account VARCHAR(40) DEFAULT NULL
+);
+
+#mysql -upowerdns -p powerdns < pdns_db.sql 
+
+#view /etc/pdns/pdns.conf
+
+# launch=
+launch=gmysql
+gmysql-host=localhost
+gmysql-user=powerdns
+gmysql-password=PASSWORD
+gmysql-dbname=powerdns
+
+#chkconfig --levels 235 pdns on
+#/etc/init.d/pdns start
+
+>>powerdns<<
+download : https://www.poweradmin.org/trac/wiki/GettingPoweradmin
+cd /tmp
+wget https://www.poweradmin.org/download/poweradmin-2.1.5.tgz
+
+tar xvfz poweradmin-2.1.5.tgz
+mv poweradmin-2.1.5 /var/www/html/poweradmin
+touch /var/www/html/poweradmin/inc/config.inc.php
+chown -R apache:apache /var/www/html/poweradmin/
+
+http://IP/poweradmin/install
+
+-------------------------------
+pdns mysql replication
+------------------------------
+
+>>> ns1 <<<
+
+/etc/my.cnf
+
+log-bin
+server-id=1
+binlog-do-db=powerdns
+
+
+mysql> grant replication slave on *.* to slave_user@SECOND_SERVER_IP identified by 'PASSWORD';
+
+>>> ns2 <<<
+
+server-id=2
+master-host=MASTER_SERVER_IP
+master-user=slave_user
+master-password=PASSWD
+master-connect-retry=60
+replicate-do-db=powerdns
+
+log-bin
+binlog-do-db=powerdns
+
+

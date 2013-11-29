@@ -1,0 +1,23 @@
+
+windows 2008 에는 IIS 6의 ftp 서비스가 포함되어 있습니다만
+ 
+iis 설치시 이 ftp 서비스를 설치하지 마시고
+ 
+x86에는
+http://www.iis.net/downloads/default.aspx?tabid=34&g=6&i=1619
+ 
+x64에는
+http://www.iis.net/downloads/default.aspx?tabid=34&g=6&i=1620
+ 
+이걸로 설치하시기 바랍니다.
+ 
+1. 기존에 동작하는 웹사이트에 FTP를 바인딩
+2. FTP 호스트 헤더 지원
+3. SSL 지원
+4. 사용자 고립 모드 기능 추가
+5. FTP 사이트에서 인증 수준을 결정
+ 
+기존의 유저 격리모드, 리눅스의 proftp 보다 성능이 훨씬 강력합니다.
+ 
+가령 이미 만들어진 웹사이트를 ftp 프로토콜을 바인딩 하고 원하는 사
+용자만 접속할수 있게 제한할수도 있네요.

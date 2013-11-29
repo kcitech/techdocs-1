@@ -1,0 +1,128 @@
+
+-----------------
+1. 네임서버 설치
+-----------------
+ 
+   관련 패키지는 이미 설치되어 있는 상태여서,
+   기본적인 내용을 설정하였습니다.
+
+   관련 패키지 : bind , bind-libs, bind-utils
+
+   ---------
+   설정 파일
+   ---------
+   /etc/named.conf 
+   
+   ---------
+   zone 파일위치
+   ---------
+   /home/named/
+
+   예) DOMAINSAMPLE.co.kr IP: 1.1.1.1로 설정시
+   (가정=> DNS서버를 
+   ns1.testdomain.co.kr/ns2.testdomain.co.kr로 가정)
+
+   /etc/named.conf에 다음 추가
+   zone "DOMAINSAMPLE.co.kr" { // test
+            type master;
+            file "t/DOMAINSAMPLE.co.kr";
+   };
+
+   /home/named/t/DOMAINSAMPLE.co.kr 파일 생성
+   $TTL 1728
+   @     SOA   ns1.testdomain.co.kr.   holro.unitel.co.kr. (
+                                             2008012101 ; Serial
+                                             10800  ; Refresh after 3 hours
+                                             3600   ; Retry after 1 hour
+                                             604800 ; Expire after 1 week
+                                             300 ) ; Minimum TTL of 1 day
+
+   ; Name Server records
+                NS       ns1.testdomain.co.kr.
+                NS       ns2.testdomain.co.kr.
+                A        1.1.1.1
+                MX       10 mail.DOMAINSAMPLE.co.kr.
+   ; Address (A) records.
+   localhost       A 127.0.0.1
+   www             A 1.1.1.1
+   mail            A 1.1.1.1
+
+   
+   ---------
+   데몬 구동
+   ---------
+   #/etc/init.d/named stop|start|restart
+
+   ---------
+   확인1)
+   ---------
+   [root@localhost named]# host www.DOMAINSAMPLE.co.kr 192.168.68.107
+   Using domain server:
+   Name: 192.168.68.107
+   Address: 192.168.68.107#53
+   Aliases:
+
+   www.DOMAINSAMPLE.co.kr has address 1.1.1.1
+
+   ---------
+   확인2)
+   ---------
+   [root@localhost named]# host www.DOMAINSAMPLE.co.kr 192.168.68.107
+   Using domain server:
+   Name: 192.168.68.107
+   Address: 192.168.68.107#53
+   Aliases:
+
+   www.DOMAINSAMPLE.co.kr has address 1.1.1.1
+   [root@localhost named]# nslookup
+   > server 192.168.68.107
+   Default server: 192.168.68.107
+   Address: 192.168.68.107#53
+   > www.DOMAINSAMPLE.co.kr
+   Server:         192.168.68.107
+   Address:        192.168.68.107#53
+
+   Name:   www.DOMAINSAMPLE.co.kr
+   Address: 1.1.1.1
+   > exit
+
+-----------------
+2. 메일서버 설치
+-----------------
+   
+   관련패키지 : dovecot, sendmail, sendmail-devel, sendmail-cf
+
+   dovecot)
+   yum install devocot 시 libmysqlclient 관련 종속성이 걸려 
+   설치가 진행되지 않아, 다음과 같이 설치진행 하였습니다.
+
+   #yum --enablerepo=centosplus install mysqlclient10 mysqlclient14
+   #yum install dovecot
+    (postgresql-libs 자동 설치됨)
+
+   설정파일 : /etc/dovecot.conf
+
+   sendmail)
+   외부와의 메일소통
+   /etc/mail/sendmail.mc
+   DAEMON_OPTIONS(`Port=smtp, Addr=127.0.0.1, Name=MTA')dnl 
+   --> 
+   DAEMON_OPTIONS(`Port=smtp, Name=MTA')dnl
+
+   보내는메일 인증하기
+   dnl TRUST_AUTH_MECH(`EXTERNAL DIGEST-MD5 CRAM-MD5 LOGIN PLAIN')dnl
+   dnl define(`confAUTH_MECHANISMS', `EXTERNAL GSSAPI DIGEST-MD5 CRAM-MD5 LOGIN PLAIN')dnl
+   -->
+   TRUST_AUTH_MECH(`EXTERNAL DIGEST-MD5 CRAM-MD5 LOGIN PLAIN')dnl
+   define(`confAUTH_MECHANISMS', `EXTERNAL GSSAPI DIGEST-MD5 CRAM-MD5 LOGIN PLAIN')dnl
+
+   #m4 /etc/mail/sendmail.mc > /etc/mail/sendmail.cf
+
+   ---------
+   데몬 구동
+   ---------
+   #/etc/init.d/dovecot stop|start
+   #/etc/init.d/sendmail stop|start
+   #/etc/init.d/saslauthd stop|start
+
+

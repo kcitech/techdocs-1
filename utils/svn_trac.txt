@@ -1,0 +1,138 @@
+==========================================
+python 2.7.3 source install on centos 5.8
+==========================================
+
+>> python 2.7.3 <<
+#cd /usr/local/src
+#wget http://www.python.org/ftp/python/2.7.3/Python-2.7.3.tgz
+#gzip -d Python-2.7.3.tgz
+#tar xvf Python-2.7.3.tar
+#cd Python-2.7.3
+
+#./configure --prefix=/usr/local/python-2.7.3 --with-threads --enable-shared && make && make install
+
+#view /root/.bash_profile
+alias python=/usr/local/python-2.7.3/bin/python
+
+#logout
+
+#ln -s /usr/local/python-2.7.3/bin/python /usr/bin/python2.7
+
+#view /etc/ld.so.conf.d/python2.7.conf
+/usr/local/python-2.7.3/lib
+
+#ldconfig
+
+test
+#pyton 
+Python 2.7.3 (default, Apr 23 2012, 15:19:21) 
+[GCC 4.1.2 20080704 (Red Hat 4.1.2-52)] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> 
+
+>> setuptools install <<
+
+#wget http://pypi.python.org/packages/2.7/s/setuptools/setuptools-0.6c11-py2.7.egg#md5=fe1f997bc722265116870bc7919059ea
+
+#sh setuptools-0.6c11-py2.7.egg --prefix=/usr/local/python-2.7.3
+
+>> pysqlite <<
+
+#wget http://peak.telecommunity.com/dist/ez_setup.py
+#python ez_setup.py -U setuptools
+
+#wget http://pysqlite.googlecode.com/files/pysqlite-2.6.3.tar.gz
+#tar xvfz pysqlite-2.6.3.tar.gz 
+#cd pysqlite-2.6.3
+#python setup.py build_static install
+
+>> trac <<
+#wget http://download.edgewall.org/trac/Trac-0.12.3.tar.gz
+#tar xvfz Trac-0.12.3.tar.gz 
+#cd Trac-0.12.3
+#python ./setup.py install
+
+#mkdir /home/project
+#trac-admin /home/project initenv
+#/usr/local/python-2.7.3/bin/trac-admin /home/project initenv
+
+#view /etc/rc.d/rc.local
+/usr/local/python-2.7.3/bin/tracd -p 8080 --basic-auth=project,/home/project/.htpasswd,/home/project /home/project -d
+
+>> config <<
+view /home/project/conf/trac.ini
+
+[header_logo]
+alt = (please configure the [header_logo] section in trac.ini)
+height = -1
+link =
+#src = site/your_project_logo.png
+src = site/LOGO.gif
+
+cp LOGO.gif /home/project/htdocs/
+
+==========================================
+ requirement
+==========================================
+#yum install "*python*"
+#yum install "*setup*"
+#yum install python-devel python-setuptools mod_python
+#yum install "*sqlite*"
+
+==========================================
+ subversion
+==========================================
+#yum install subversion subversion-devel
+#mkdir /home/svn
+#cd /home/svn
+#svnadmin create --fs-type fsfs sample
+
+==========================================
+Trac
+==========================================
+#wget http://peak.telecommunity.com/dist/ez_setup.py
+#python ez_setup.py
+#easy_install Genshi
+
+download trac source
+#wget http://ftp.edgewall.com/pub/trac/Trac-0.12.tar.gz
+#tar xvfz Trac-0.11.5.tar.gz
+#
+#cd Trac-0.11.5
+$ python ./setup.py install
+
+#mkdir /home/project
+#trac-admin /home/project initenv
+
+=> sqlite °ü·Ã ¿À·ù ¹ß»ý½Ã ¾Æ·¡¿Í °°ÀÌ Á¶Ä¡
+   (ÂüÁ¶:http://trac.edgewall.org/wiki/PySqlite)
+
+If you're using Python 2.5 and up, you already have a working version of pysqlite 2, bundled as sqlite3. You can stop here ;-) 
+If you are using an older version of Python or you'd like to benefit from the latest and greatest version of pysqlite, grab Windows installer or the source .tar.gz from the official  Downloads. 
+If you need to build from this .tar.gz, simply do after unpacking: 
+
+python setup.py build_static install 
+
+This will fetch the latest SQLite version and bundle it within the extension. 
+
+
+#sudo htpasswd -c /home/project/.htpasswd javajungto
+#tracd -p 80 --basic-auth=project,/home/project/.htpasswd,/home/project /home/project
+
+#trac-admin /home/project/ permission add blackph TRAC_ADMIN
+
+http://192.168.2.100
+
+========================================
+mod_python 2.7
+
+wget http://www.axint.net/apache/httpd/modpython/mod_python-2.7.11.tgz 
+
+
+==> http://perfect4.linuxstudy.pe.kr/blog/80
+
+====> http://idkook.tistory.com/31
+
+
+
+

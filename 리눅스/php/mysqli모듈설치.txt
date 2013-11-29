@@ -1,0 +1,74 @@
+===========================================
+본인작성글 아님. 내용 확인 필요함
+===========================================
+
+다음과 같이 동적 모듈로 mysqli 를 추가 설치 하였습니다.
+
+#cd /usr/local/src/apm_090223/php-5.2.8/ext/mysqli
+#/usr/local/php-5.2.8/bin/phpize
+
+#./configure --with-php-config=/usr/local/php-5.2.8/bin/php-config --with-mysqli
+#make && make install
+#mkdir /usr/local/php-5.2.8/modules
+#cp -a ./modules/mysqli.so /usr/local/php-5.2.8/modules
+
+#view /usr/local/php-5.2.8/etc/php.ini
+추가
+extension_dir ="/usr/local/php-5.2.8/modules"
+extension=mysqli.so
+
+아파치 재시작
+#/etc/init.d/httpd restart
+
+[mysqli 확인]
+웹상 확인 경로
+
+http://IP/phpinfo.php (phpinfo 페이지)
+
+mysqli 로 검색
+
+쉘상 확인
+
+#/usr/local/php-5.2.8/bin/php -m
+[PHP Modules]
+bcmath
+bz2
+calendar
+ctype
+date
+dom
+exif
+filter
+ftp
+gd7
+gettext
+gmp
+hash
+iconv
+json
+libxml
+mbstring
+mysql
+mysqli
+openssl
+pcre
+PDO
+pdo_sqlite
+posix
+Reflection
+session
+SimpleXML
+sockets
+SPL
+SQLite
+standard
+sysvsem
+sysvshm
+tokenizer
+wddx
+xml
+xmlreader
+xmlwriter
+zlib
+
+[Zend Modules]

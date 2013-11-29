@@ -1,0 +1,161 @@
+http://snarvaez.com.ar/libertad/index.php/2012/11/05/install-drbd-distributed-replicated-block-device-on-centos-6-3/
+
+[root@img1 drbd.d]# drbdadm create-md imagedata
+md_offset 999651139584
+al_offset 999651106816
+bm_offset 999620599808
+
+Found ext3 filesystem
+   976221820 kB data area apparently used
+   976191992 kB left usable by current configuration
+
+Device size would be truncated, which
+would corrupt data and result in
+'access beyond end of device' errors.
+You need to either
+   * use external meta data (recommended)
+   * shrink that filesystem first
+   * zero out the device (destroy the filesystem)
+Operation refused.
+
+Command 'drbdmeta 0 v08 /dev/sdb1 internal create-md' terminated with exit code 40
+
+[root@img1 drbd.d]# dd if=/dev/zero bs=1M count=1 of=/dev/sdb1
+1+0 records in
+1+0 records out
+1048576 bytes (1.0 MB) copied, 0.00459701 s, 228 MB/s
+[root@img1 drbd.d]# sync
+[root@img1 drbd.d]# drbdadm create-md imagedata
+Writing meta data...
+initializing activity log
+NOT initializing bitmap
+New drbd meta data block successfully created.
+success
+
+
+- fdisk /dev/sdb (on both servers)
+- create partion (on both servers) ( !!!!! VERY IMPORTANT – DON’T FORMAT AND MOUNT THE VOLUME !!!!! ) 
+- view /etc/drbd.d/imagedata0.res (on both servers)
+
+# @see /usr/share/doc/drbd84-utils-8.4.1/drbd.conf.example
+# http://www.drbd.org/users-guide/
+
+resource imagedata0 {
+        options {
+                on-no-data-accessible suspend-io;
+        }
+        net {
+                cram-hmac-alg "sha1";
+                shared-secret "put_a_random_string_here";
+
+                protocol C;
+        }
+        on img1 {
+                address 10.10.10.108:7788;
+                device /dev/drbd0;
+                disk /dev/sdb1;
+                meta-disk internal;
+        }
+        on img2 {
+                address 10.10.10.109:7788;
+                device /dev/drbd0;
+                disk /dev/sdb1;
+                meta-disk internal;
+        }
+}
+
+- drbdadm create-md imagedata0 (on both servers)
+- service drbd start (on both server)
+- service drbd status or drbd-overview
+
+[root@img1 drbd.d]# service drbd status
+drbd driver loaded OK; device status:
+version: 8.4.2 (api:1/proto:86-101)
+GIT-hash: 7ad5f850d711223713d6dcadc3dd48860321070c build by dag@Build64R6, 2012-09-06 08:16:10
+m:res      cs         ro                   ds                         p  mounted  fstype
+0:contest  Connected  Secondary/Secondary  Inconsistent/Inconsistent  C
+1:chedt    Connected  Secondary/Secondary  Inconsistent/Inconsistent  C
+2:club     Connected  Secondary/Secondary  Inconsistent/Inconsistent  C
+3:blog     Connected  Secondary/Secondary  Inconsistent/Inconsistent  C
+4:base     Connected  Secondary/Secondary  Inconsistent/Inconsistent  C
+5:file     Connected  Secondary/Secondary  Inconsistent/Inconsistent  C
+
+Secondary/Secondary means 
+
+As you can see they say that it is connected but ro is Secondary/Secondary meaning that we haven’t told the system which one is the Primary server (master) that contains the block to be replicated. 
+Once we tell the system who is the master it will start the synchronization.
+
+[root@img1 drbd.d]# drbdadm primary --force contest
+[root@img1 drbd.d]# drbdadm primary --force chedt
+[root@img1 drbd.d]# drbdadm primary --force club
+[root@img1 drbd.d]# drbdadm primary --force blog
+[root@img1 drbd.d]# drbdadm primary --force base
+[root@img1 drbd.d]# drbdadm primary --force file
+
+
+[root@img1 drbd.d]# service drbd status or cat /proc/drbd
+drbd driver loaded OK; device status:
+version: 8.4.2 (api:1/proto:86-101)
+GIT-hash: 7ad5f850d711223713d6dcadc3dd48860321070c build by dag@Build64R6, 2012-09-06 08:16:10
+m:res      cs          ro                 ds                     p  mounted  fstype
+0:contest  SyncSource  Primary/Secondary  UpToDate/Inconsistent  C
+...        sync'ed:    0.1%               (306992/307200)M
+...        sync'ed:    0.1%               (338860/338904)M
+...        sync'ed:    0.2%               (102236/102400)M
+...        sync'ed:    0.2%               (306628/307200)M
+...        sync'ed:    0.2%               (306852/307200)M
+...        sync'ed:    0.4%               (949616/953312)M
+1:chedt    SyncSource  Primary/Secondary  UpToDate/Inconsistent  C
+2:club     SyncSource  Primary/Secondary  UpToDate/Inconsistent  C
+3:blog     SyncSource  Primary/Secondary  UpToDate/Inconsistent  C
+4:base     SyncSource  Primary/Secondary  UpToDate/Inconsistent  C
+5:file     SyncSource  Primary/Secondary  UpToDate/Inconsistent  C
+[root@img1 drbd.d]# drbd-overview
+  0:contest/0  SyncSource Primary/Secondary UpToDate/Inconsistent C r----- 
+	[>....................] sync'ed:  0.5% (949204/953312)M
+  1:chedt/0    SyncSource Primary/Secondary UpToDate/Inconsistent C r----- 
+	[>....................] sync'ed:  0.2% (306628/307200)M
+  2:club/0     SyncSource Primary/Secondary UpToDate/Inconsistent C r----- 
+	[>....................] sync'ed:  0.3% (306484/307200)M
+  3:blog/0     SyncSource Primary/Secondary UpToDate/Inconsistent C r----- 
+	[>....................] sync'ed:  0.1% (338860/338904)M
+  4:base/0     SyncSource Primary/Secondary UpToDate/Inconsistent C r----- 
+	[>....................] sync'ed:  0.2% (102236/102400)M
+  5:file/0     SyncSource Primary/Secondary UpToDate/Inconsistent C r----- 
+	[>....................] sync'ed:  0.2% (306696/307200)M
+[root@img1 drbd.d]# 
+
+<On Server 1>
+
+mkfs.ext4 /dev/drbd0
+mkfs.ext4 /dev/drbd1
+mkfs.ext4 /dev/drbd2
+mkfs.ext4 /dev/drbd3
+mkfs.ext4 /dev/drbd4
+mkfs.ext4 /dev/drbd5
+
+
+
+
+
+----------
+http://houseoflinux.com/high-availability/building-a-high-available-file-server-with-nfs-v4-drbd-8-3-and-heartbeat-on-centos-6/page-2
+---------
+
+
+---------
+1 > fdisk /dev/sdv ( create only partions)
+2 > !!!!! VERY IMPORTANT – DON’T FORMAT AND MOUNT THE VOLUME !!!!!
+ 
+ 
+---------
+nfs
+
+https://www.digitalocean.com/community/articles/how-to-set-up-an-nfs-mount-on-centos-6
+
+1. yum install nfs-utils nfs-utils-lib
+2. chkconfig nfs on 
+   service rpcbind start
+   service nfs start
+3. 
+

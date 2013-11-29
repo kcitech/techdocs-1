@@ -1,0 +1,24 @@
+problem1)
+virt-manager 실행시 오류시 
+
+해결)
+yum install xorg-x11-xauth
+
+
+확인)
+client에서 
+ssh -X root@IP 한후 
+ls -la /root/ 에서 다음 파일이 생성이 되어야 함. 
+.Xauthority
+
+디버깅)
+ssh -4vAX root@IP로 접속시 아래 메세지가 보임
+
+debug1: Remote: No xauth program; cannot forward with spoofing.
+X11 forwarding request failed on channel 0
+
+
+problem1)
+virt-manager 실행시 UI에서 글자깨짐 ( virt-manager font problem)
+
+yum install dejavu-lgc-sans-fonts

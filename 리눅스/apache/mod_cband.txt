@@ -1,0 +1,132 @@
+
+http://www.superuser.co.kr/home/lecture/index.php?leccode=10588
+
+=====================================================
+case 2
+=====================================================
+
+----------------------------------------------------------
+1. 19서버 /home/hosting3/ --> 222번서버 /home/hosting_CH/
+----------------------------------------------------------
+ 다음과 같은 형식으로 하시면 됩니다.
+ rsync 소스 목적지
+
+ 19번서버에 로그인하여 실행할 경우
+ #rsync -ave ssh /home/hosting3/* root@192.168.75.222:/home/hosting_CH/
+
+ 222번서버에 로그인하여 실행할 경우
+ #rsync -ave ssh root@192.168.73.19:/home/hosting3/* /home/hosting_CH/
+
+----------------------------------------------------------
+2. quota 설정관련(과거 19번 설정내역대로 설정하였습니다.)
+----------------------------------------------------------
+※ 쿼터설정 적용을 위해서는 리부팅이 필요하오니,
+   적정시간대에 리부팅 바랍니다.
+
+① /etc/fstab 수정
+........
+수정전 : LABEL=/home /home ext3 defaults          1 2
+수정후 : LABEL=/home /home ext3 defaults,usrquota 1 2
+........
+
+② quota의 기록파일 생성
+touch /home/aquota.user
+chmod 600 /home/aquota.user
+
+③ 시스템 리스타트를 위한 스크립트 설정
+vi /etc/rc.local -- 아래 라인 추가
+# Check quota and then turn quota on.
+if [ -x /sbin/quotacheck ]
+then
+        echo "Checking quotas. This may take some time."
+        /sbin/quotacheck -avug
+        echo " Done."
+fi
+
+if [ -x /sbin/quotaon ]
+then
+        echo "Turning on quota."
+        /sbin/quotaon -avug
+fi
+
+④ quota 설정관련(예:USER001)
+   #edquota -u USER001 로 설정
+
+⑤ 용량 초과 관련
+ soft limit 초과시 경고메세지가 출력되고,
+ hard limit 초과시 쓰기가 안된다고 합니다.
+
+ 용량 초과시 waring은 
+ 명령어나 설정이 별도로 존재하지는 않으며,
+ 값을 비교하는 쉘스크립트나 프로그램을
+ 작성을 해야 하는것으로 보입니다.
+
+ 간단예1)실제 사용량 출력
+ #repquota -a|grep USER001 | awk '{print $3}'
+ 
+ 간단예2)hard limit 출력
+ #repquota -a | awk -F" " '$1 == "USER001" {print $5}'
+
+ 예)초과시 메일 보내기(아래 내용은 검증되지 않음)
+
+ http://search.empas.com/search/ok_pvw.html?
+pt=0&dd=1&ft=2&i=862691&sn=1232344595&q2=quota+%BF%EB%B7%AE+%
+C3%CA%B0%FA&dv=a&w=63353536373839&dw=37&vl=A&vn=3&q=quota+%BF%
+EB%B7%AE+%C3%CA%B0%FA%B5%C7%B8%E9&ou=k.daum.net%2Fqna%
+2Fview.html%3Fqid%3D0skTL
+
+----------------------------------------------------------
+3. mod_cband 설정
+----------------------------------------------------------
+※ 모듈 적용을 위해서는 아파치 재시작이 필요하오니,
+   적성시간대에 아파치 재시작 바랍니다.
+
+① 설치
+# wget http://cband.linux.pl/download/mod-cband-0.9.7.5.tgz
+  (위 사이트로 접속이 되지 않아 19번서버에 
+   다운받아 놓은 파일을 사용하였습니다.)
+# tar xvzf mod-cband-0.9.7.5.tgz
+# cd mod-cband-0.9.7.5
+# ./configure --with-apxs=/usr/sbin/apxs && make && make install
+
+② 아파치 환경설정에서의 cband 설정
+# vi /etc/httpd/conf/httpd.conf
+<IfModule mod_cband.c>
+    <Location /cband-status>
+        SetHandler cband-status
+        Order Deny,Allow
+        Deny from All
+        Allow from 192.168.68.226
+    </Location>
+
+    <Location /cband-me>
+        SetHandler cband-status-me
+        Order deny,allow
+        Deny from all
+        Allow from all
+    </Location>
+</IfModule>
+
+※ SetHandler 설명
+cband-status -> 관리자 페이지 입니다. 따라서 접근을 허용할 IP
+를 입력해주셔야 됩니다.
+cband-me -> 사용자 페이지 입니다.
+
+③ cband 적용 - 미적용 
+ 
+예)각각의 호스트에 따로따로 설정해줄 때
+   1Day 동안 100M의 트래픽을 허용시
+   < VirtualHost *:80 >
+    ServerName TESTDOMAIN.com
+    ServerAlias www.TESTDOMAIN.com
+    DocumentRoot /home/TESTDOMAIN/public_html
+    ErrorLog logs/TESTDOMAIN.com
+    CustomLog logs/TESTDOMAIN.com combined
+    CBandLimit 100Mi
+    CBandPeriod 1D
+    CBandExceededURL http://traffic.TESTDOMAIN3.co.kr/traffic_exceeded.htm
+   < /VirtualHost >
+
+참조)
+ mod_cband
+ http://www.superuser.co.kr/home/lecture/?leccode=10588

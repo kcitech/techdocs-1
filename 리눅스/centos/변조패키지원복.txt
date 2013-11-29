@@ -1,0 +1,20 @@
+
+
+-. 변조패키지 원복
+
+변조확인
+# rpm -V procps
+SM5..UG. /bin/ps
+SM5..UG. /usr/bin/top
+
+파일상태확인
+# lsattr /bin/ps
+suS-iadAc---- /bin/ps
+
+파일상태 원복
+# chattr -suSiadAc /bin/ps
+
+변조패키지 update(원복)
+# rpm -Uvh --force procps-3.2.3-8.17.i386.rpm
+
+coreutils,findutils,lsof,net-tools,psmisc,slocate,sysklogd, util-linux

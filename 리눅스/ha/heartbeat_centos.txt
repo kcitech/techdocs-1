@@ -1,0 +1,515 @@
+
+http://ftp.neowiz.com/fedora-epel/6/i386/epel-release-6-8.noarch.rpm
+
+http://fedoraproject.org/wiki/EPEL
+
+centos 6.x 
+rpm -Uvh http://ftp.neowiz.com/fedora-epel/6/i386/epel-release-6-8.noarch.rpm
+
+#------------------------------
+# heartbeat+mon on centos 5.8
+# vip  : 192.168.0.100
+# ha01 : 192.168.0.101
+# ha02 : 192.168.0.102
+#------------------------------
+
+<ha01,ha01>
+#yum install heartbeat*
+
+#------------------------------
+#view /etc/sysctl.conf
+#------------------------------
+net.ipv4.ip_nonlocal_bind = 1
+
+#sysctl -p 
+
+#------------------------------
+#view /etc/hosts
+#------------------------------
+192.168.0.101	ha01
+192.168.0.102	ha02
+
+#------------------------------
+#view /etc/ha.d/authkeys
+#------------------------------
+auth 3
+3 md5 heartbeat!@#$
+
+#chmod 600 /etc/ha.d/authkeys
+
+<ha01>
+#------------------------------
+#view /etc/ha.d/ha.cf
+#------------------------------
+#
+#       keepalive: how many seconds between heartbeats
+#
+keepalive 2
+#
+#       deadtime: seconds-to-declare-host-dead
+#
+deadtime 10
+#
+#       What UDP port to use for udp or ppp-udp communication?
+#
+udpport        694
+bcast  eth0
+mcast eth0 225.0.0.1 694 1 0
+ucast eth0 192.168.0.102
+#       What interfaces to heartbeat over?
+udp     eth0
+#
+#       Facility to use for syslog()/logger (alternative to log/debugfile)
+#
+logfacility     local0
+#
+#       Tell what machines are in the cluster
+#       node    nodename ...    -- must match uname -n
+node    ha01
+node    ha02
+
+debugfile /var/log/ha-debug
+logfile   /var/log/ha-log
+
+# auto_failback on  : for ActiveActive Cluster
+# auto_failback off : for ActivePassive Cluster
+# auto_failback legacy : default 
+# The auto_failback option determines whether a resource will automatically fail back to its "primary" node, 
+# or remain on whatever node is serving it until that node fails, or an administrator intervenes.
+# reference : http://linux-ha.org/wiki/Ha.cf
+
+auto_failback off
+
+
+<ha02>
+#------------------------------
+#view /etc/ha.d/ha.cf
+#------------------------------
+#
+#       keepalive: how many seconds between heartbeats
+#
+keepalive 2
+#
+#       deadtime: seconds-to-declare-host-dead
+#
+deadtime 10
+#
+#       What UDP port to use for udp or ppp-udp communication?
+#
+udpport        694
+bcast  eth0
+mcast eth0 225.0.0.1 694 1 0
+ucast eth0 192.168.0.101
+#       What interfaces to heartbeat over?
+udp     eth0
+#
+#       Facility to use for syslog()/logger (alternative to log/debugfile)
+#
+logfacility     local0
+#
+#       Tell what machines are in the cluster
+#       node    nodename ...    -- must match uname -n
+node    ha01
+node    ha02
+
+debugfile /var/log/ha-debug
+logfile   /var/log/ha-log
+
+# auto_failback on  : for ActiveActive Cluster
+# auto_failback off : for ActivePassive Cluster
+# auto_failback legacy : default 
+# The auto_failback option determines whether a resource will automatically fail back to its "primary" node, 
+# or remain on whatever node is serving it until that node fails, or an administrator intervenes.
+# reference : http://linux-ha.org/wiki/Ha.cf
+
+auto_failback off
+
+
+<ha01,ha02>
+#------------------------------
+#view /etc/ha.d/haresources ( VIP를 지정함 )
+#primary_node명 VIP지정 
+#지정한 node서버가 primary 서버가 되어 vip를 가져간다. (auto_failback on경우)
+#아래 설정의 경우 두 서버에 heartbeat 데몬이 구동중이라면
+#ha01 서버가 vip를 가진다. 
+#------------------------------
+ha01 192.168.0.100
+
+<ha01,ha02>
+#------------------------------
+#view /etc/ha.d/haresources ( VIP를 지정함 )
+#primary_node명 VIP지정 
+#아래 지정한 primayr node 상관없이 기존 VIP가 가진 node가 다운될때까지 vip를 가진다. (auto_failback off경우)
+#------------------------------
+ha01 192.168.0.100
+
+
+or
+<ha01,ha02>
+#------------------------------
+#view /etc/ha.d/haresources ( VIP를 지정함 )
+#------------------------------
+ha01 192.168.0.100 httpd postfix 
+
+*heartbeat start 될때 httpd, postfix 실행됨
+*heartbeat stop 될때 httpd, postfix도 중지됨. 
+
+<확인>
+udp 694 port 방화벽에 열려 있는지 확인 필요.
+
+<register>
+#chkconfig --add heartbeat
+
+<test>
+
+
+#------------------------------
+#mon
+#------------------------------
+
+
+#yum groupinstall "Development Tools" #<centos 6.x>
+#mkdir /usr/local/lib64/perl5 #<centos 6.x>
+
+download : mon-1.2.0.tar.gz
+http://sourceforge.net/projects/mon/
+
+http://sourceforge.net/projects/mon/files/mon/1.2.0/mon-1.2.0.tar.gz/download
+#wget ftp://ftp.kernel.org/pub/software/admin/mon/mon-1.2.0.tar.gz 다운로드
+#tar -xzvf mon-1.2.0.tar.gz
+#cd /usr/include
+#h2ph -r -l .
+
+#yum install perl-CPAN
+ 
+# perl -MCPAN -e shell #perl package 설치  
+    install Time::Period       # PRYAN/Period-1.20.tar.gz 버전 이상 설치
+    install Time::HiRes        # J/JH/JHI/Time-HiRes-1.59.tar.gz 버전 이상 설치
+    install ExtUtils::MakeMaker
+#cd /usr/local/src/mon-1.2.0/mon.d
+#make
+#make install
+#cd ..
+#cp mon.d/* /usr/lib/mon/mon.d/
+#mkdir /usr/lib/mon/alert.d
+#cp alert.d/* /usr/lib/mon/alert.d/
+
+#cd /usr/lib/mon/alert.d/
+
+#cp /usr/local/src/mon-1.2.0/etc/auth.cf /etc/
+
+#------------------------------
+#view  httpd-down.alert
+#------------------------------
+#!/bin/bash
+echo "`date` $*" >> /tmp/httpd.alert.log
+
+# Heartbeat daemon check
+PSID=$(ps ax |grep heartbeat |grep -v grep | awk '{print $1}')
+if [ "$PSID" == "" ]; then
+        exit
+else
+/etc/init.d/heartbeat stop
+fi
+
+#------------------------------
+#view httpd-up.alert 
+#------------------------------
+#!/bin/bash
+echo "`date` $*" >> /tmp/httpd.alert.log
+
+# Heartbeat daemon check
+PSID=$(ps ax |grep heartbeat |grep -v grep | awk '{print $1}')
+if [ "$PSID" == "" ]; then
+        /etc/init.d/heartbeat start
+else
+	exit
+fi
+
+#chmod +x httpd-down.alert
+#chmod +x httpd-up.alert
+
+#------------------------------
+#view /etc/mon.cf (ha01)
+#------------------------------
+cfbasedir   = /etc
+alertdir    = /usr/lib/mon/alert.d
+mondir      = /usr/lib/mon/mon.d
+maxprocs    = 20
+histlength  = 100
+randstart   = 30s
+#
+# group definitions (hostnames or IP addresses)
+#
+hostgroup ha01 192.168.0.101
+
+#
+# ha01
+#
+watch ha01
+    service http
+    interval 5s
+    monitor http.monitor -p 80 192.168.0.101
+    period wd {Sun-Sat}
+    alert   httpd-down.alert "ha01 server httpd is down"
+    upalert httpd-up.alert   "ha01 server httpd is up"
+
+#------------------------------
+#view /etc/mon.cf (ha02)
+#------------------------------
+cfbasedir   = /etc
+alertdir    = /usr/lib/mon/alert.d
+mondir      = /usr/lib/mon/mon.d
+maxprocs    = 20
+histlength  = 100
+randstart   = 30s
+#
+# group definitions (hostnames or IP addresses)
+#
+hostgroup ha02 192.168.0.102
+
+#
+# ha02
+#
+watch ha02
+    service http
+    interval 5s
+    monitor http.monitor -p 80 192.168.0.102
+    period wd {Sun-Sat}
+    alert   httpd-down.alert "ha01 server httpd is down"
+    upalert httpd-up.alert   "ha01 server httpd is up"
+
+
+#/usr/local/src/mon-1.2.0/mon -f -c /etc/mon.cf
+
+<test1>
+1. start mon daemon
+2. check monitoring port ( ex: apachectl start )
+3. automatically startup heartbeat 
+
+<구동>
+on ha01, ha02
+  /etc/init.d/heartbeat start
+  /etc/init.d/mon start
+  /etc/init.d/httpd start
+   
+이 상태에서
+
+1. on ha01
+    httpd down ---> ha02 vip
+    
+Always the mon daemon must be started on ha01,ha02.
+
+<recovery>
+1. check mon daemon
+2. httpd start ( heartbeat auto start)
+
+< auto_failback on (/etc/ha.d/ha.cf) 일때>
+ - /etc/ha.d/haresources에서 지정한 node의 데몬(httpd)이 복구되면 이 node로 vip가 넘어간다.
+    
+< auto_failback off (/etc/ha.d/ha.cf) 일때>
+ - /etc/ha.d/haresources에서 지정한 node의 데몬(httpd)이 복구가 되어도, 이 node로 vip가 넘어가지 않는다.
+
+#------------------------------
+#reference
+#------------------------------
+http://lab.jinbo.net/drupal/node/91
+
+<centos 6>
+#yum repolist all
+#yum-config-manager --disable epel
+#yum-config-manager --enable epel
+#yum list heartbeat*
+
+--reference
+https://access.redhat.com/knowledge/docs/en-US/Red_Hat_Enterprise_Linux/6/html/Deployment_Guide/entitlements-and-yum.html#supplementary-repos
+
+rpm -Uvh http://ftp.riken.jp/Linux/fedora/epel/6/i386/epel-release-6-7.noarch.rpm
+
+
+#------------------------------
+Can't locate Time/HiRes.pm
+#------------------------------
+# perl -MCPAN -e shell 
+    install Time::Period      
+    
+    
+----------------------------------------------------------------------------------------------
+case1
+----------------------------------------------------------------------------------------------
+<테스트 VM 환경>
+1. /etc/ha.d/ha.cf
+#--------------------------------------------
+#view /etc/ha.d/ha.cf ( sglbs )
+#--------------------------------------------
+#
+#       keepalive: how many seconds between heartbeats
+#
+keepalive 2
+#
+#       deadtime: seconds-to-declare-host-dead
+#
+deadtime 10
+#
+#       What UDP port to use for udp or ppp-udp communication?
+#
+udpport        694
+bcast  bond0
+mcast  bond0  225.0.0.1 694 1 0
+ucast  bond0  192.168.0.103
+#       What interfaces to heartbeat over?
+udp     bond0
+#
+#       Facility to use for syslog()/logger (alternative to log/debugfile)
+#
+logfacility     local0
+#
+#       Tell what machines are in the cluster
+#       node    nodename ...    -- must match uname -n
+node    sglbs
+node    sglbb
+
+debugfile /var/log/ha-debug
+logfile   /var/log/ha-log
+auto_failback off
+
+#--------------------------------------------
+#view /etc/ha.d/ha.cf ( sglbs )
+#--------------------------------------------
+#
+#       keepalive: how many seconds between heartbeats
+#
+keepalive 2
+#
+#       deadtime: seconds-to-declare-host-dead
+#
+deadtime 10
+#
+#       What UDP port to use for udp or ppp-udp communication?
+#
+udpport        694
+bcast  bond0
+mcast  bond0 225.0.0.1 694 1 0
+ucast  bond0 192.168.0.102
+#       What interfaces to heartbeat over?
+udp     bond0
+#
+#       Facility to use for syslog()/logger (alternative to log/debugfile)
+#
+logfacility     local0
+#
+#       Tell what machines are in the cluster
+#       node    nodename ...    -- must match uname -n
+node    sglbs
+node    sglbb
+
+debugfile /var/log/ha-debug
+logfile   /var/log/ha-log
+
+auto_failback off
+
+#------------------------------------------------------------------
+#view /etc/ha.d/haresources ( sglbs, sglbb 동일 ) 
+#------------------------------------------------------------------
+#view /etc/ha.d/haresources ( VIP를 지정함 )
+#primary_node명 VIP지정 
+#auto_failback on 경우
+# - 지정한 node서버가 primary 서버가 되어 vip를 가져간다. 
+# - 아래 설정의 경우 두 서버에 heartbeat 데몬이 구동중이라면  sglbs 서버가 vip를 가진다. 
+#auto_failback  off 경우
+# - 지정한 node서버 상관없이 기존 VIP를 가지고 node가 다운될때가지 VIP를 가진다. 
+
+sglbs 192.168.0.101
+
+#------------------------------
+#view /etc/mon.cf (sglbs)
+#------------------------------
+cfbasedir   = /etc
+alertdir    = /usr/lib/mon/alert.d
+mondir      = /usr/lib/mon/mon.d
+maxprocs    = 20
+histlength  = 100
+randstart   = 30s
+#
+# group definitions (hostnames or IP addresses)
+#
+hostgroup sglbs_glbcMain      192.168.0.102
+hostgroup sglbs_glbcCollector 192.168.0.102
+
+watch sglbs_glbcMain
+    service glbcMain
+    interval 5s
+    monitor tcp.monitor -p 9131
+    period wd {Mon-Sun}
+    alert   down.alert "sglbs server glbcMain is down"
+    upalert up.alert   "sglbs server glbcMain is up"
+
+watch sglbs_glbcCollector
+    service glbcCollector
+    interval 5s
+    monitor tcp.monitor -p 9132
+    period wd {Sun-Sat}
+    alert   down.alert "sglbs server glbcCollector is down"
+    upalert up.alert   "sglbs server glbcCollector is up"
+    
+#------------------------------
+#view /etc/mon.cf (sglbb)
+#------------------------------
+cfbasedir   = /etc
+alertdir    = /usr/lib/mon/alert.d
+mondir      = /usr/lib/mon/mon.d
+maxprocs    = 20
+histlength  = 100
+randstart   = 30s
+#
+# group definitions (hostnames or IP addresses)
+#
+hostgroup sglbb_glbcMain      192.168.0.103
+hostgroup sglbb_glbcCollector 192.168.0.103
+
+watch sglbb_glbcMain
+    service glbcMain
+    interval 5s
+    monitor tcp.monitor -p 9131
+    period wd {Mon-Sun}
+    alert   down.alert "sglbb server glbcMain is down"
+    upalert up.alert   "sglbb server glbcMain is up"
+
+watch sglbb_glbcCollector
+    service glbcCollector
+    interval 5s
+    monitor tcp.monitor -p 9132
+    period wd {Sun-Sat}
+    alert   down.alert "sglbb server glbcCollector is down"
+    upalert up.alert   "sglbb server glbcCollector is up"
+    
+ #------------------------------
+#view /usr/lib/mon/alert.d/up.alert
+#------------------------------
+#!/bin/bash
+echo "`date` $*" >> /tmp/alert.log
+
+# Heartbeat daemon check
+PSID=$(ps ax |grep heartbeat |grep -v grep | awk '{print $1}')
+if [ "$PSID" == "" ]; then
+        /etc/init.d/heartbeat start
+else
+        exit
+fi
+
+#------------------------------
+#view  /usr/lib/mon/alert.d/down.alert
+#------------------------------
+#!/bin/bash
+echo "`date` $*" >> /tmp/alert.log
+
+# Heartbeat daemon check
+PSID=$(ps ax |grep heartbeat |grep -v grep | awk '{print $1}')
+if [ "$PSID" == "" ]; then
+        exit
+else
+/etc/init.d/heartbeat stop
+fi
+   
+    
+ 

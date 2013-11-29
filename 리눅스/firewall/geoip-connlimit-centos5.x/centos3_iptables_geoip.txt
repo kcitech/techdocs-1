@@ -1,0 +1,162 @@
+[ centos3 + geoip + iptables ]
+
+os : centos3.x
+kernel : kernel-2.4.21-58.EL
+kernel-source : kernel-source-2.4.21-58.EL
+iptables : 1.2.8-12.3
+(2009.01.31 현재)
+
+필요파일
+=============================================================
+1. patch-o-matic-ng
+   patch-o-matic-ng-20071231.tar.bz2
+
+2. iptables-1.3.5-4.el5.src.rpm
+   (시스템에 설치된 iptables의 버전의 src rpm을 받으면 된다.)
+   (ftp.daum.net/centos/3.9/os/SRPMS)
+=============================================================
+
+1. geoip 커널패치 및 iptables패치
+
+   # ls -al /usr/src/
+     linux-2.4 -> linux-2.4.21-58.EL
+     linux-2.4.21-58.EL
+
+   # rpm -ivh iptables-1.3.5-4.el5.src.rpm
+   # cd /usr/src/redhat/SOURCES
+   # tar xvjf iptables-1.2.8.tar.bz2
+
+   # tar xvzf /usr/local/src/patch-o-matic-ng-20071231.tar.bz2
+   # cd /usr/local/src/patch-o-matic-ng-20071231
+
+   # KERNEL_DIR=/usr/src/linux-2.4.21-58.EL \
+     IPTABLES_DIR=/usr/src/redhat/SOURCES/iptables-1.2.8 \
+     ./runme --download 
+     (위 명령 한줄에 입력하면 됨. \는 한줄에 쓰라는 표시)
+
+   ==============================================================
+   Successfully downloaded external patch geoip
+   Successfully downloaded external patch condition
+   생략...
+   Excellent! Source trees are ready for compilation.
+   ==============================================================
+  
+   # KERNEL_DIR=/usr/src/linux-2.4.21-58.EL \
+     IPTABLES_DIR=/usr/src/redhat/SOURCES/iptables-1.2.8 \
+     ./runme geoip
+
+   ==============================================================
+   생략..
+   you want to apply this patch [N/y/t/f/a/r/b/w/q/?] y <- 입력
+
+   Excellent! Source trees are ready for compilation.
+
+   Recompile the kernel image (if there are non-modular netfilter modules).
+   Recompile the netfilter kernel modules.
+   Recompile the iptables binaries.
+   ==============================================================
+
+   -. geoip 커널소스 패치 확인.
+   # cd /usr/src/linux-2.4.21-58.EL/include/linux/netfilter_ipv4
+   # ls *geo*
+     ipt_geoip.h 
+     (있어야 정상. 원래 커널소스에는 없음)
+
+   -. geoip iptables소스 패치 확인.
+   # cd /usr/src/redhat/SOURCES/iptables-1.2.8/extensions
+   # ls *geo*
+     libipt_geoip.c  libipt_geoip.man
+     (있어야 정상. 원래 없음)
+
+2. geoip 커널 모듈 컴파일
+
+   # cd /usr/src/linux-2.4.21-58.EL
+   # make menuconfig
+     =================================================
+     Networking options ->
+        IP:Netfilter Configuration ->
+           < > geoip match support (NEW)
+
+     geoip match support에 선택바 이동시키고,
+     spacebar눌러 선택(M 으로 표시됨,모듈방식이라는 뜻)
+
+     Exit -> Exit -> Exit -> Yes(save config)
+     =================================================
+
+   # make modules
+   
+   # cd /usr/src/linux-2.4.21-58.EL/net/ipv4/netfilter
+   # ls *geo*
+     ipt_geoip.c  ipt_geoip.o
+     (ipt_geoip.o 생성되야 정상)
+   # cp -a ipt_geoip.o /lib/modules/2.4.21-58.EL/kernel/net/ipv4/netfilter/
+   # chmod 744 /lib/modules/2.4.21-58.EL/kernel/net/ipv4/netfilter/ipt_geoip.o
+     
+   # cd /lib/modules/2.4.21-58.EL
+   # depmod -a
+   # view modules.dep
+     아래와 같이 등록되야 정상.
+     ===================================================================
+     /lib/modules/2.4.21-58.EL/kernel/net/ipv4/netfilter/ipt_geoip.o:
+          /lib/modules/2.4.21-58.EL/kernel/net/ipv4/netfilter/ip_tables.o
+     ===================================================================
+
+2. geoip iptables 모듈 컴파일
+   # /usr/src/redhat/SOURCES/iptables-1.2.8
+   # make KERNEL_DIR=/usr/src/linux-2.4.21-58.EL
+   # cd extensions
+   # ls -al *geo*
+     755  libipt_geoip.so
+     생성되야 정상.
+   # cp -a libipt_geoip.so /lib/iptables/
+
+3. geoip database파일 설치
+   www.maxmind.com
+   centos에서 제공하는 GeoIP rpm의 db는 /var/lib/GeoIP/GeoIP.dat 인데,
+   자동 update를 하려면 license키를 구매해야 한다.
+
+   이때문에, netfilter.org에서 제공하는 geoip소스(patch-o-matic-ng)에서는
+   idx(인덱스), bin(db)를 이용하게 구성되어 있는것 같다.
+   =================================
+   libipt_geoip.c 
+    fopen("/var/geoip/geoipdb.idx"
+    fopen("/var/geoip/geoipdb.bin"
+   =================================
+
+   다음 주소에서 관련 파일을 받는다.
+   =============================================================================
+   csv2bin 툴 다운 : csv2bin-20041103.tar.gz
+   (wget http://people.netfilter.org/peejix/geoip/tools/csv2bin-20041103.tar.gz)
+
+   국가별 DB다운로드 : GeoIPCountryCSV.zip
+   (wget http://geolite.maxmind.com/download/geoip/database/GeoIPCountryCSV.zip)
+   =============================================================================
+
+   # tar xvzf csv2bin-20041103.tar.gz
+   # cd csv2bin
+   # make
+   # cp -a csv2bin /usr/bin/
+   
+   # mkdir /var/geoip
+   # cd /var/geoip
+   # unzip GeoIPCountryCSV.zip
+   # csv2bin ./GeoIPCountryWhois.csv
+     geoipdb.bin
+     geoipdb.idx
+     위 파일 생성되야 정상.
+
+4. 확인.
+   # iptables -A INPUT -p tcp --dport 80 -m geoip --src-cc CN -j DROP
+   별다른 warning메세지 없이 프롬프트 떨어지면 정상.
+
+   # iptables -nL
+   Chain INPUT (policy ACCEPT)
+   target     prot opt source               destination
+   DROP       tcp  --  0.0.0.0/0            0.0.0.0/0           tcp dpt:80 Source country: CN
+
+   # lsmod | grep geo
+   ipt_geoip               3256   1  (autoclean)
+   ip_tables              15904   6  [ipt_geoip ipt_state iptable_nat iptable_filter]
+
+
+끝.

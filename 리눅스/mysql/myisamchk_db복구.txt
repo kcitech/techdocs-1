@@ -1,0 +1,101 @@
+
+
+    ①해당 테이블의 데이타 위치를 찾는다.
+     (/home/mysql-data/mysql_user2/zetyx_board_freeboard)
+ 
+    ②만약을 대비해서 mysql 전체 백업을 진행한다.
+     ( mysqldump -uroot -p -A > /backup01/mysqlbackup-오늘날짜.sql 엔터
+       mysql root계정의 암호를 입력한다.
+       잠시 작업후 /backup01/mysqlbackup-오늘날짜.sql 파일이 생성되었으면
+       정상적으로 백업이 된것임)
+ 
+    ③mysql 을 정지 한다.
+     ( /etc/init.d/mysql stop)
+   
+    ④mysql 데몬이 구동 중인지 확인한다.만약 구동중이면 ③과정을 실행한다.
+     (ps aux|grep mysql 엔터
+      mysql    24930  0.0  0.9 44576 8800 pts/0    S    17:31   0:00 /usr/sbin/mysqld --basedir=/usr.......
+      위와 같은 출력물이 없어야 mysql 이 중지된 상태임)
+ 
+    ⑤myisamchk 유틸리티로 깨진 테이블을 체크한다.
+      (myisamchk /home/mysql-data/mysql_user2/zetyx_board_freeboard 엔터
+        ................crashed.....
+        출력 메세지중 위와 같은 문구가 나오면 테이블이 깨진 것임
+       )
+ 
+    ⑥myisamchk 유틸리티로 깨진 테이블을 복구한다.
+      ( myisamchk -er /home/mysql-data/mysql_user2/zetyx_board_freeboard 엔터)
+ 
+    ⑦mysql을 구동한다.
+        /etc/init.d/mysql start
+ 
+    ⑧mysql 데몬이 구동됐는지 확인한다. 상기 ④ 아래 설명처럼...
+    
+    -----------------------------------------------------------------------------------------------------------------------------
+    case 2
+    ----------------------------------------------------------------------------------------------------------------------------
+    
+]# mkdir /home/imsi -> 해당 테이블을 백업 시킬 임시 디렉토리 생성
+]# cp /usr/local/mysql/data/test/* /home/imsi  -> 해당 테이블 백업
+]# /usr/local/mysql/bin/myisamchk -o /usr/local/mysql/data/*/*.MYI
+]# service mysqld start
+
+myisamchk 로 복구 되지 않는 아래와 같은 오류 해결방법
+
+[ERROR] /usr/libexec/mysqld: Table './ky68/gb_login' is marked as crashed and should be repaired 
+
+]# mysqlcheck -u root --auto-repair -B ky68 -p
+
+-B 뒤에 database 명입력. mysql 중지 시키지 않고 실행하면 된다.
+
+
+mysqlcheck는 mysql 데몬 실행중에 실시
+
+
+/usr/local/mysql/bin/mysqlcheck -Aao --auto-repair -u root --password=xxxxxx;
+
+-A, --all-databases Check all the databases. This will be same as --databases with all databases selected.
+-a, --analyze       Analyze given tables.
+-o, --optimize      Optimize table.
+
+--auto-repair       If a checked table is corrupted, automatically fix it.
+                            Repairing will be done after all tables have been checked, if corrupted ones were found.
+
+-p, --password[=name] 
+Password to use when connecting to server. If password is not given it's solicited on the tty.
+
+
+그리고 MySQL 에는 현재의 테이블의 삽입 수정등을 통해 조각난 부분을
+조각모음처럼 최적화 해주는 MYSQLCHECK와 같은 옵티마이져 유틸리티가 있습니다.
+
+./mysqlcheck -u사용유저 -p페스워드 --auto-repair -B 디비명
+
+디비명은 경로명을 제외하고 디비명만입력합니다.
+페스워드를 주고 하면 디비를 페스워드로 인식하는것이 있으니 
+페스워드는 부쳐서 사용하던가 아님 나중에 따로 입력
+
+적용 예)
+
+UPDATE yc4_on_uid set on_uid = 'cfcd208495d565ef66e7dff9f98764da' where on_id = '0' 
+
+1016 : Can't open file: 'yc4_on_uid.MYI'. (errno: 145) 
+
+error file : /comm/index.php
+
+/usr/local/mysql/bin/mysqlcheck -Aao --auto-repair -u root --password=xxxxxx;
+
+===============================================================================
+case2
+===============================================================================
+
+mysql>use test_board;
+mysql>repair table bd107;
+
+모두 정상 OK 복구 확인함
+
+4. DB 테이블 체크
+#mysqlcheck -c -uroot -p test_board;
+#mysqlcheck -c -uroot -p zero;
+
+
+    

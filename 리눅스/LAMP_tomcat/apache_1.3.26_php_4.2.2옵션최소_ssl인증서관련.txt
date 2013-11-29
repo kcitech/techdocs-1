@@ -1,0 +1,164 @@
+--------------------
+기존
+--------------------
+
+apache_1.3.26
+
+./configure \
+"--with-layout=Apache" \
+"--prefix=/home/apps/apache" \
+"--activate-module=src/modules/php4/libphp4.a" \
+"--enable-module=php4" \
+"$@"
+
+
+php-4.2.2
+
+./configure  --with-apache=../apache_1.3.26 --with-mysql=/usr --with-imap --with-imap-ssl --with-kerberos --enable-ftp --enable-sockets --enable-track-vars --no-create --no-recursion
+
+
+# /home/apps/apache/bin/httpd -l
+Compiled-in modules:
+  http_core.c
+  mod_env.c
+  mod_log_config.c
+  mod_mime.c
+  mod_negotiation.c
+  mod_status.c
+  mod_include.c
+  mod_autoindex.c
+  mod_dir.c
+  mod_cgi.c
+  mod_asis.c
+  mod_imap.c
+  mod_actions.c
+  mod_userdir.c
+  mod_alias.c
+  mod_access.c
+  mod_auth.c
+  mod_setenvif.c
+  mod_php4.c
+suexec: disabled; invalid wrapper /home/apps/apache/bin/suexec
+
+--------------------
+예제
+--------------------
+www.modssl.org
+
+cd mod_ssl_2.8.28_1.3.37
+./configure --with-apache=../apache_1.3.37 --with-ssl --prefix=/usr/local/apache_1.3.37
+
+cd apache_1.3.37
+./configure --prefix=/usr/local/apache_1.3.37 \
+--enable-module=most \
+--enable-module=ssl \
+--enable-shared=max \
+&& make && make install
+
+
+--------------------
+예제+기존
+--------------------
+
+mv /home/apps/apache /home/apps/apache.orig
+
+www.modssl.org
+
+$ cd openssl-0.9.8b
+$ ./config --prefix=/usr/local/openssl-0.9.8b
+$ make
+$ make install
+
+cd mod_ssl-2.8.9-1.3.26
+./configure --with-apache=../apache_1.3.26 --with-ssl=/usr/local/openssl-0.9.8b --prefix=/home/apps/apache
+
+cd apache_1.3.26
+./configure  \
+--prefix=/home/apps/apache
+--enable-module=most \
+--enable-module=ssl \
+--enable-shared=max \
+--with-layout=Apache && make && make install
+
+php-4.2.2
+
+./configure  \ 
+--prefix=/usr/local/php-4.2.2 \
+--with-apxs=/home/apps/apache/bin/apxs \ 
+--with-mysql=/usr \
+--with-imap \ 
+--with-imap-ssl \  
+--with-kerberos \  
+--enable-ftp \ 
+--enable-sockets \ 
+--enable-track-vars \ 
+--no-recursion && make && make install
+
+
++--------------------------------------------------------+
+| You now have successfully built and installed the      |
+| Apache 1.3 HTTP server. To verify that Apache actually |
+| works correctly you now should first check the         |
+| (initially created or preserved) configuration files   |
+|                                                        |
+|   /usr/local/apache_1.3.41/conf/httpd.conf
+|                                                        |
+| and then you should be able to immediately fire up     |
+| Apache the first time by running:                      |
+|                                                        |
+|   /usr/local/apache_1.3.41/bin/apachectl start
+|                                                        |
+| Or when you want to run it with SSL enabled use:       |
+|                                                        |
+|   /usr/local/apache_1.3.41/bin/apachectl startssl
+|                                                        |
+| Thanks for using Apache.       The Apache Group        |
+|                                http://www.apache.org/  |
++--------------------------------------------------------+
+
+2008.02.11 
+php-4.4.8
+./configure --prefix=/usr/local/php-4.4.8 \
+--with-config-file-path=/usr/local/php-4.4.8/etc \
+--with-apxs=/usr/local/apache_1.3.41/bin/apxs \
+--with-mysql=/usr/local/mysql-4.0.27 \
+--with-openssl \
+--with-gd \
+--with-freetype-dir \
+--with-png-dir \
+--with-jpeg-dir \
+--with-zlib-dir \
+--with-iconv \
+--with-dom \
+--with-xml \
+--with-expat-dir=/usr \
+--with-zlib \
+--with-bz2 \
+--with-gettext \
+--with-gmp \
+--enable-sigchild \
+--enable-exif \
+--enable-gd-native-ttf \
+--enable-track-vars \
+--enable-sockets \
+--enable-sysvsem \
+--enable-sysvshm \
+--enable-magic-quotes \
+--enable-safe-mode \
+--enable-ftp \
+--enable-mbstring \
+--enable-force-cgi-redirect \
+--enable-pic \
+--enable-inline-optimization \
+--enable-bcmath \
+--enable-discard-path \
+--enable-yp \
+--enable-wddx \
+--enable-dbx \
+--enable-dio \
+--enable-mcal \
+--enable-calendar \
+--disable-debug \
+--disable-rpath 
+
+

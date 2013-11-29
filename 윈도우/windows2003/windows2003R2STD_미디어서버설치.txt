@@ -1,0 +1,12 @@
+
+
+Windows Server 2003 R2 Standard Edition KN 버젼이어서
+Media 서비스가 설치되어 있지 않았습니다.
+
+KN 버젼의 경우 기본적으로 Windows Media 서비스를 제공하지
+않기 때문에 Microsoft에서 KN버젼용 Media서비스를 다운받아
+수동으로 설치해 드렸습니다.
+
+http://www.microsoft.com/downloads/details.aspx?
+FamilyID=84523682-de49-4448-aef6-962b9fea6479&displaylang=ko
+

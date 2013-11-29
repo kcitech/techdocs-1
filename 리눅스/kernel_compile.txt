@@ -1,0 +1,121 @@
+apt-get install build-essential
+apt-get install libncurses-dev
+
+#make all && make modules_install && make install
+#cd /boot/
+#mkinitramfs -o initrd.img-3.7.5 3.7.5
+#update-grub
+
+확인
+view /boot/grub/grub.cfg
+
+<reference>
+
+http://www.linuxforums.org/articles/the-newbies-guide-to-compiling-your-first-kernel_272.html
+
+So you've been using Linux for a while now and have decided to take the next step.
+Whether you are looking for a performance increase, added hardware support or even just to enhance your geek cred, compiling your own kernel need not be a horrifying experience. Compiling a kernel has historically been a very involved and, at times, frustratingly hair pulling experience for new Linux users. All that has changed however with new tools making it easier than ever before to roll your own. In this article I will take you through the whole process, step by step, from downloading to booting your new kernel.
+Obtaining your new Kernel
+Many distributions either install the source for the current kernel or make it available via the package manager, some distributions even make it possible to install a new kernel via the package manager. The downside to this is that it isn't going to be the latest kernel and that you aren't going to get the same level of customization as you do when compiling your own. Therefore we need to go straight to the source (excuse the pun) and download our kernel from www.kernel.org. I would recommend downloading the 'Latest Stable Version' by clicking on the 'F' link beside the release date. This will take some time to download on slower connections, feel free to continue on to the 'Preparing Your System' section while you wait for your new kernel to download.
+
+Preparing Your System
+The main prerequisite to compiling your own kernel is (not surprisingly) a compiler, if a compiler is not installed on your system then use your distributions package management tools (Apt, Yum, Synaptic, Emerge, etc...) to install the most recent version of gcc (the GNU compiler). You will also need to install the bzip2 package using your package manager. Debian users can install the build-essential package to ensure that they have all the tools required to build things. NCurses is also required for those using menuconfig, however we will be using xconfig in this article which is a bit friendlier and for that NCurses isn't needed. You will also need to use mkinitramfs, which will be available with most package managers in the form of mkinitramfs-tools, or similar and is used to create a temporary file-system in Ram to boot the kernel from. If your package manager doesn't provide these tools they can be downloaded from the following locations:
+
+gcc - http://gcc.gnu.org/
+
+bzip2 - http://www.bzip.org/
+
+mkinitramfs - http://sourceforge.net/projects/mkinitramfs/
+
+Unpacking Your Kernel
+Once your kernel is downloaded you need to move it to your /usr/src/ directory and unpack it. You then need to create a link from your actual kernel source directory to the default kernel source location /usr/src/linux/. Follow the commands below, replacing linux-2.6.20-1 with the version you have downloaded and /home/fred/ with the location that you have downloaded the kernel to.
+
+mv /home/fred/linux-2.6.20-1.tar.bz2 /usr/src/
+
+tar -jxvf linux-2.6.20-1.tar.bz2
+
+ln -s /usr/src/linux-2.6.20-1/ /usr/src/linux
+
+Configuring Your Kernel
+The configuration file for your kernel has over 2000 options, most of which mean absolutely nothing to most people, therefore we don't want to have to set each one individually. The easy way around this is to copy the configuration file for your current kernel and modify that. The config file for your current kernel is in the /boot/ directory, If you were using a 2.6.17 kernel your config file would be /boot/config-2.6.17. When you are configuring a new kernel it creates a .config file in the /usr/src/linux/ directory, if one already exists it loads the settings from that and saves changes back to it. Therefore, you need to copy the config file from your /boot/ directory to /usr/src/linux/.config. To do so run the command below, replacing 2.6.17 with your current kernel version.
+
+cp /boot/config-2.6.17 /usr/src/linux/.config
+
+Now change to the /usr/src/linux/ directory and run the command make xconfig.
+
+cd /usr/src/linux/
+
+make xconfig
+
+This will bring up the configuration menu with all the defaults from your current kernel already set. A tick in a box indicates that the driver will be compiled in to the kernel and loaded at every boot (each tick slows down your kernel a fraction), a dot in a box indicates that the driver will be compiled as a module which will only be loaded when you request it to and a blank box indicates that the driver will not be available at all. If you are compiling solely to enable a piece of hardware then skip to the 'Device Drivers' section, locate the appropriate sub-directory and enable the option for your device, then skip to the next section. If however you are here to trim excess fat and gain precious speed then read on. The list below contains a list of options, with short descriptions, which can commonly be removed without harming your system. If you have a piece of hardware which isn't supported under your current kernel, it may be supported under the new kernel, just find the corresponding menu and enable it. I make no guarantees that removing one of these devices won't render your new kernel unusable on your system, but if this does happen then you can always re-enable the option and recompile.
+
+Processor Type
+In the Processor Type and Features section under 'Processor Family' select the option that matches your CPU.
+
+Bus Options
+Disable ISA and MCA unless you have a very old PC (more than six years old) that you know has ISA or MCA slots.
+
+Disable PCCard(PCMCIA/Cardbus) support unless you are using a laptop.
+
+Disable PCI Hotplug Support as it is not available on common hardware.
+
+Device Drivers
+Disable all SCSI low-level drivers unless you have special SCSI hardware (mostly used for servers and Mac hardware.
+
+Disable all Fusion MPT device support unless you know you have this SCSI card.
+
+Disable ISDN support unless you are in a part of the world that still uses ISDN for Internet.
+
+Disable Linux telephony support unless you have a special card to connect a regular phone to your PC for VOIP applications.
+
+Enable Advanced Linux Sound Architecture if it is not already enabled. If you know what kind of Sound-card you have you can also disable any other drivers under the 'Generic Devices', 'PCI Devices' and 'USB Devices' sub-menus.
+
+Disable Open Sound System
+
+Disable Infiniband Support unless you know you have special infiniband hardware.
+
+File Systems
+Under 'Miscellaneous Filesystems', enable Compressed Rom File Support(cramfs) and disable all others unless you have a specific need to access a special file-system type.
+
+Under 'Partition Types' disable all except PC BIOS (enable all sub-menus) and Windows Logical Disk Manager Support
+
+Now that you have finished selecting your options click on the 'Save' icon (the floppy disk) and exit the utility.
+
+Compiling Your Kernel and Modules
+Once the configuration is saved, the next step is to compile the kernel. To compile the kernel itself run 'make' from within the /usr/src/linux/ directory. This will take a long time, on old systems it will take a very long time and your system will be unusable for other tasks while it compiles.
+
+cd /usr/src/linux/
+
+make
+
+Next we build and install the modules.
+
+make modules_install
+
+Installing Your Kernel
+Now that we have a fully customized and compiled kernel, we need to tell the system where it is and what to do with it. First we will install it in the appropriate place and create the necessary links to it. Then we will generate a ramdisk which the system will use at boot time to load the kernel. Then we will update your boot-loader to recognize the new kernel. If all goes according to plan we will then be able to boot the new kernel. As usual replace 2.6.20-1 with the actual version of your new kernel.
+
+Install the kernel in /boot/ and create links.
+
+cd /usr/src/linux/
+
+make install
+
+Generate a Ramdisk
+
+cd /boot/
+
+mkinitramfs -o initrd.img-2.6.20-1 2.6.20-1
+
+Update Grub or Lilo (depending on which you have, usually Grub).
+
+Grub:
+
+update-grub
+
+Lilo:
+
+lilo
+
+Conclusion
+Hopefully you still have all your hair and you now have a brand spanking shiny new racey kernel. Reboot your PC and select your new kernel from the boot menu. If for some reason it doesn't boot, your old kernel will still be available and you can try again. For those of you with an adventurous streak, now is the time to go back in to xconfig and try and refine your selections even further.

@@ -1,0 +1,574 @@
+===============================================================================
+Virtualization Technology
+===============================================================================
+- VMWare ESX and GSX
+- KVM
+- QEMU emulator
+- Xen
+- LXC
+- OpenVZ
+- User Mode Linux
+- VirtualBox
+- Open Nebula
+- Hyper-V
+- UML
+- XenServer
+
+===============================================================================
+install KVM
+===============================================================================
+ 
+http://www.visibleclouds.com/web/node/3
+
+1) pre-requisitions
+# grep --color=tty pae /proc/cpuinfo
+# grep --color=tty -E 'svm|vmx' /proc/cpuinfo
+
+2) installing KVM hypervisor
+# yum install kvm virt-manager libvirt libvirt-python python-virtinst
+Or, 
+# yum groupinstall kvm
+
+3) start
+# service libvirtd start
+# chkconfig libvirtd on
+
+Load the relevant modules:
+# modprobe kvm 
+# modprobe kvm-intel
+
+4) Deploying virtual guests
+ 4.1. Installing a virtual guest with qemu-kvm
+ # /usr/libexec/qemu-kvm -m 512 -cdrom Fedora-12-x86-Live.iso 
+ 
+ 4.2. Installing a virtual guest with virt-manager
+ # virt-manager
+ 
+ 4.3. Installing a virtual guest with virt-install
+ # virt-install \
+    --connect qemu:///system \
+    --accelerate \
+    --name kvm-demo \
+    --arch=x86 \
+    --ram 512 \
+    --disk path=/var/lib/libvirt/images/Fedora-12-x86.img,size=8 \
+    --network=default \
+    --sound \
+    --vnc \
+    --vcpus=1 \
+    --cdrom /dev/sr0
+
+===============================================================================
+libvirt.org
+===============================================================================
+The virtualization API
+libvirt supports : KVM,QEMU,XEN,LXC,OpenVz,UserModeLinux,VirtualBox,VMware ESX and GSX, VMware Workstation and Player,Microsoft Hyper-V
+                   virtual networks using bridging,NAT,VEPA and VN-LINK
+                   stroage on IDE/SCSI/USB disks, FibreChannel, LVM, iSCSI, NFS and filesystems
+
+===============================================================================
+libvirt applications
+===============================================================================
+client/server application
+ Archipel : http://archipelproject.org/  ( you just need at least one XMPP server -- like eJabberd)
+
+Infrastructure as a Service(IaaS)
+ Nimbus IaaS / Cumulus Stroage (http://www.nimbusproject.org/docs/2.8/admin/z2c/index.html)
+ 
+   cloud client ---http--->  Service Node     <--ssh-->  VMM Nodes
+                              Nimbus IaaS                 control
+                              Cumulus storage             libvirt
+                                                          xen/kvm
+                                                          vm  vm
+                                                          
+                                                          dhcp server
+
+LiveCD / Application
+ virt-p2v 
+ 
+Monitoring
+ collectd (http://collectd.org/wiki/index.php)
+ Munin    (
+ Nagios-virt
+ Zenoss
+
+Provisioning
+ Tivoli Provisioning Manager
+ Foreman
+ 
+Web applications
+ AbiCloud
+ oVirt : http://www.cyberciti.biz/faq/centos-rhel-linux-kvm-virtulization-tutorial/
+ 
+Mobile applications
+ VM Manager
+ 
+===============================================================================
+CPU 
+===============================================================================
+
+http://ark.intel.com/compare/35365,38512,53448,52213,52215,52271,42928,52583
+
+===============================================================================
+Virtualization ( http://wiki.libvirt.org/page/VM_lifecycle ) 
+===============================================================================
+
+a node is a single physical machine.
+an hypervisor is a layer of software to virtualize a node in a set of virtual machine with possibly different configuration that the node..
+a domain is an instance of an operating system.
+
+node
+------------------------------
+|     domain                  |
+|                             |
+|     domain                  |
+|                             |
+|                             |
+-------------------------------
+|     Hypervisor              |
+-------------------------------
+
+domain : trasient, persistent
+
+domain state
+                                            saved
+                                            
+                                             ^ | 
+                                        save | | restore
+                                             | V
+                       shutdown
+                    <----------------   
+        undefined   ---------------->        
+         ^  |            create        
+undefine |  | define                       running
+         |  V           start 
+        define     ----------------->      
+                   <-----------------      
+                       shutdown              ^  | 
+                                      resume |  | suspend
+                                             |  V
+                                         
+                                            paused   
+
+<deletion of domain>
+virsh undefine <domain>
+
+virsh vol-wipe <volume>
+virsh vol-delete <volume>
+
+===============================================================================
+snapshot (snapshot : libvirt 0.8.0 over)
+===============================================================================
+snapshot  : snapshot is a view of virtual machine's operating system.
+migration : a running virtual machine can be migrated to any host with its designated host.
+            This is especially useful it the load on a partical host is too grate.
+            does n't cause any service interruption.
+            
+            standard : suspend --> resume
+            live     : running 
+            
+            Requirements for migration :
+             - shared storage : iSCSI, NFS
+             - same version hypervisor
+             - same network configuration
+             - same CPU
+             
+virsh snapshot-create  <domain>
+virsh snapshot-list    <domain>
+virsh snapshot-restore <domain> <snapshotname>
+virsh snapshot-delete  <domain> <snapshotname>
+
+virsh migrate <domain> <remote host URI> --migrateuri tcp://<remotehost>:<port>
+
+xen 3.1 libvir 0.6.3
+snapshot : libvirt 0.8.0 over
+
+===============================================================================
+Opensource 가상화 플랫폼 : openstack, oVirt
+===============================================================================
+- RedHat Enterprise Virtualization : RHEV
+- Intel VT-x, AMD-v
+- PaaS By RedHat --> OpenShift
+- IaaS --> CloudForms
+- libvirt 지원 : Xen, KVM, QEMU, OpenVz, VirtualBox, VMWare
+- libvirt API : virt-clone, virt-install, virt-p2v, virt-v2v, virt-manager 
+
+- KVM : CentOS 6.2
+
+                   source |  target
+                          |
+     physical Server      |
+    ------------------    |            RHEV
+    |                |    |
+    |   virt-p2v     | virt-v2v
+    |                |  server
+    |             --------------->
+    |   boot-image   |    |                 
+    |                |    |            RHEL5,6KVM
+    ------------------    |
+                          |   
+
+
+===============================================================================
+Eucalyptus 
+===============================================================================
+- Eucalyptus 2.0 is an open source Linux-based software architecture that implements
+  scalable, efficiency-enhancing private and hybrid clouds within an organization's IT infrastructure.
+  Eucalyptus provides Infrastructure as a Service(IaaS). 
+  
+- front-end, node(s), client-machine
+  yum install -y ntp
+  ntpdate pool.ntp.org
+
+- front-end needs java
+  yum install -y java-1.6.0-openjdk ant ant-nodeps dhcp \
+  bridge-utils perl-Convert-ASN1.noarch \
+  scsi-target-utils httpd
+  
+- Node has a fully installed and configured installation of Xen that allows controlling the hypervisor via HTTP from localhost.
+  yum install -y xen
+  sed --in-place 's/#(xend-http-server no)/(xend-http-server yes)/' /etc/xen/xend-config.sxp 
+  sed --in-place 's/#(xend-address localhost)/(xend-address localhost)/' /etc/xen/xend-config.sxp
+  /etc/init.d/xend restart
+  
+- On the front-end, ports 8443, 8773, 8774 and 9001 must be open; on the node, port 8775 must be open.  
+  If you are planning on using Elastic IPs and/or Security Groups, consider disabling the firewall and use Eucalyptus facilities for enabling
+  custom firewall rules (see Network configuration for more information). To do so, on both the front-end and the nodes:
+
+  run system-config-securitylevel-tui
+  select Security Level: Disabled
+  select OK
+  
+- Download and Install RPMs
+
+  YUM option
+  
+  /etc/yum.repos.d/euca.repo
+  [euca]
+  name=Eucalyptus
+  baseurl=http://www.eucalyptussoftware.com/downloads/repo/eucalyptus/{{VERSION}}/yum/centos/{{BASEARCH}}
+  gpgcheck=0
+  
+  Replace {{VERSION}} and {{BASEARCH}} in the baseurl= line above.
+  
+  Now install Eucalyptus on the front-end:
+   yum install eucalyptus-cloud eucalyptus-cc eucalyptus-walrus eucalyptus-sc
+  
+  and on the node:
+   yum install eucalyptus-nc
+   
+  Tarball option
+  
+  Untar the bundle in a temporary location:
+   tar zxvf eucalyptus-$VERSION-*.tar.gz
+   cd eucalyptus-$VERSION-*
+   
+  Install RPMs on the front end
+   cd eucalyptus-$VERSION*-rpm-deps-x86_64
+ 
+   rpm -Uvh aoetools-21-1.el4.x86_64.rpm \
+         euca-axis2c-1.6.0-1.x86_64.rpm \
+         euca-rampartc-1.3.0-1.x86_64.rpm \
+         vblade-14-1mdv2008.1.x86_64.rpm \
+         vtun-3.0.2-1.el5.rf.x86_64.rpm \
+         lzo2-2.02-3.el5.rf.x86_64.rpm\
+         perl-Crypt-OpenSSL-Random-0.04-1.el5.rf.x86_64.rpm\
+         perl-Crypt-OpenSSL-RSA-0.25-1.el5.rf.x86_64.rpm\
+         perl-Crypt-X509-0.32-1.el5.rf.noarch.rpm\
+         python25-2.5.1-bashton1.x86_64.rpm\
+         python25-devel-2.5.1-bashton1.x86_64.rpm\
+         python25-libs-2.5.1-bashton1.x86_64.rpm
+   cd ..    
+   
+  then install the -cloud, -walrus, -cc and -sc RPMs:
+   rpm -Uvh eucalyptus-$VERSION-*.x86_64.rpm \
+        eucalyptus-common-java-$VERSION-*.x86_64.rpm \
+        eucalyptus-cloud-$VERSION-*.x86_64.rpm \
+        eucalyptus-walrus-$VERSION-*.x86_64.rpm \
+        eucalyptus-sc-$VERSION-*.x86_64.rpm \
+        eucalyptus-cc-$VERSION-*.x86_64.rpm \
+        eucalyptus-gl-$VERSION-*.x86_64.rpm
+   
+   Install RPMs on the nodes
+   Next, on each node install the dependency packages:
+
+   cd eucalyptus-$VERSION*-rpm-deps-x86_64
+   rpm -Uvh aoetools-21-1.el4.x86_64.rpm \
+         euca-axis2c-1.6.0-1.x86_64.rpm \
+         euca-rampartc-1.3.0-1.x86_64.rpm\
+         perl-Crypt-OpenSSL-Random-0.04-1.el5.rf.x86_64.rpm\
+         perl-Crypt-OpenSSL-RSA-0.25-1.el5.rf.x86_64.rpm\
+         perl-Crypt-X509-0.32-1.el5.rf.noarch.rpm\
+         python25-2.5.1-bashton1.x86_64.rpm\
+         python25-devel-2.5.1-bashton1.x86_64.rpm\
+         python25-libs-2.5.1-bashton1.x86_64.rpm
+   cd ..
+   then install the node controller RPM with dependencies:
+
+   rpm -Uvh eucalyptus-$VERSION-*.x86_64.rpm \
+         eucalyptus-gl-$VERSION-*.x86_64.rpm \
+         eucalyptus-nc-$VERSION-*.x86_64.rpm   
+  
+   Post-Install Steps
+    make sure that the user 'eucalyptus'
+    /etc/libvirt/libvirtd.conf
+    unix_sock_group = "libvirt"
+    unix_sock_ro_perms = "0777"
+    unix_sock_rw_perms = "0770"
+    
+   # on XEN
+   su eucalyptus -c "virsh list"
+   # on KVM
+   su eucalyptus -c "virsh qemu:///system list"    
+   
+   Now start up your Eucalyptus services. On the front-end:
+    /etc/init.d/eucalyptus-cloud start
+    /etc/init.d/eucalyptus-cc start
+    
+   On the node:
+    /etc/init.d/eucalyptus-nc start
+   
+===============================================================================
+OpenStack
+===============================================================================
+- OpenStack is a global collaboration of developers and cloud computing technologists
+  producing the open standard cloud operating system for both public and private clouds.
+  Cloud service providers, enterprises and government organizations can take advantage
+  of the freely available, Apache-licensed software to build massively scalable cloud environments.
+  
+- OpenStack is an IaaS cloud computing projected by RackSpace Cloud and NASA.
+  It is free open source software released under the terms of the Apache License.
+  OpenStack integrates code from NASA'S Nebula platform as well as Rackspace's Cloud Files platform.
+  
+- Components : Openstack has a modular architecture
+  OpenStack Compute(code-name Nova), 
+  OpenStack Object Storage(code-name Swift), 
+  OpenStack Image Service(code-name Glance)
+  
+  COMPUTE        : Provision and manage large networks of virtual machines
+  IMAGE SERVICE  : Catalog and manage massive libraries of server images
+  OBJECT STORAGE : Create petabytes of secure, reliable storage using standard hardware
+  
+  ------------------------
+  OpenStack Object Stroage
+  ------------------------
+  OpenStack Object Storage(code-named Swift) is open source software for creating redundant,
+  scalable object stroage using clusters of standardized servers to store petabytes of accessible data.
+  It is not a file system or real-time data storage system, but rather a long-term storage system 
+  for a more permanent type of static data that can be retrieved, leveraged, and then updated if necessary.
+  Primary examples of data that best fit this type of storage model are virtual machine images,
+  photo storage, email storage and backup archiving. 
+  Having no central "brain" or master point of control provides greater scalability, redundancy and permanence.
+  
+  Objects are written to multiple hardware devices in the data center, with the OpenStack software
+  responsible for ensuring data replication and integrity across the cluster.
+  Storage clusters can scale horizontally by adding new nodes. Should a node fail, OpenStack works to 
+  replicate its content from other active nodes. Because OpenStack uses software logic to ensure data replication
+  and distribution across different devices, inexpensive commodity hard drives and 
+  servers can be used in lieu of more expensive equipment.
+  
+  1.Users and applications request to store and retrieve data through the native OpenStack API or the Amazon S3 compatible API
+  2.Each data object is stored redundantly by making multiple copies to different nodes(hardware devices). 
+    There are no size limits on the objects stored.
+  3.Just by adding more nodes, clusters are massively scalable to multi-petabytes size and billions of objects.
+  
+  Popular Use Cases
+   Service providers offering IaaS storage platform
+   Integration with OpenStack Compute for storing server images
+   Enterprise Document storage / stroage for SharePoint files
+   Cost-effective & long=term storage of log files, web images, or user data    
+  
+===============================================================================
+virt-p2v
+===============================================================================
+- RedHat Richard WM Jones live cd   
+  http://libguestfs.org/virt-v2v/
+  
+  about : http://cafe.daum.net/redhat/DcUv/44?docid=1HjQ8DcUv4420110125154340
+  virt-p2v ISO이미지 구운 CD로 부팅
+  
+  image --> VMWare vmdk format 
+  
+  #qemu-img convert p2v-localhost-hda.img -O vmdk server02-hda.vmdk
+  
+  Cold Clonig 
+  - virt-p2v
+  
+  Hot Clonig  
+  - Mond Rescue (http://www.mondorescue.org)
+  - VMWare vCenter Converter
+  
+  etc
+  - dd
+  - VMWare Converter BootCD
+  - Plate Spin PowerConvert, Norton Ghost, True Image (상용도구)
+  
+===============================================================================
+Clonezilla 
+===============================================================================
+- http://www.clonezilla.org
+- The Free and Open Source Software for Disk Imaging and Cloning.
+- OpenSource clone system(OCS) solution called Clonezilla with unicasting and multicasting!
+- Clonezilla, based on DRBL, Partclone and udpcast allows you to do bare metal backup and recovery.
+- Two types of Clonezilla are available.
+  Clonezilla live (http://www.clonezilla.org/clonezilla-live.php)
+  Clonezilla SE(Server edtion) (http://www.clonezilla.org/clonezilla-SE.php)
+  
+- Clonezilla Live
+  Clonezilla Live can be used to clone individual computers using a CD/DVD or USB flash drive.
+  Though the image size is limited by the boot media's storage capacity, 
+  this problem can be eliminated by using a network filesystem such as sshfs or samba.
+
+- http://www.ubuntu.or.kr/viewtopic.php?p=98329
+  clonezilla나 partclone을 이용하면 됩니다.
+  clonezilla나 partclone은 사용한 블럭 또는 전체 블럭 백업이 가능하고, 멀티쓰레드를 이용하는 pigz(멀티쓰레드 지원하는 gzip)을 이용하면 압축율도 높고 멀티코어를 이용해 속도도 빠급니다.
+  clonezilla는 gui 프로그램으로 partclone, ntfsclone, ....의 프론트 앤드 입니다. 
+
+  partclone은 바로 백업이 가능해 아주 편합니다. (멀티쓰레드를 활용하려면 pigz를 설치해야함.)
+  압축을 사용하면 백업이 압축하지 않은것 보다 빠릅니다.
+
+  사용법:
+  압축 사용 안함
+  백업: sudo partclone.ntfs -c -s /dev/sda1 -o ~/image_sda1.pcl
+  복원: sudo partclone.ntfs -r -s ~/image_sda1.pcl -o /dev/sda1
+
+  압축 사용시 (gzip -c 대신 pigz -p 4 -0 -c를 넣으면 됨, 속도가 빠름. p 다음 숫자는 압축시 쓰레드수, -0는 압축 정도 (0-9: --fast -1, --best -9))
+  백업: sudo partclone.ntfs -c -s /dev/sda1 | gzip -c > ~/image_sda1.pcl.gz
+  복원: zcat ~/image_sda1.pcl.gz | sudo partclone.ntfs -r -o /dev/sda1
+
+  sudo 명령 사용해야함. 디스크 접근이기에....
+
+  클론질라의 사이트에서 패키지 다운이 가능합니다.
+  아래의 주소에서 32, 64 비트 버전 다운로드 가능합니다.
+
+  partclone
+  http://free.nchc.org.tw/drbl-core/pool/ ... partclone/
+  pigz
+  http://free.nchc.org.tw/drbl-core/pool/ ... able/pigz/
+
+  홈페이지 (사용법...)
+  http://partclone.org/index.php
+  https://wiki.archlinux.org/index.php/Partclone
+  http://clonezilla.org/
+
+- 동영상
+  http://linuxgravity.com/creating-and-restoring-an-image-of-hard-disk-with-clonzilla#more-872
+  
+===============================================================================
+Mondo Rescue 
+===============================================================================
+- Mondo is in use by Lockheed-Martin, Nortel Networks, Siemens, HP, IBM, NASA's JPL ....
+- Mondo Rescue is a Disaster Recovery Solution which allows you to effortlessly backup and
+  interactively restore Linux, Windows and other supported filesystem partitions to/from 
+  CD/DVD-+R/RW media, tape, NFS,... 
+- Mindi Linux provides the bootable emergency restore media which Mondo uses at boot-time.
+- Mondo Rescue backs up your file system to CD, tape, NFS (archives stored remotely) or ISO's(archives stored locally)
+- Mondo uses afio as the backup engine;afio is a well-respected replacement for tar.
+- Mindi Linux creates a set of boot/root media images that will let you perform basic system maintenance on your Linux distro.
+- Mondo has been compared favorably to ArcServe, Arkeia and BRU.
+- It is recommended that your computer have very good airflow.
+
+===============================================================================
+Physical-to-Virtual, P2V migration, p2v converter, p2v assistant
+===============================================================================
+http://translate.google.de/translate?hl=en&sl=de&tl=en&u=http%3A%2F%2Fqemu-buch.de%2Fde%2Findex.php%2FQEMU-KVM-Buch%2F_Speichermedien%2F_Physical-to-Virtual
+
+The transfer of an operating system from a real machine to a virtualized machine is called a physical-to-virtual(P2V).
+There are solutions to commercial, However, these solutions are avaiable only for some operating system.
+Here is the installed operating system independent open-source solution is described.
+
+1) You start the old computer with the Linux LIVE.(the Knoppix live DVD or grml www.grml.org)
+2) fdisk -l 
+   For example, when on the hard disk /dev/hda to the virtualization system,
+   you have to create an imagee of if.
+   # dd if=/dev/hda of=hda.raw
+   
+   since this image probably no place on the old machine, one has copied it right over the network to another computer.
+   
+   Host ~ # netcat-w30-vvnl 3333 | gzip-dc> hda.raw
+   
+   ~ # Dd if = /dev/hda | gzip-c | netcat-w 30-vvn 192.168.1.123 3333
+
+   Host ~ $ qemu-system-x86_64-snapshot hda.raw  (It is recommended to get a backup of this file to create.)
+   
+   Maybe the system will recognize when you start changing hardware.
+   This means you may need to install the appropriate drivers. 
+
+===============================================================================
+WINDOWS XP P2V CONVERSION WITH KVM
+===============================================================================
+http://blog.khax.net/2009/02/08/windows-xp-p2v-conversion-with-kvm/
+
+1. Create a disk image of sufficient size
+2. Copy the Windows HDD to the disk image
+3. Boot the image with KVM
+
+- Create a disk image of sufficient size
+  
+  qemu-img create -f qcow2 windowsxp.qcow2 80G   
+  
+  (I chose to use qcow2 for spaces sake as I am only testing this on my laptop.
+   Feel free to use any type of disk image that KVM supports.)
+   
+- Copy the Windows HDD to the disk image
+
+  kvm -m 256 -boot d -cdrom clonezilla-live-1.2.1-39.iso -hda /dev/sdc -hdb windowsxp.qcow2
+  
+- Boot the image with KVM 
+  
+  kvm -m 512 -usb -usbdevice tablet -hda windowsxp.qcow2
+  
+===============================================================================
+rsnapshot
+===============================================================================
+- Remote backup with rsnapshot using ssh  
+  http://linuxgravity.com/how-to-backup-with-rsnapshot-using-ssh
+
+===============================================================================
+Open vSwitch
+===============================================================================
+- distributed virtual switch ( Open vSwitch )
+
+===============================================================================
+Good Articles
+===============================================================================
+P2V예제 
+http://cafe.daum.net/redhat/DcUv/44?docid=1HjQ8DcUv4420110125154340
+
+
+Windows XP p2v conversion with KVM
+
+http://blog.khax.net/2009/02/08/windows-xp-p2v-conversion-with-kvm/
+ 
+Physical-to-Virtual, P2V-Migration, p2v converter, p2v assistant
+
+http://qemu-buch.de/de/index.php/QEMU-KVM-Buch/_Speichermedien/_Physical-to-Virtual
+ 
+Linux P2V to KVM via tar and ssh
+
+http://alexharrington.co.uk/2009/09/23/linux-p2v/
+P2V From Windows XP to a KVM Virtual Host Using Centos 5.4
+
+http://blog.pantek.com/2009/11/p2v-from-windows-xp-to-kvm-virtual-host.html
+
+<qemu>
+http://translate.google.de/translate?hl=en&sl=de&tl=en&u=http%3A%2F%2Fqemu-buch.de%2Fde%2Findex.php%2FQEMU-KVM-Buch%2F_Speichermedien%2F_Physical-to-Virtual
+
+<http://linuxgravity.com>
+
+<Linux의 가상 네트워크(한글문서)>
+http://www.ibm.com/developerworks/kr/library/l-virtual-networking/
+
+<오픈소스클라우드분석 IBM(한글문서)>
+http://www.ibm.com/developerworks/kr/library/os-cloud-anatomy/
+
+
+<etc>
+centreon ( monitoring )
+http://demo.centreon.com/centreon/main.php?p=20102&o=h#
+
+opsview ( monitoring )
+http://www.opsview.com/
+
+<Universal USB Installer – Easy as 1 2 3>
+http://www.pendrivelinux.com/universal-usb-installer-easy-as-1-2-3/

@@ -1,0 +1,38 @@
+#!/bin/bash
+umask 0066
+MYSQLDUMP=`which mysqldump`
+
+# --------------
+# mysql backup
+# --------------
+BAK_DIR=/home/backup/mysql_per.bak
+DATA_DIR=/home/mysql-data
+LIST=$DATA_DIR/list.txt
+
+#head=7
+#tail=8
+# /home/mysql-data => -f4
+# /var/lib/mysql ==> -f5
+# /usr/local/var ==> -f5
+
+find $DATA_DIR -type d -print | cut -d/ -f4 | awk 'length>1' > $LIST
+
+for db in `cat $LIST`
+
+do
+        head=7
+        tail=8
+        while [ $head -ge 1 ]
+        do
+                /bin/mv $BAK_DIR/$db.tar.gz.$head $BAK_DIR/$db.tar.gz.$tail
+                head=`expr $head - 1`
+                tail=`expr $tail - 1`
+        done
+        $MYSQLDUMP -u root $db -pPWD > $BAK_DIR/$db.sql
+        /bin/mv -f $BAK_DIR/$db.tar.gz $BAK_DIR/$db.tar.gz.1
+
+        cd $BAK_DIR
+        /bin/tar cvfz $BAK_DIR/$db.tar.gz $db.sql --remove-files
+done
+chmod 600 $BAK_DIR/*
+umask 0022

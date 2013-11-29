@@ -1,0 +1,7 @@
+reference
+
+-- http://sungdh86.egloos.com/3319543
+
+# mysqldump -u root -p TESTDB --default-character-set=latin1 > TESTDB.sql
+
+# mysqldump -u root -p --all-databases --default-character-set=latin1 > backup.sql

@@ -1,0 +1,84 @@
+디스크 8개씩 카드 2장
+
+c0, c1로 콘트롤러 잡히고 있으며,
+이중 c1,p6(7번째 하드) 고장.
+
+os가동중 rebuild하려면...
+
+우선 서버 끄고,디스크를 새것으로 교체 후 부팅을 한다.
+
+# ./tw_cli
+
+//s02> info c1
+
+Unit  UnitType  Status         %Cmpl  Stripe  Size(GB)  Cache  AVerify  IgnECC
+------------------------------------------------------------------------------
+u0    RAID-5    DEGRADED       -      64K     1073.69   ON     -        -
+u6    JBOD      OK             -      -       153.386   ON     -        -
+
+-> u6가 새로 교체한 디스크이다.
+
+
+//s02> maint deleteunit c1 u6 noscan
+Deleting unit c1/u6 ...Done.
+
+
+//s02> info c1
+
+Unit  UnitType  Status         %Cmpl  Stripe  Size(GB)  Cache  AVerify  IgnECC
+------------------------------------------------------------------------------
+u0    RAID-5    DEGRADED       -      64K     1073.69   ON     -        -
+
+Port   Status           Unit   Size        Blocks        Serial
+---------------------------------------------------------------
+p0     OK               u0     153.38 GB   321672960     VNRD3EC4C9PVPM
+p1     OK               u0     153.38 GB   321672960     VNRD3EC4C9WMRM
+p2     OK               u0     153.38 GB   321672960     VNRD3EC4C9TUAM
+p3     OK               u0     153.38 GB   321672960     VNRD3EC4C9B4DM
+p4     OK               u0     153.38 GB   321672960     VNRD3EC4C9WJ9M
+p5     OK               u0     153.38 GB   321672960     VNRD3EC4C9X8RM
+p6     OK               -      153.38 GB   321672960     VDK91BTCDPEPUR
+p7     OK               u0     153.38 GB   321672960     VNRD3EC4C9WMNM
+
+
+//s02> maint rebuild c1 u0 p6
+Sending Rebuild-Start request to /c1/u0 on 1 disk(s) [6] ... Done.
+
+
+//s02> info c1
+
+Unit  UnitType  Status         %Cmpl  Stripe  Size(GB)  Cache  AVerify  IgnECC
+------------------------------------------------------------------------------
+u0    RAID-5    REBUILDING     0      64K     1073.69   ON     -        -
+
+Port   Status           Unit   Size        Blocks        Serial
+---------------------------------------------------------------
+p0     OK               u0     153.38 GB   321672960     VNRD3EC4C9PVPM
+p1     OK               u0     153.38 GB   321672960     VNRD3EC4C9WMRM
+p2     OK               u0     153.38 GB   321672960     VNRD3EC4C9TUAM
+p3     OK               u0     153.38 GB   321672960     VNRD3EC4C9B4DM
+p4     OK               u0     153.38 GB   321672960     VNRD3EC4C9WJ9M
+p5     OK               u0     153.38 GB   321672960     VNRD3EC4C9X8RM
+p6     DEGRADED         u0     153.38 GB   321672960     VDK91BTCDPEPUR
+p7     OK               u0     153.38 GB   321672960     VNRD3EC4C9WMNM
+
+
+//s02> info c1
+
+Unit  UnitType  Status         %Cmpl  Stripe  Size(GB)  Cache  AVerify  IgnECC
+------------------------------------------------------------------------------
+u0    RAID-5    REBUILDING     1      64K     1073.69   ON     -        -
+
+Port   Status           Unit   Size        Blocks        Serial
+---------------------------------------------------------------
+p0     OK               u0     153.38 GB   321672960     VNRD3EC4C9PVPM
+p1     OK               u0     153.38 GB   321672960     VNRD3EC4C9WMRM
+p2     OK               u0     153.38 GB   321672960     VNRD3EC4C9TUAM
+p3     OK               u0     153.38 GB   321672960     VNRD3EC4C9B4DM
+p4     OK               u0     153.38 GB   321672960     VNRD3EC4C9WJ9M
+p5     OK               u0     153.38 GB   321672960     VNRD3EC4C9X8RM
+p6     DEGRADED         u0     153.38 GB   321672960     VDK91BTCDPEPUR
+p7     OK               u0     153.38 GB   321672960     VNRD3EC4C9WMNM
+
+
+-> 진행 % 보인다.

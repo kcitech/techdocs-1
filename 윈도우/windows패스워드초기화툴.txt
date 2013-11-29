@@ -1,0 +1,10 @@
+
+윈도우 서버 하나가 패스워드 초기화
+ 
+사이트 참고 : http://pogostick.net/~pnh/ntpasswd/
+ 
+offineNtpasswd.nrg
+ 
+ERD 커맨더에서 진행이 안되실 경우 사용 하시기 바랍니다
+ 
+이상입니다.

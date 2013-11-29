@@ -1,0 +1,10 @@
+
+[root@mail home]# telnet localhost 110
+Trying 127.0.0.1...
+Connected to localhost.localdomain (127.0.0.1).
+Escape character is \'^]\'.
++OK dovecot ready.
+user test <- 직접 타이핑. user 유저명 식으로..
++OK
+pass test!@#$ <- 직접 타이핑. pass 패스워드 식으로..
++OK Logged in. <- 정상일때 메세지 표시됨

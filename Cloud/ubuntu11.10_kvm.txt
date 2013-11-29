@@ -1,0 +1,80 @@
+================================================================
+https://help.ubuntu.com/11.10/serverguide/C/libvirt.html
+================================================================
+
+sudo apt-get install cpu-checker
+sudo kvm-ok
+sudo apt-get install kvm libvirt-bin
+sudo adduser $USER libvirtd
+sudo apt-get install virtinst
+sudo apt-get install virt-manager
+sudo apt-get install virt-viewer
+
+
+================================================================
+Ubuntu KVM Howto
+================================================================
+
+http://webmodelling.com/webbits/miscellaneous/ubuntu-virtualization-how-to.aspx
+
+================================================================
+/etc/network/interfaces
+================================================================
+
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet manual
+
+auto br0
+iface br0 inet static
+        address xxx.xxx.xxx.xx(realip)
+        netmask 255.255.255.224
+        network xxx.xxx.xxx.xxx
+        gateway xxx.xxx.xxx.xxx
+        dns-nameservers 8.8.8.8 4.2.2.2
+        bridge_ports eth0
+        bridge_fd 0
+        bridge_hello 2
+        bridge_maxage 12
+        bridge_stp off
+
+auto eth1
+iface eth1 inet static
+address 192.168.3.1
+netmask 255.255.255.0
+
+virt-manager > virtual machine detail > network 
+
+Source device : "Specify shared device name"
+                Bridge name : br0
+Device model : Hypervisor default
+
+
+================================================================
+image handling
+================================================================
+http://cloud2.tistory.com/4
+
+================================================================
+https://access.redhat.com/knowledge/docs/en-US/Red_Hat_Enterprise_Linux/6/html/Virtualization_Host_Configuration_and_Guest_Installation_Guide/sect-Virtualization_Host_Configuration_and_Guest_Installation_Guide-Windows_Installations-Installing_Windows_XP_as_a_fully_virtualized_guest.html
+================================================================
+
+# virt-install \
+   --name=guest-name \
+   --os-type=windows \
+   --network network=default \
+   --disk path=path-to-disk,size=disk-size \
+   --cdrom=path-to-install-disk \
+   --vnc --ram=1024
+   
+================================================================
+
+================================================================
+  
+ virt-viewer -c qemu+ssh://localadmin@1.1.1.1/system w2k3std
