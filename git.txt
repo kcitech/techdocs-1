@@ -8,4 +8,34 @@ git commit -m "first commit"
 git remote add origin https://github.com/javajungto/techdocs.git
 git push -u origin master
 
+git - 간편안내서
+=> http://rogerdudler.github.io/git-guide/index.ko.html
+
+=> http://bunhere.tistory.com/37
+
+git init
+git clone https://github.com/j.../techdocs.git
+
+git add file
+git add folder/file /  * 빈폴더는 추가 되지 않는다. 
+git rm file
+git rm folder/file
+git status
+git commit -m "message"
+
+git checkout -b feature_x / create branch
+git checkout master       / master branch로 변환 
+git checkout feature_x    / feature_x branch로 변환 
+git checkout -d feature_x / delelete feature_x branch
+git push origin feature_x
+
+git push  / ==> remote repository
+git pull  / <== remote repository
+
+git reset --hard master / git repo를 master branch의 최종으로 원복함. 
+
+git remote add origin https://github.com/j.../techdocs.git
+
+gitk / ui
+
 
