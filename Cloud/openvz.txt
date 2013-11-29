@@ -61,4 +61,11 @@ Swap:         1024          2       1021
 
 https://openvz.org/User_Guide/Managing_Resources
 
+-------------------------------------------------------------
+3) OpenVZ Web Panel Server http://...:3000 (admin/admin)
+-------------------------------------------------------------
+
+wget -O - http://ovz-web-panel.googlecode.com/svn/installer/ai.sh | sh
+
+
 
