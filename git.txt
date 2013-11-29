@@ -1,5 +1,11 @@
+<Reference>
 svn능력자를 위한 git개념가이드 
 => http://www.slideshare.net/einsub/svn-git-17386752
+
+git - 간편안내서
+=> http://rogerdudler.github.io/git-guide/index.ko.html
+
+=> http://bunhere.tistory.com/37
 
 touch README.md
 git init
@@ -8,10 +14,6 @@ git commit -m "first commit"
 git remote add origin https://github.com/javajungto/techdocs.git
 git push -u origin master
 
-git - 간편안내서
-=> http://rogerdudler.github.io/git-guide/index.ko.html
-
-=> http://bunhere.tistory.com/37
 
 git init
 git clone https://github.com/j.../techdocs.git
