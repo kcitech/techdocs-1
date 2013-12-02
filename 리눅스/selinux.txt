@@ -1,0 +1,2 @@
+끄기 off #setenforce 0
+켜기 on  #setenforce 1
