@@ -1,0 +1,64 @@
+# wget http://mirror.us.leaseweb.net/epel/6/i386/epel-release-6-8.noarch.rpm
+# yum install nginx -y
+# cd /etc/nginx/conf.d
+
+# view multi_orign.conf.sample
+
+####### Multi Origin ###########################
+
+upstream multi_origin {
+  ip_hash;
+  server   xxx.xxx.xxx.xxx;
+  server   ccc.ccc.ccc.ccc;
+}
+
+server {
+
+        listen   IP:80;
+        server_name "";
+
+        access_log      /home/log/nginx/IP-multi_access.log  main;
+        error_log       /home/log/nginx/IP-multi_error.log warn;
+
+        client_max_body_size    6M;
+        client_body_buffer_size 1024k;
+
+        location / {
+##               limit_req zone=multi_origin burst=5;
+                proxy_pass http://multi_origin;
+
+                proxy_redirect off;
+                proxy_buffering off;
+                proxy_set_header        Host            $host;
+                proxy_set_header        X-Real-IP       $remote_addr;
+                proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+}
+
+
+# view single_orign.conf.sample
+
+####### Single Origin ###########################
+server {
+
+        listen   IP:80;
+        server_name "";
+
+        access_log      /home/log/nginx/IP-single_access.log  main;
+        error_log       /home/log/nginx/IP-single.log notice;
+
+        client_max_body_size    6M;
+        client_body_buffer_size 1024k;
+
+        location / {
+                proxy_pass http://OrignIP:80/;
+
+                proxy_redirect off;
+                proxy_buffering off;
+                proxy_set_header        Host            $host;
+                proxy_set_header        X-Real-IP       $remote_addr;
+                proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+}
+
+
