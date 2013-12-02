@@ -1,0 +1,4 @@
+expunge.delay		86400	=> 30
+expunge.interval	86400	=> 30
+
+service cloud-management restart
