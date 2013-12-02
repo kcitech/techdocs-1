@@ -41,16 +41,16 @@ wget http://download.openvz.org/template/precreated/centos-6-x86_64.tar.gz
 # vzctl create 101 --ostemplate centos-6-x86_64
 # vzctl set 101 --ipadd 192.168.0.160 --save
 # vzctl set 101 --nameserver 8.8.8.8 --save
+# vzctl set 101 --hostname ct101 --save
+# vzctl set 101 --diskspace 6G:7G --save
+# vzctl set 101 --diskspace 10G:10G --save
+# vzctl set 1000 --swappages 0:1024M --save
 # vzctl start 101
 # vzctl enter 101
 # vzctl exec 101 password root
 # vzlist 
-# vzctl set 101 --hostname ct101 --save
 
-vzctl set 101 --diskspace 6G:7G --save
-vzctl set 101 --diskspace 10G:10G --save
 
-# vzctl set 1000 --swappages 0:1024M --save
 See the swap result below,
 
 [root@node ~]#  vzctl exec 1000 free -m
@@ -60,5 +60,12 @@ Mem:          4096       1814       2281          0          0       1814
 Swap:         1024          2       1021
 
 https://openvz.org/User_Guide/Managing_Resources
+
+-------------------------------------------------------------
+3) OpenVZ Web Panel Server http://...:3000 (admin/admin)
+-------------------------------------------------------------
+
+wget -O - http://ovz-web-panel.googlecode.com/svn/installer/ai.sh | sh
+
 
 
