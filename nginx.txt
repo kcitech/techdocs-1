@@ -1,6 +1,12 @@
+<installation 1>
 # wget http://mirror.us.leaseweb.net/epel/6/i386/epel-release-6-8.noarch.rpm
 # yum install nginx -y
 # cd /etc/nginx/conf.d
+
+<installation 2>
+#wget -q -O - http://www.atomicorp.com/installers/atomic |sh
+#yum search nginx
+#yum install nginx
 
 # view multi_orign.conf.sample
 
