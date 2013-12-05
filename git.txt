@@ -45,20 +45,12 @@ gitk / ui
 -----------------------
 git server
 -----------------------
+cd /home
+git clone --bare dfms dfms.git
 
-mkidr /home/gitrepo.git
-cd /home/gitrepo.git
-git init --bare
-
------------------------
-git clients
------------------------
-
-mkdir /home/user/gitrepo.git
-cd    /home/user/gitrepo.git
-
+cd /tmp
+mkdir test
 git init
-
 touch README.md
 git add .
 git commit -m "init"
@@ -68,5 +60,6 @@ git push origin master
 -----------------------
 git clients
 -----------------------
-git clone root@IP:/home/gitrepo.git
+cd /home
+git clone root@IP:/home/dfms.git ==> /home/dfms 생성
 git pull
