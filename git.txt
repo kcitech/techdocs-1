@@ -7,6 +7,8 @@ git - 간편안내서
 
 => http://bunhere.tistory.com/37
 
+=> http://git-scm.com/book/ko/Git-%EC%84%9C%EB%B2%84
+
 touch README.md
 git init
 git add README.md
@@ -40,4 +42,29 @@ git remote add origin https://github.com/j.../techdocs.git
 
 gitk / ui
 
+-----------------------
+git server
+-----------------------
 
+mkidr /home/gitrepo.git
+cd /home/gitrepo.git
+git init --bare
+
+-----------------------
+git clients
+-----------------------
+
+mkdir /home/user/gitrepo.git
+cd    /home/user/gitrepo.git
+git init
+
+touch README.md
+git add .
+git commit -m "init"
+git remote add origin root@IP:/home/gitrepo.git
+git push origin master
+
+-----------------------
+git clients
+-----------------------
+git clone root@IP:/home/gitrepo.git
