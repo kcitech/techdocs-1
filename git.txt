@@ -56,6 +56,7 @@ git clients
 
 mkdir /home/user/gitrepo.git
 cd    /home/user/gitrepo.git
+
 git init
 
 touch README.md
@@ -68,3 +69,4 @@ git push origin master
 git clients
 -----------------------
 git clone root@IP:/home/gitrepo.git
+git pull
