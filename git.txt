@@ -63,3 +63,14 @@ git clients
 cd /home
 git clone root@IP:/home/dfms.git ==> /home/dfms 생성
 git pull
+
+-----------------------
+eclipse git : egit
+----------------------
+
+help > install New software 
+
+Work with : [add] click
+
+Name     : egit
+Location : http://www.jgit.org/updates 
