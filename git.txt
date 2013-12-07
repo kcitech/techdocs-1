@@ -74,3 +74,12 @@ Work with : [add] click
 
 Name     : egit
 Location : http://www.jgit.org/updates 
+
+-----------------------
+Git에서 non-fast-forward 메시지가 나올때 대처법
+-----------------------
+
+git rebase등으로 앞서 commit된 것들을 하나로 합친다음 (이때 이 commit들이 push되어 있다면) 다시 commit하려고 하면 non-fast-forward update라고 하면서 push가 되지 않는다. 이때 +를 사용하면 된다.
+
+git push origin +master  
+
