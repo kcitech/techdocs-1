@@ -81,6 +81,15 @@ db_user=ndo_nagios
 db_pass=PASSWD
 ...
 
+#/etc/init.d/ndo2db start
+#/etc/init.d/nagios restart
+#/etc/init.d/httpd restart
+
+#chkconfig --level 345 ndo2db on
+#chkconfig --level 345 nagios on
+#chkconfig --level 345 httpd on
+#chkconfig --level 345 mysqld on
+
 
 
 
