@@ -68,7 +68,7 @@ datadir=/home/mysql-data
 
 #cd /usr/share/doc/ndoutils-mysql-1.4/db/
 #chmod 700 installdb
-#./installdb -u ndo_nagios -p 1dnjf25dlf -h localhost -d ndo_nagios
+#./installdb -u ndo_nagios -p PASSWD -h localhost -d ndo_nagios
 
 
 
