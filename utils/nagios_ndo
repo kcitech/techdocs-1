@@ -50,6 +50,27 @@ broker_module=/usr/local/pnp4nagios/lib/npcdmod.o config_file=/usr/local/pnp4nag
 broker_module=/usr/lib64/nagios/brokers/ndomod.so config_file=/etc/nagios/ndomod.cfg
 ...
 
+<mysql>
+#view /etc/my.cf
+...
+[mysqld]
+datadir=/home/mysql-data
+...
+
+#mkdir /home/mysql-data
+#chown -R mysql:mysql /home/mysql-data
+
+#/etc/init.d/mysql restart
+
+#mysql -uroot -p mysql
+#create database ndo_nagios;
+#grant all privileges on ndo_nagios.* to ndo_nagiod identified by "PASSWD";
+
+#cd /usr/share/doc/ndoutils-mysql-1.4/db/
+#chmod 700 installdb
+#./installdb -u ndo_nagios -p 1dnjf25dlf -h localhost -d ndo_nagios
+
+
 
 
 
