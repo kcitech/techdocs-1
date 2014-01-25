@@ -70,6 +70,18 @@ datadir=/home/mysql-data
 #chmod 700 installdb
 #./installdb -u ndo_nagios -p PASSWD -h localhost -d ndo_nagios
 
+#view /etc/nagios/ndo2db.cfg
+...
+#db_name=nagios
+db_name=ndo_nagios
+...
+#db_user=ndouser
+#db_pass=ndopassword
+db_user=ndo_nagios
+db_pass=PASSWD
+...
+
+
 
 
 
