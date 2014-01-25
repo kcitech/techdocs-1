@@ -13,7 +13,7 @@
 #tar xfz pnp4nagios-0.6.21.tar.gz
 #cd pnp4nagios-0.6.21
 #./configure --with-perfdata-logfile=/home/pnp4nagios/var/perfdata.log --with-perfdata-dir=/home/pnp4nagios/var/perfdata --with-perfdata-spool-dir=/home/pnp4nagios/var/spool
-#make all && fullinstall
+#make all && make fullinstall
   
 #htpasswd -c /etc/nagios/htpasswd.users nagiosadmin (1월25일)
 
