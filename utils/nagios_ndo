@@ -15,7 +15,7 @@
 #./configure --with-perfdata-logfile=/home/pnp4nagios/var/perfdata.log --with-perfdata-dir=/home/pnp4nagios/var/perfdata --with-perfdata-spool-dir=/home/pnp4nagios/var/spool
 #make all && make fullinstall
   
-#htpasswd -c /etc/nagios/htpasswd.users nagiosadmin (1월25일)
+#htpasswd -c /etc/nagios/htpasswd.users USERNAME (PASSWORD)
 
 #mv /usr/local/pnp4nagios/share/install.php /usr/local/pnp4nagios/share/install.php.orig
 
