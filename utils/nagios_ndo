@@ -1,0 +1,22 @@
+
+설치(검증전)
+
+#wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+#rpm -ivh epel-release-6-8.noarch.rpm
+
+#yum install -y httpd.x86_64 httpd-devel.x86_64 net-snmp.x86_64 net-snmp-devel.x86_64 net-snmp-libs.x86_64 net-snmp-perl.x86_64 net-snmp-python.x86_64 net-snmp-utils   140  yum install php php-devel php-bcmath php-cli php-common php-mcrypt php-domxml php-gd php-imap php-mbstring php-mysql php-xmlrpc php-pear php-posix php-ldap gd.x86_64 gd-devel.x86_64 nagios.x86_64 nagios-devel.x86_64 nagios-plugins.x86_64 nagios-plugins-nrpe.x86_64 nagios-plugins-setuid.x86_64 nagios-plugins-all rrdtool rrdtool-devel perl-rrdtool  perl-Time-HiRes 
+#yum groupinstall "development tools"
+
+#cd /usr/local/src  
+#wget http://downloads.sourceforge.net/project/pnp4nagios/PNP-0.6/pnp4nagios-0.6.21.tar.gz?r=&ts=1389124662&use_mirror=softlayer-ams
+#tar xfz pnp4nagios-0.6.21.tar.gz
+#cd pnp4nagios-0.6.21
+#./configure --with-perfdata-logfile=/home/pnp4nagios/var/perfdata.log --with-perfdata-dir=/home/pnp4nagios/var/perfdata --with-perfdata-spool-dir=/home/pnp4nagios/var/spool
+#make all && fullinstall
+  
+#htpasswd -c /etc/nagios/htpasswd.users nagiosadmin (1월25일)
+
+
+  
+
+
