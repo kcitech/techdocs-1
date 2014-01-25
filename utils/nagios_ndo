@@ -64,7 +64,7 @@ datadir=/home/mysql-data
 
 #mysql -uroot -p mysql
 #create database ndo_nagios;
-#grant all privileges on ndo_nagios.* to ndo_nagiod identified by "PASSWD";
+#grant all privileges on ndo_nagios.* to ndo_nagios identified by "PASSWD";
 
 #cd /usr/share/doc/ndoutils-mysql-1.4/db/
 #chmod 700 installdb
