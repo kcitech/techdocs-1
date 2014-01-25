@@ -45,10 +45,17 @@ for i686
 ...
 
 #view /etc/nagios/nagios.cfg
+--> for x64
 ...
 broker_module=/usr/local/pnp4nagios/lib/npcdmod.o config_file=/usr/local/pnp4nagios/etc/npcd.cfg
 broker_module=/usr/lib64/nagios/brokers/ndomod.so config_file=/etc/nagios/ndomod.cfg
 ...
+--> for i686
+...
+broker_module=/usr/local/pnp4nagios/lib/npcdmod.o config_file=/usr/local/pnp4nagios/etc/npcd.cfg
+broker_module=/usr/lib/nagios/brokers/ndomod.so config_file=/etc/nagios/ndomod.cfg
+...
+
 
 <mysql>
 #view /etc/my.cf
