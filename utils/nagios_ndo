@@ -1,13 +1,20 @@
 설치(검증전)
 
+<default package>
+#yum groupinstall "development tools"
+
+<epel>
 #wget http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
 #rpm -ivh epel-release-6-8.noarch.rpm
 
+<install packages>
+for x86_64
 #yum install -y httpd.x86_64 httpd-devel.x86_64 net-snmp.x86_64 net-snmp-devel.x86_64 net-snmp-libs.x86_64 net-snmp-perl.x86_64 net-snmp-python.x86_64 net-snmp-utils   140  yum install php php-devel php-bcmath php-cli php-common php-mcrypt php-domxml php-gd php-imap php-mbstring php-mysql php-xmlrpc php-pear php-posix php-ldap gd.x86_64 gd-devel.x86_64 nagios.x86_64 nagios-devel.x86_64 nagios-plugins.x86_64 nagios-plugins-nrpe.x86_64 nagios-plugins-setuid.x86_64 nagios-plugins-all rrdtool rrdtool-devel perl-rrdtool  perl-Time-HiRes ndoutils-mysql.x86_64 ndoutils
 
+for i686
 #yum install -y httpd httpd-devel net-snmp net-snmp-devel net-snmp-libs net-snmp-perl net-snmp-python net-snmp-utils  php php-devel php-bcmath php-cli php-common php-mcrypt php-domxml php-gd php-imap php-mbstring php-mysql php-xmlrpc php-pear php-posix php-ldap gd gd-devel nagios nagios-devel nagios-plugins nagios-plugins-nrpe nagios-plugins-setuid nagios-plugins-all rrdtool rrdtool-devel perl-rrdtool perl-Time-HiRes ndoutils-mysql ndoutils
-#yum groupinstall "development tools"
 
+<install pnp4nagios>
 #cd /usr/local/src  
 #wget http://downloads.sourceforge.net/project/pnp4nagios/PNP-0.6/pnp4nagios-0.6.21.tar.gz?r=&ts=1389124662&use_mirror=softlayer-ams
 #tar xfz pnp4nagios-0.6.21.tar.gz
@@ -15,9 +22,29 @@
 #./configure --with-perfdata-logfile=/home/pnp4nagios/var/perfdata.log --with-perfdata-dir=/home/pnp4nagios/var/perfdata --with-perfdata-spool-dir=/home/pnp4nagios/var/spool
 #make all && make fullinstall
   
+<auth>
 #htpasswd -c /etc/nagios/htpasswd.users USERNAME (PASSWORD)
 
 #mv /usr/local/pnp4nagios/share/install.php /usr/local/pnp4nagios/share/install.php.orig
+
+#configure 
+
+#view /etc/httpd/conf.d/pnp4nagios.conf 
+...
+        #AuthUserFile /usr/local/nagios/etc/htpasswd.users
+        AuthUserFile /etc/nagios/htpasswd.users
+...
+
+#view /etc/httpd/conf.d/nagios.conf
+...
+   #AuthUserFile /etc/nagios/passwd
+   AuthUserFile /etc/nagios/htpasswd.users
+...
+   #AuthUserFile /etc/nagios/passwd
+   AuthUserFile /etc/nagios/htpasswd.users
+...
+
+
 
 
   
