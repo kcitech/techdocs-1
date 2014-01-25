@@ -27,7 +27,7 @@ for i686
 
 #mv /usr/local/pnp4nagios/share/install.php /usr/local/pnp4nagios/share/install.php.orig
 
-#configure 
+<config files>
 
 #view /etc/httpd/conf.d/pnp4nagios.conf 
 ...
@@ -42,6 +42,12 @@ for i686
 ...
    #AuthUserFile /etc/nagios/passwd
    AuthUserFile /etc/nagios/htpasswd.users
+...
+
+#view /etc/nagios/nagios.cfg
+...
+broker_module=/usr/local/pnp4nagios/lib/npcdmod.o config_file=/usr/local/pnp4nagios/etc/npcd.cfg
+broker_module=/usr/lib64/nagios/brokers/ndomod.so config_file=/etc/nagios/ndomod.cfg
 ...
 
 
