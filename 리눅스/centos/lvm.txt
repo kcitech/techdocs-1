@@ -45,3 +45,1258 @@ LVM
 
 8. pvremove /dev/sdb1
    
+----------------------------------------------------------------------
+퍼옴 : http://wiki.lug.or.kr/linux/lvm
+----------------------------------------------------------------------
+
+CentOS 5.2에서의 LVM(Logical Volume Manager) 테스트하기
+
+LVM이란 Logical Volume Manager의 약어이다.
+
+LVM이란 논리적으로 볼륨을 관리 할 수 있는 매카니즘을 의미한다.
+
+볼륨은 물리적 저장장치에 붙어 있는 이름 정도로 생각하면 된다. 쉽게 찾아볼 수 있는 것으로 윈도우즈의 경우 내 컴퓨터에 들어가면 C 드라이브나 D 드라이브 정도로 생각하면 된다. 이러한 볼륨들을 논리적으로 관리하는 것이 LVM이다.
+
+그렇다면 이러한 볼륨들을 논리적으로 관리한다는 것에 무슨 의미가 있는 것일까?
+
+LVM은 이러한 물리적 저장장치들을 하나의 볼륨 안에 통합 관리 할 수 있는 매카니즘이므로 저장장치들을 조금 더 효율적이고 효과적으로 관리 할 수 있게 된다.
+
+예를 들어 작은 하드디스크 두 개를 붙여서 하나의 큰 하드 디스크처럼 사용할 수도 있다.
+
+그리고 여러 가지 서비스를 사용하다가 용량이 부족할 경우 디스크 교체 없이 하드디스크를 추가 한 후 같은 볼륨으로 인식시키면 그 즉시 서비스 제공이 가능하다.
+
+이와 같은 장점 때문에 리눅스 서버운영에 있어서 LVM사용은 좋은 방법이 될 수 있다.
+
+LVM과 비교되는 것으로 RAID라는 것이 있다. RAID 역시 두 개의 하드디스크를 하나로 묶어서 하나의 디스크처럼 사용이 가능하다. RAID의 목적은 두 개의 하드디스크를 하나로 묶음으로서 하나의 데이터를 두 곳에 나누어 저장하는 방식으로 응답 속도의 향상을 꾀한다든지 혹은 하나의 데이터를 두 곳에 똑같이 저장하여 백업의 효과를 나타내는 두 가지의 목적이 있다.
+
+LVM이 RAID의 첫 번째 목적에는 어느 정도 대처가 가능하나 두 번째 목적은 불가능하다. 그럼에도 불구하고 LVM을 권장하는 이유는 위에서 언급한 것과 같이 손쉽게 볼륨을 관리 할 수 있기 때문이다. 서비스의 중지 없이 디스크 용량을 늘린다는 것은 RAID에서는 불가능한 일일 뿐만 아니라, 해당 용량만큼의 디스크를 준비하고 백업 후 용량 추가 후에는 다시 복원을 해야만 하는 복잡한 과정을 거칠 필요 없이 바로 추가가 가능하다는 장점은 LVM의 충분한 사용 이유가 된다.
+
+LVM의 구성을 알아보자.
+
+
+
+일반적으로 사용하는 저장장치는 저장장치에 파일시스템을 만들어서 특정 디렉토리에 마운트 시켜 사용한다. 기존의 장치들과 구조는 비슷하나 중간에서 LVM이 장치들을 관리하게 된다. 여기에서 이런 장치들을 PV(Physical Volume)이라 부르며, 실제적으로 존재하는 물리적인 저장 장치를 말한다. 이러한 PV들을 모아서 하나의 그룹으로 묶은 것을 VG(Virtual Group)라고 하고, 이것을 리눅스에서 하나의 볼륨으로 인식한다. 이 VG는 하나의 저장장치라고 생각해도 된다. 여러 개의 저장 장치를 묶어서 하나의 가상 디스크를 만든 것이다.
+
+① 물리적 볼륨(PV: Physical Volume)
+
+실제로 나눈 파티션을 말한다. 즉 /dev/hda1, /dev/sda1 등을 말한다. LVM에서는 이러한 물리적 볼륨을 하나의 구성원으로 받아 들이는 형식이다.
+
+② 물리적 확장(PE: Physical Extents)
+
+일종의 블록 같은 것으로 실제 데이터가 저장되는 공간을 말한다. 보통 1PE가 약 4MB정도 차지한다.
+
+③ 볼륨 그룹(VG: Volume Group)
+
+물리적 볼륨이 모여서 하나의 VG를 이룬다. 즉, 지정한 크기의 PE가 모여서 생성되는 하나의 큰 덩어리라고 할 수 있다.
+
+④ 논리적 볼륨(LV: Logical Volume)
+
+LVM에서는 이 논리적 볼륨이 우리가 흔히 사용하는 일반적인 파티션과 같다. 실제 만들어서 사용하는 것이 바로 이 LV이다.
+
+
+
+리눅스에서는 이 VG에 파티션을 나누어서 사용한다. 이렇게 VG에서 파티션을 나누어서 작게 쪼개진 조각을 LV(Logical Volume)라고 한다. 리눅스 입장에서 보면 VG가 하나의 디스크 이고, LV가 개개의 파티션이 되는 것이다.
+
+지금부터 실제 작업상황을 보도록 하자. 위의 그림에서와 같이 LVM에 사용할 디바이스명은 /dev/sda6, /dev/sda7, /dev/sda8의 3개의 파티션이 존재하며, 용량은 각각 60M, 60M, 80M 이다.
+
+1. 먼저 fdisk 명령을 사용하여 /dev/sda6과 /dev/sda7, /dev/sda8을 LVM 파일시스템으로 변경한다.
+
+[root@localhost ~]# fdisk /dev/sda
+
+ 
+
+The number of cylinders for this disk is set to 7296.
+
+There is nothing wrong with that, but this is larger than 1024,
+
+and could in certain setups cause problems with:
+
+1) software that runs at boot time (e.g., old versions of LILO)
+
+2) booting and partitioning software from other OSs
+
+   (e.g., DOS FDISK, OS/2 FDISK)
+
+ 
+
+Command (m for help): m
+
+Command action
+
+   a   toggle a bootable flag
+
+   b   edit bsd disklabel
+
+   c   toggle the dos compatibility flag
+
+   d   delete a partition
+
+   l   list known partition types
+
+   m   print this menu
+
+   n   add a new partition
+
+   o   create a new empty DOS partition table
+
+   p   print the partition table
+
+   q   quit without saving changes
+
+   s   create a new empty Sun disklabel
+
+   t   change a partition's system id
+
+   u   change display/entry units
+
+   v   verify the partition table
+
+   w   write table to disk and exit
+
+   x   extra functionality (experts only)
+
+ 
+
+Command (m for help): p
+
+ 
+
+Disk /dev/sda: 60.0 GB, 60011642880 bytes
+
+255 heads, 63 sectors/track, 7296 cylinders
+
+Units = cylinders of 16065 * 512 = 8225280 bytes
+
+ 
+
+   Device Boot      Start         End      Blocks   Id  System
+
+/dev/sda1   *           1        2549    20474811    7  HPFS/NTFS
+
+/dev/sda2            2550        5099    20482875    7  HPFS/NTFS
+
+/dev/sda3            5100        7139    16386300   83  Linux
+
+/dev/sda4            7140        7296     1261102+   f  W95 Ext'd (LBA)
+
+/dev/sda5            7140        7270     1052226   82  Linux swap / Solaris
+
+/dev/sda6            7271        7278       64228+  83  Linux
+
+/dev/sda7            7279        7286       64228+  83  Linux
+
+/dev/sda8            7287        7296       80293+  83  Linux
+
+ 
+
+Command (m for help):
+
+ 
+
+생성한 3개의 파티션을 모두 LVM 타입으로 지정하기 위해 t를 입력하고 8e를 입력한다.
+
+ 
+
+Command (m for help): l
+
+ 
+
+ 0  Empty           1e  Hidden W95 FAT1 80  Old Minix       be  Solaris boot
+
+ 1  FAT12           24  NEC DOS         81  Minix / old Lin bf  Solaris
+
+ 2  XENIX root      39  Plan 9          82  Linux swap / So c1  DRDOS/sec (FAT-
+
+ 3  XENIX usr       3c  PartitionMagic  83  Linux           c4  DRDOS/sec (FAT-
+
+ 4  FAT16 <32M      40  Venix 80286     84  OS/2 hidden C:  c6  DRDOS/sec (FAT-
+
+ 5  Extended        41  PPC PReP Boot   85  Linux extended  c7  Syrinx
+
+ 6  FAT16           42  SFS             86  NTFS volume set da  Non-FS data
+
+ 7  HPFS/NTFS       4d  QNX4.x          87  NTFS volume set db  CP/M / CTOS / .
+
+ 8  AIX             4e  QNX4.x 2nd part 88  Linux plaintext de  Dell Utility
+
+ 9  AIX bootable    4f  QNX4.x 3rd part 8e  Linux LVM       df  BootIt
+
+ a  OS/2 Boot Manag 50  OnTrack DM      93  Amoeba          e1  DOS access
+
+ b  W95 FAT32       51  OnTrack DM6 Aux 94  Amoeba BBT      e3  DOS R/O
+
+ c  W95 FAT32 (LBA) 52  CP/M            9f  BSD/OS          e4  SpeedStor
+
+ e  W95 FAT16 (LBA) 53  OnTrack DM6 Aux a0  IBM Thinkpad hi eb  BeOS fs
+
+ f  W95 Ext'd (LBA) 54  OnTrackDM6      a5  FreeBSD         ee  EFI GPT
+
+10  OPUS            55  EZ-Drive        a6  OpenBSD         ef  EFI (FAT-12/16/
+
+11  Hidden FAT12    56  Golden Bow      a7  NeXTSTEP        f0  Linux/PA-RISC b
+
+12  Compaq diagnost 5c  Priam Edisk     a8  Darwin UFS      f1  SpeedStor
+
+14  Hidden FAT16 <3 61  SpeedStor       a9  NetBSD          f4  SpeedStor
+
+16  Hidden FAT16    63  GNU HURD or Sys ab  Darwin boot     f2  DOS secondary
+
+17  Hidden HPFS/NTF 64  Novell Netware  b7  BSDI fs         fd  Linux raid auto
+
+18  AST SmartSleep  65  Novell Netware  b8  BSDI swap       fe  LANstep
+
+1b  Hidden W95 FAT3 70  DiskSecure Mult bb  Boot Wizard hid ff  BBT
+
+1c  Hidden W95 FAT3 75  PC/IX
+
+ 
+
+CoCommand (m for help): t
+
+Partition number (1-8): 6
+
+Hex code (type L to list codes): 8e
+
+Changed system type of partition 6 to 8e (Linux LVM)
+
+ 
+
+Command (m for help): t
+
+Partition number (1-8): 7
+
+Hex code (type L to list codes): 8e
+
+Changed system type of partition 7 to 8e (Linux LVM)
+
+ 
+
+Command (m for help): t
+
+Partition number (1-8): 8
+
+Hex code (type L to list codes): 8e
+
+Changed system type of partition 8 to 8e (Linux LVM)
+
+ 
+
+Command (m for help): p
+
+ 
+
+Disk /dev/sda: 60.0 GB, 60011642880 bytes
+
+255 heads, 63 sectors/track, 7296 cylinders
+
+Units = cylinders of 16065 * 512 = 8225280 bytes
+
+ 
+
+   Device Boot      Start         End      Blocks   Id  System
+
+/dev/sda1   *           1        2549    20474811    7  HPFS/NTFS
+
+/dev/sda2            2550        5099    20482875    7  HPFS/NTFS
+
+/dev/sda3            5100        7139    16386300   83  Linux
+
+/dev/sda4            7140        7296     1261102+   f  W95 Ext'd (LBA)
+
+/dev/sda5            7140        7270     1052226   82  Linux swap / Solaris
+
+/dev/sda6            7271        7278       64228+  8e  Linux LVM
+
+/dev/sda7            7279        7286       64228+  8e  Linux LVM
+
+/dev/sda8            7287        7296       80293+  8e  Linux LVM
+
+ 
+
+Command (m for help):
+<file>
+ 
+
+확인을 했으면 저장하고 빠져나온다.
+
+ 
+<file>
+Command (m for help): wq
+
+The partition table has been altered!
+
+ 
+
+Calling ioctl() to re-read partition table.
+
+ 
+
+WARNING: Re-reading the partition table failed with error 16: 장치나 자원이 동작 중.
+
+The kernel still uses the old table.
+
+The new table will be used at the next reboot.
+
+Syncing disks.
+
+[root@localhost ~]#
+fdisk를 하고 난 다음 재부팅을 하라고 하니 재부팅 한다.
+
+[root@localhost ~]# reboot
+2. 이제 PV(Physical Volume)를 생성한다.
+
+[root@localhost ~]# pvcreate --help
+
+  pvcreate: Initialize physical volume(s) for use by LVM
+
+ 
+
+pvcreate
+
+        [--restorefile file]
+
+        [-d|--debug]
+
+        [-f[f]|--force [--force]]
+
+        [-h|-?|--help]
+
+        [--labelsector sector]
+
+        [-M|--metadatatype 1|2]
+
+        [--metadatacopies #copies]
+
+        [--metadatasize MetadataSize[kKmMgGtTpPeE]]
+
+        [--setphysicalvolumesize PhysicalVolumeSize[kKmMgGtTpPeE]
+
+        [-t|--test]
+
+        [-u|--uuid uuid]
+
+        [-v|--verbose]
+
+        [-y|--yes]
+
+        [-Z|--zero {y|n}]
+
+        [--version]
+
+        PhysicalVolume [PhysicalVolume...]
+
+ 
+
+[root@localhost ~]# pvcreate /dev/sda6
+
+  Physical volume "/dev/sda6" successfully created
+
+[root@localhost ~]# pvcreate /dev/sda7
+
+  Physical volume "/dev/sda7" successfully created
+
+[root@localhost ~]# pvcreate /dev/sda8
+
+  Physical volume "/dev/sda8" successfully created
+
+[root@localhost ~]# pvscan
+
+  PV /dev/sda6         lvm2 [62.72 MB]
+
+  PV /dev/sda7         lvm2 [62.72 MB]
+
+  PV /dev/sda8         lvm2 [78.41 MB]
+
+Total: 3 [203.86 MB] / in use: 0 [0   ] / in no VG: 3 [203.86 MB]
+
+[root@localhost ~]#
+3개의 PV가 만들어졌다.
+
+3. 이번엔 VG(Volume Group)를 생성한다.
+
+[root@localhost ~]# vgcreate --help
+
+  vgcreate: Create a volume group
+
+ 
+
+vgcreate
+
+        [-A|--autobackup {y|n}]
+
+        [--addtag Tag]
+
+        [--alloc AllocationPolicy]
+
+        [-c|--clustered {y|n}]
+
+        [-d|--debug]
+
+        [-h|--help]
+
+        [-l|--maxlogicalvolumes MaxLogicalVolumes]
+
+        [-M|--metadatatype 1|2]
+
+        [-p|--maxphysicalvolumes MaxPhysicalVolumes]
+
+        [-s|--physicalextentsize PhysicalExtentSize[kKmMgGtTpPeE]]
+
+        [-t|--test]
+
+        [-v|--verbose]
+
+        [--version]
+
+        VolumeGroupName PhysicalVolume [PhysicalVolume...]
+
+ 
+
+[root@localhost ~]#
+일단 여기서 /dev/sda6와 /dev/sda7만 VG0 으로 만든다.
+
+[root@localhost ~]# vgcreate VG0 /dev/sda6 /dev/sda7
+
+  Volume group "VG0" successfully created
+
+[root@localhost ~]# vgscan
+
+  Reading all physical volumes.  This may take a while...
+
+  Found volume group "VG0" using metadata type lvm2
+
+[root@localhost ~]#
+PV와 VG의 생성 상황을 보기 위해 pvdisplay, vgdisplay를 입력해 본다.
+
+[root@localhost ~]# pvdisplay
+
+  --- Physical volume ---
+
+  PV Name               /dev/sda6
+
+  VG Name               VG0
+
+  PV Size               62.72 MB / not usable 2.72 MB
+
+  Allocatable           yes
+
+  PE Size (KByte)       4096
+
+  Total PE              15
+
+  Free PE               15
+
+  Allocated PE          0
+
+  PV UUID               x7Lvny-9GK9-qJbz-Jiib-2xNi-U4Qu-e0hMrD
+
+ 
+
+  --- Physical volume ---
+
+  PV Name               /dev/sda7
+
+  VG Name               VG0
+
+  PV Size               62.72 MB / not usable 2.72 MB
+
+  Allocatable           yes
+
+  PE Size (KByte)       4096
+
+  Total PE              15
+
+  Free PE               15
+
+  Allocated PE          0
+
+  PV UUID               Ob922l-zvh5-47VU-BACc-Bf4C-RrFp-0R8r1A
+
+ 
+
+  "/dev/sda8" is a new physical volume of "78.41 MB"
+
+  --- NEW Physical volume ---
+
+  PV Name               /dev/sda8
+
+  VG Name
+
+  PV Size               78.41 MB
+
+  Allocatable           NO
+
+  PE Size (KByte)       0
+
+  Total PE              0
+
+  Free PE               0
+
+  Allocated PE          0
+
+  PV UUID               gE0yE2-ansY-emCr-Qkbq-aE71-HpzM-M1bmOY
+
+ 
+
+[root@localhost ~]#
+위의 PV를 보면 앞서 VG0를 만들 때 2개의 파티션만 묶었기 때문에 /dev/sda6과 /dev/sda7만 Allocatable이 YES로 되어 있다.
+
+[root@localhost ~]# vgdisplay
+
+  --- Volume group ---
+
+  VG Name               VG0
+
+  System ID
+
+  Format                lvm2
+
+  Metadata Areas        2
+
+  Metadata Sequence No  1
+
+  VG Access             read/write
+
+  VG Status             resizable
+
+  MAX LV                0
+
+  Cur LV                0
+
+  Open LV               0
+
+  Max PV                0
+
+  Cur PV                2
+
+  Act PV                2
+
+  VG Size               120.00 MB
+
+  PE Size               4.00 MB
+
+  Total PE              30
+
+  Alloc PE / Size       0 / 0
+
+  Free  PE / Size       30 / 120.00 MB
+
+  VG UUID               Q0q8CW-Z5JR-kszj-at0C-i65d-gTw5-N4S1MG
+
+ 
+
+[root@localhost ~]#
+VG0을 생성했기 때문에 /dev/sda6과 /dev/sda7의 용량을 더한값이 VG Size로 설정되었다. 그리고 VG Status에 보면 리사이즈가 가능하다고 보여주고 있다.
+
+4. 마지막으로 LV(Logical Volume) 생성
+
+일단 VG0의 최대용량이 120M 이므로 LV0에는 100M 할당하도록 하자.
+
+[root@localhost ~]# lvcreate --help
+
+  lvcreate: Create a logical volume
+
+ 
+
+lvcreate
+
+        [-A|--autobackup {y|n}]
+
+        [--addtag Tag]
+
+        [--alloc AllocationPolicy]
+
+        [-C|--contiguous {y|n}]
+
+        [-d|--debug]
+
+        [-h|-?|--help]
+
+        [-i|--stripes Stripes [-I|--stripesize StripeSize]]
+
+        {-l|--extents LogicalExtentsNumber |
+
+         -L|--size LogicalVolumeSize[kKmMgGtTpPeE]}
+
+        [-M|--persistent {y|n}] [--major major] [--minor minor]
+
+        [-m|--mirrors Mirrors [--nosync] [{--mirrorlog {disk|core}|--corelog}]]
+
+        [-n|--name LogicalVolumeName]
+
+        [-p|--permission {r|rw}]
+
+        [-r|--readahead ReadAheadSectors|auto|none]
+
+        [-R|--regionsize MirrorLogRegionSize]
+
+        [-t|--test]
+
+        [--type VolumeType]
+
+        [-v|--verbose]
+
+        [-Z|--zero {y|n}]
+
+        [--version]
+
+        VolumeGroupName [PhysicalVolumePath...]
+
+ 
+
+lvcreate -s|--snapshot
+
+        [-c|--chunksize]
+
+        [-A|--autobackup {y|n}]
+
+        [--addtag Tag]
+
+        [--alloc AllocationPolicy]
+
+        [-C|--contiguous {y|n}]
+
+        [-d|--debug]
+
+        [-h|-?|--help]
+
+        [-i|--stripes Stripes [-I|--stripesize StripeSize]]
+
+        {-l|--extents LogicalExtentsNumber[%{VG|LV|PVS|FREE}] |
+
+         -L|--size LogicalVolumeSize[kKmMgGtTpPeE]}
+
+        [-M|--persistent {y|n}] [--major major] [--minor minor]
+
+        [-n|--name LogicalVolumeName]
+
+        [-p|--permission {r|rw}]
+
+        [-r|--readahead ReadAheadSectors|auto|none]
+
+        [-t|--test]
+
+        [-v|--verbose]
+
+        [--version]
+
+        OriginalLogicalVolume[Path] [PhysicalVolumePath...]
+
+ 
+
+[root@localhost ~]# lvcreate -L 100M -n LV0 VG0
+
+  Logical volume "LV0" created
+
+[root@localhost ~]# lvscan
+
+  ACTIVE            '/dev/VG0/LV0' [100.00 MB] inherit
+
+[root@localhost ~]# lvdisplay
+
+  --- Logical volume ---
+
+  LV Name                /dev/VG0/LV0
+
+  VG Name                VG0
+
+  LV UUID                j2kU6O-iBSj-zEof-fmCR-PbdY-MeD6-IuFlQk
+
+  LV Write Access        read/write
+
+  LV Status              available
+
+  # open                 0
+
+  LV Size                100.00 MB
+
+  Current LE             25
+
+  Segments               2
+
+  Allocation             inherit
+
+  Read ahead sectors     auto
+
+  - currently set to     256
+
+  Block device           253:0
+
+ 
+
+[root@localhost ~]#
+이제 LV0가 만들어 졌는지 디렉토리를 살펴보자.
+
+[root@localhost ~]# ls -l /dev/VG0/LV0
+
+lrwxrwxrwx 1 root root 19  7월 11 21:27 /dev/VG0/LV0 -> /dev/mapper/VG0-LV0
+
+[root@localhost ~]#
+5. /backup 디렉토리를 생성해 두고, 생성되어 있는 로지컬 볼륨 LV0를 ext3 파일시스템으로 만든다음 /backup 디렉토리에 마운트해 보자.
+
+[root@localhost ~]# mkdir /backup
+
+[root@localhost ~]# mkfs.ext3 /dev/VG0/LV0
+
+mke2fs 1.39 (29-May-2006)
+
+Filesystem label=
+
+OS type: Linux
+
+Block size=1024 (log=0)
+
+Fragment size=1024 (log=0)
+
+25688 inodes, 102400 blocks
+
+5120 blocks (5.00%) reserved for the super user
+
+First data block=1
+
+Maximum filesystem blocks=67371008
+
+13 block groups
+
+8192 blocks per group, 8192 fragments per group
+
+1976 inodes per group
+
+Superblock backups stored on blocks:
+
+        8193, 24577, 40961, 57345, 73729
+
+ 
+
+Writing inode tables: done
+
+Creating journal (4096 blocks): done
+
+Writing superblocks and filesystem accounting information: done
+
+ 
+
+This filesystem will be automatically checked every 22 mounts or
+
+180 days, whichever comes first.  Use tune2fs -c or -i to override. 
+
+[root@localhost ~]# mount -t ext3 /dev/VG0/LV0 /backup
+
+[root@localhost ~]# df -hT
+
+Filesystem    Type    Size  Used Avail Use% Mounted on
+
+/dev/sda3     ext3     16G  3.8G   11G  27% /
+
+tmpfs        tmpfs    248M     0  248M   0% /dev/shm
+
+/dev/mapper/VG0-LV0
+
+              ext3     97M  5.6M   87M   7% /backup
+
+[root@localhost ~]#
+위에서 보면 /dev/mapper/VG-LV0라고 되어 있다. 우리가 생성한 LV0는 원래 이 파일로 심볼릭 링크 되어 있었다.
+
+[root@localhost ~]# ls -l /dev/VG0/LV0
+
+lrwxrwxrwx 1 root root 19  7월 11 21:27 /dev/VG0/LV0 -> /dev/mapper/VG0-LV0
+
+[root@localhost ~]#
+6. /backup 디렉토리에 파일을 추가해 보자.
+
+[root@localhost ~]# cd /backup
+
+[root@localhost backup]# pwd
+
+/backup
+
+[root@localhost backup]# lftpget http://www.lug.or.kr/files/cpp_book/motor-3.4.0.tar.gz
+
+[root@localhost backup]# ls
+
+lost+found  motor-3.4.0.tar.gz
+
+[root@localhost backup]# df -hT
+
+Filesystem    Type    Size  Used Avail Use% Mounted on
+
+/dev/sda3     ext3     16G  3.8G   11G  27% /
+
+tmpfs        tmpfs    248M     0  248M   0% /dev/shm
+
+/dev/mapper/VG0-LV0
+
+              ext3     97M  6.1M   86M   7% /backup
+
+[root@localhost backup]# cd
+
+[root@localhost ~]#
+7. 이제 부팅시 자동으로 마운트 되도록 하고 재부팅해 보자.
+
+부팅시 자동으로 마운트 되도록 하기 위해서는 /etc/fstab 파일을 수정해야 하는데, 먼저 방금 만든 LV0 파티션의 라벨을 만들어 주도록 한다.
+
+[root@localhost ~]# e2label /dev/VG0/LV0
+
+ 
+
+[root@localhost ~]#
+현재 라벨이 없다. 여기서 /backup 이라는 라벨을 붙여준다.
+
+[root@localhost ~]# e2label /dev/VG0/LV0 /backup
+
+[root@localhost ~]# e2label /dev/VG0/LV0
+
+/backup
+
+[root@localhost ~]#
+이제 /etc/fstab 파일을 아래와 같이 수정한다.
+
+[root@localhost ~]# vim /etc/fstab
+
+LABEL=/1                /                       ext3    defaults        1 1
+
+LABEL=/backup          /backup                ext3    defaults        1 2
+
+tmpfs                   /dev/shm                tmpfs   defaults        0 0
+
+devpts                  /dev/pts                devpts  gid=5,mode=620  0 0
+
+sysfs                   /sys                    sysfs   defaults        0 0
+
+proc                    /proc                   proc    defaults        0 0
+
+LABEL=SWAP-sda5         swap                    swap    defaults        0 0
+그리고 재부팅해 본다.
+
+[root@localhost ~]# reboot
+다시 로그인 하면 정상적으로 파티션이 마운트된 것을 확인할 수 있다.
+
+login as: multi
+
+multi@192.168.1.99's password:
+
+Last login: Fri Jul 11 21:12:43 2008 from 192.168.1.100
+
+[multi@localhost ~]$ su -
+
+암호:
+
+[root@localhost ~]# df -hT
+
+Filesystem    Type    Size  Used Avail Use% Mounted on
+
+/dev/sda3     ext3     16G  3.8G   11G  27% /
+
+/dev/mapper/VG0-LV0
+
+              ext3     97M  6.1M   86M   7% /backup
+
+tmpfs        tmpfs    248M     0  248M   0% /dev/shm
+
+[root@localhost ~]# ls -l /backup
+
+합계 576
+
+drwx------ 2 root root  12288  7월 11 21:30 lost+found
+
+-rw-r--r-- 1 root root 572571  7월  8 12:18 motor-3.4.0.tar.gz
+
+[root@localhost ~]#
+8. LV0 논리 볼륨 확장하기
+
+LV0에 20M를 추가하기에 앞서 반드시 마운트를 해제한 다음 아래 명령을 수행한다.
+
+현재 LV0에는 100M가 있으며, VG0에는 아직 사용하지 않은 20M가 남아있다.
+
+용량 확장는 lvextend, 용량 축소는 lvreduce 명령을 사용한다.
+
+lvresize 명령으로 지정해 주는 것이 좋다.
+
+[root@localhost ~]# umount /backup
+
+[root@localhost ~]# df -hT
+
+Filesystem    Type    Size  Used Avail Use% Mounted on
+
+/dev/sda3     ext3     16G  3.8G   11G  27% /
+
+tmpfs        tmpfs    248M     0  248M   0% /dev/shm 
+
+[root@localhost ~]# vgdisplay
+
+  --- Volume group ---
+
+  VG Name               VG0
+
+  System ID
+
+  Format                lvm2
+
+  Metadata Areas        2
+
+  Metadata Sequence No  2
+
+  VG Access             read/write
+
+  VG Status             resizable
+
+  MAX LV                0
+
+  Cur LV                1
+
+  Open LV               1
+
+  Max PV                0
+
+  Cur PV                2
+
+  Act PV                2
+
+  VG Size               120.00 MB
+
+  PE Size               4.00 MB
+
+  Total PE              30
+
+  Alloc PE / Size       25 / 100.00 MB
+
+  Free  PE / Size       5 / 20.00 MB
+
+  VG UUID               Q0q8CW-Z5JR-kszj-at0C-i65d-gTw5-N4S1MG
+
+ 
+
+[root@localhost ~]# lvscan
+
+  ACTIVE            '/dev/VG0/LV0' [100.00 MB] inherit
+
+[root@localhost ~]# lvresize -L 120M /dev/VG0/LV0
+
+  Extending logical volume LV0 to 120.00 MB
+
+  Logical volume LV0 successfully resized
+
+[root@localhost ~]# lvscan
+
+  ACTIVE            '/dev/VG0/LV0' [120.00 MB] inherit
+
+[root@localhost ~]# vgdisplay
+
+  --- Volume group ---
+
+  VG Name               VG0
+
+  System ID
+
+  Format                lvm2
+
+  Metadata Areas        2
+
+  Metadata Sequence No  3
+
+  VG Access             read/write
+
+  VG Status             resizable
+
+  MAX LV                0
+
+  Cur LV                1
+
+  Open LV               1
+
+  Max PV                0
+
+  Cur PV                2
+
+  Act PV                2
+
+  VG Size               120.00 MB
+
+  PE Size               4.00 MB
+
+  Total PE              30
+
+  Alloc PE / Size       30 / 120.00 MB
+
+  Free  PE / Size       0 / 0
+
+  VG UUID               1M2Xe5-zY0S-bjoc-56ww-Uykg-mlYl-NNAfu0
+
+ 
+
+[root@localhost ~]# e2fsck -f /dev/VG0/LV0
+
+e2fsck 1.39 (29-May-2006)
+
+Pass 1: Checking inodes, blocks, and sizes
+
+Pass 2: Checking directory structure
+
+Pass 3: Checking directory connectivity
+
+Pass 4: Checking reference counts
+
+Pass 5: Checking group summary information
+
+/backup: 11/25688 files (9.1% non-contiguous), 8914/102400 blocks
+
+[root@localhost ~]# resize2fs /dev/VG0/LV0
+
+resize2fs 1.39 (29-May-2006)
+
+Resizing the filesystem on /dev/VG0/LV0 to 122880 (1k) blocks.
+
+The filesystem on /dev/VG0/LV0 is now 122880 blocks long.
+
+ 
+
+[root@localhost ~]#
+그럼 이제 /backup 파티션을 마운트 시켜보자.
+
+[root@localhost ~]# mount /backup
+
+[root@localhost ~]# df -hT
+
+Filesystem    Type    Size  Used Avail Use% Mounted on
+
+/dev/sda3     ext3     16G  3.8G   11G  27% /
+
+tmpfs        tmpfs    248M     0  248M   0% /dev/shm
+
+/dev/mapper/VG0-LV0
+
+              ext3    117M  5.6M  105M   6% /backup
+
+[root@localhost ~]#
+9. 앞서 PV로 만들어진 /dev/sda8 70메가를 VG0에 추가하고 LV0를 190메가 용량으로 만들자. 만약 /dev/sda8이 PV로 만들어지지 않았다면 pvcreate 명령으로 PV로 만들어준다.
+
+먼저 /backup 파티션을 마운트 해제한다.
+
+[root@localhost ~]# umount /backup
+
+[root@localhost ~]# vgextend VG0 /dev/sda8
+
+Volume group "VG0" successfully extended
+
+[root@localhost ~]# vgdisplay -v
+
+    Finding all volume groups
+
+    Finding volume group "VG0"
+
+  --- Volume group ---
+
+  VG Name               VG0
+
+  System ID
+
+  Format                lvm2
+
+  Metadata Areas        3
+
+  Metadata Sequence No  8
+
+  VG Access             read/write
+
+  VG Status             resizable
+
+  MAX LV                0
+
+  Cur LV                1
+
+  Open LV               0
+
+  Max PV                0
+
+  Cur PV                3
+
+  Act PV                3
+
+  VG Size               196.00 MB
+
+  PE Size               4.00 MB
+
+  Total PE              49
+
+  Alloc PE / Size       30 / 120.00 MB
+
+  Free  PE / Size       19 / 76.00 MB
+
+  VG UUID               1M2Xe5-zY0S-bjoc-56ww-Uykg-mlYl-NNAfu0
+
+ 
+
+  --- Logical volume ---
+
+  LV Name                /dev/VG0/LV0
+
+  VG Name                VG0
+
+  LV UUID                KQh8uk-2Reb-0b2s-BL7N-O0Vf-O6Vj-9diYtC
+
+  LV Write Access        read/write
+
+  LV Status              available
+
+  # open                 0
+
+  LV Size                120.00 MB
+
+  Current LE             30
+
+  Segments               2
+
+  Allocation             inherit
+
+  Read ahead sectors     auto
+
+  - currently set to     256
+
+  Block device           253:0
+
+ 
+
+  --- Physical volumes ---
+
+  PV Name               /dev/sda6
+
+  PV UUID               KfzsQH-1kX6-ITzv-70lD-XjFL-wY93-u3e2VG
+
+  PV Status             allocatable
+
+  Total PE / Free PE    15 / 0
+
+ 
+
+  PV Name               /dev/sda7
+
+  PV UUID               PNZorf-V9au-q0ui-m0Ny-h8P1-hItv-lz47Lr
+
+  PV Status             allocatable
+
+  Total PE / Free PE    15 / 0
+
+ 
+
+  PV Name               /dev/sda8
+
+  PV UUID               DvdYba-akXi-s98u-p1Ya-RKPR-hhEx-gFjUCV
+
+  PV Status             allocatable
+
+  Total PE / Free PE    19 / 19
+
+ 
+
+[root@localhost ~]#
+
+ 
+
+현재 LV0는 120메가이다.
+
+[root@localhost ~]# lvscan
+
+  ACTIVE            '/dev/VG0/LV0' [120.00 MB] inherit
+
+[root@localhost ~]#
+lvresize 명령으로 190메가로 만들자.
+
+[root@localhost ~]# lvresize -L 190 /dev/VG0/LV0
+
+Rounding up size to full physical extent 192.00 MB
+
+  Extending logical volume LV0 to 192.00 MB
+
+Logical volume LV0 successfully resized 
+
+[root@localhost ~]# e2fsck -f /dev/VG0/LV0
+
+e2fsck 1.39 (29-May-2006)
+
+Pass 1: Checking inodes, blocks, and sizes
+
+Pass 2: Checking directory structure
+
+Pass 3: Checking directory connectivity
+
+Pass 4: Checking reference counts
+
+Pass 5: Checking group summary information
+
+/backup: 12/29640 files (8.3% non-contiguous), 9976/122880 blocks
+
+[root@localhost ~]# resize2fs /dev/VG0/LV0
+
+resize2fs 1.39 (29-May-2006)
+
+Resizing the filesystem on /dev/VG0/LV0 to 196608 (1k) blocks.
+
+The filesystem on /dev/VG0/LV0 is now 196608 blocks long.
+
+ 
+
+[root@localhost ~]# lvscan
+
+  ACTIVE            '/dev/VG0/LV0' [192.00 MB] inherit
+
+[root@localhost ~]#
+이제 마지막으로 마운트를 해보고 용량을 확인해보자.
+
+[root@localhost ~]# mount /backup
+
+[root@localhost ~]# df -hT
+
+Filesystem    Type    Size  Used Avail Use% Mounted on
+
+/dev/sda3     ext3     16G  3.8G   11G  27% /
+
+tmpfs        tmpfs    248M     0  248M   0% /dev/shm
+
+/dev/mapper/VG0-LV0
+
+              ext3    187M  6.1M  171M   4% /backup
+
+[root@localhost ~]#
+파티션에 다운로드 받아둔 기존 파일이 있는지 확인해 보자.
+
+[root@localhost ~]# ls /backup
+
+lost+found  motor-3.4.0.tar.gz
+
+[root@localhost ~]#
+[결론]
+
+CentOS 5.2 리눅스에서의 LVM은 저장 장치의 용량을 증가시키는 데는 문제가 없었으나, 용량을 줄이려고 하면 에러가 발생하였다. 이것은 아마도 용량을 줄이면 파일이 손상될 수 있기 때문에 에러를 유발시키면서 막아놓은 것 같다. 즉 LV0에 한번 용량을 추가하면 다시 되돌아 올 수 없게 되어 있었다. 물론 이렇게 해야만 저장 장치로부터의 데이터 삭제 피해가 없을 것으로 생각된다.
+
+추가적인 명령어를 나열해 보면 아래와 같다.
+
+lvextend –L +100M /dev/VG0/LV0 : LV0 볼륨에 100M를 추가한다.
+
+lvreduce –L -100M /dev/VG0/LV0 : LV0 볼륨에 100M를 삭제한다.
+
+vgextend VG0 /dev/sda8 : VG0에 PV로 만들어진 파티션을 추가한다.
+
+vgreduce : VG0 /dev/sda8 : VG0에서 /dev/sda8을 제거한다.
+
+LVM에서는 lvresize 명령만 사용하면 용량을 지정하는 작업이 편리할 것 같다.
+
+lvresize를 수행한 다음에는 e2fsck -f /dev/VG0/LV0 명령으로 파일시스템을 체크하고,
+
+resize2fs /dev/VG0/LV0 명령을 수행해 주도록 한다. 각 명령에 대한 자세한 사항은 man 페이지를 참고하기 바란다.
+
+만약 LVM을 해체하고자 한다면 만든 순서의 반대로 진행하면 된다.
+
+① lvremove /dev/VG0/LV0 : LV0 삭제
+
+② vgremove /dev/VG0 : VG0 삭제
+
+③ pvremove /dev/sda6 /dev/sda7 /dev/sda8 : 생성된 PV 모두 삭제
+
+④ 기존의 리눅스 파티션으로 사용하려면 fdisk를 사용하여 리눅스 파일 포맷으로 변경하여 사용하면 된다.
+
+[주의]
+
+LVM에 익숙하지 않는 사용자들은 충분히 공부하고, 실습한 다음 사용하도록 하자.
+
+ps. 정리를 하니 워드에서 22페이지다. 계속 추가하면 30페이지가 넘어갈듯~
+
