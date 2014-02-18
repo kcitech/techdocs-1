@@ -190,15 +190,81 @@ install centos 6.4 x64
    server 2.pool.ntp.org
    server 3.pool.ntp.org
 
-
-view /etc/yum.repos.d/cloudstack.repo
-
+ - view /etc/yum.repos.d/cloudstack.repo
 [cloudstack]
 name=cloudstack
 baseurl=http://cloudstack.apt-get.eu/rhel/4.2/
 enabled=1
 gpgcheck=0
 
-yum install -y cloudstack-management
+ - yum install -y cloudstack-management
+ 
+ - yum install -y mysql-server
+ 
+ - view /etc/my.cnf
+ [mysqld]
+...
+innodb_rollback_on_timeout=1
+innodb_lock_wait_timeout=600
+max_connections=350
+log-bin=mysql-bin
+binlog-format = 'ROW'
 
+ - service mysqld restart
+ - mysql_secure_installation ( answer : y )
+ - view /etc/sysconfig/selinu
+   ....
+   SELINUX=disabled
+   ...
+  
+ - -A INPUT -p tcp --dport 3306 -j ACCEPT
+ - service iptables restart
+ - service iptables save
+ - setenforce 0
+ 
+ - cloudstack-setup-management => 실행후 관련 설정되는데 시간이 좀 걸림 ( tail -f /var/log/cloudstack/management/*log )
+ 
+ nfs 
+ 
+ # mkdir -p /export/primary
+ # mkdir -p /export/secondary
+ 
+ # view /etc/exports
+ /export  *(rw,async,no_root_squash,no_subtree_check)
+ 
+ # exportfs -a
+ 
+ # test
+ # mkdir -p /tmp/test
+ # mount -t nfs nfsservername:/export/secondary /tmp/test
+ # umount /tmp/test
+ 
+ # view /etc/sysconfig/nfs
+LOCKD_TCPPORT=32803
+LOCKD_UDPPORT=32769
+MOUNTD_PORT=892
+RQUOTAD_PORT=875
+STATD_PORT=662
+STATD_OUTGOING_PORT=2020
+
+-A INPUT -s <NETWORK> -m state --state NEW -p udp --dport 111 -j ACCEPT
+-A INPUT -s <NETWORK> -m state --state NEW -p tcp --dport 111 -j ACCEPT
+-A INPUT -s <NETWORK> -m state --state NEW -p tcp --dport 2049 -j ACCEPT
+-A INPUT -s <NETWORK> -m state --state NEW -p tcp --dport 32803 -j ACCEPT
+-A INPUT -s <NETWORK> -m state --state NEW -p udp --dport 32769 -j ACCEPT
+-A INPUT -s <NETWORK> -m state --state NEW -p tcp --dport 892 -j ACCEPT
+-A INPUT -s <NETWORK> -m state --state NEW -p udp --dport 892 -j ACCEPT
+-A INPUT -s <NETWORK> -m state --state NEW -p tcp --dport 875 -j ACCEPT
+-A INPUT -s <NETWORK> -m state --state NEW -p udp --dport 875 -j ACCEPT
+-A INPUT -s <NETWORK> -m state --state NEW -p tcp --dport 662 -j ACCEPT
+-A INPUT -s <NETWORK> -m state --state NEW -p udp --dport 662 -j ACCEPT   
+ 
+ * <NETWORK> : 사용하는 네트워크 ex) 192.168.0.128/26
+ 
+ - service iptables restart
+ - service iptables save
+ 
+ - view /etc/idmapd.conf <== management server and hypervisor(?)
+   Domain = cloudstack.org
+   
 
