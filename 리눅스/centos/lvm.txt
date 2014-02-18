@@ -1300,3 +1300,33 @@ LVM에 익숙하지 않는 사용자들은 충분히 공부하고, 실습한 다
 
 ps. 정리를 하니 워드에서 22페이지다. 계속 추가하면 30페이지가 넘어갈듯~
 
+----------------------------------------------------------------------------------
+
+  632  fdisk /dev/sdd
+  633  pvcreate /dev/sdd1
+  634  pvscan
+  635  mount
+  636  umount /export/
+  637  vgdisplay
+  638  lvscan
+  639  vgextend VG0 /dev/sdd1
+  640  vgdisplay
+  641  vgdisplay -v
+  645  lvdisplay
+  646  lvscan
+  647  vgdisplay
+  648  lvresize -L 2.72T /dev/VG0/LV0
+  649  e2fsck -f /dev/VG0/LV0
+  650  resize2fs /dev/VG0/LV0  <== 10분정도 시간 걸림 
+  651  lvscan
+  653  cat /etc/fstab
+  654  mount /dev/VG0/LV0 /export/
+  655  df -h
+  658  exportfs -a
+  659  service rpcbind restart
+  660  service nfs restart
+  661  df -h
+  662  lvscan
+  663  vgdisplay -v
+  664  history
+
