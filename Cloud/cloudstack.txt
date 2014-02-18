@@ -278,4 +278,20 @@ STATD_OUTGOING_PORT=2020
  
  http://xxx.xxx.xxx.xxx:8080/client ( default : admin / password )
  
+ - management 웹 UI 접속후 암호 변경
+ - basic setup 진행
+   주의점 ( primary storage, secondary storage ) 부분에 IP는 관리IP용으로 10개정도 할당하였음. 
+   이때 ip 2개만 주면, system vm 구동시 ip가 부족하다고 나오고 진해잉 안됨. 
+   
+------------------------------
+trouble shooting
+------------------------------
 
+- iso 추가시 connection refused ==> global setting secstorage.allowed.internal.sites : management, xenserver ip등록 xxx.xxx.xxx.xxx/32,yyy.yyy.yyy.yyy/32
+
+- /root/bin/reinstall_cloudstack.sh 실행후 primary storage 추가실패날경우
+  => primary storage /export/primary 를 다른 이름으로 변경하여 등록하면 됨. ex) /export/primary2
+     xenserver에서 primary storage가 등록이 되어 있어서 추가 등록이 안되는 것임. 
+     
+     
+     
