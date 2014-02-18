@@ -211,13 +211,14 @@ log-bin=mysql-bin
 binlog-format = 'ROW'
 
  - service mysqld restart
- - mysql_secure_installation ( answer : y )
+ - mysql_secure_installation ( answer : y / mysql root 암호 입력 )
  - view /etc/sysconfig/selinu
    ....
    SELINUX=disabled
    ...
   
  - -A INPUT -p tcp --dport 3306 -j ACCEPT
+ - cloudstack-setup-databases cloud:PASSWORD@localhost --deploy-as=root:PASSWORD
  - service iptables restart
  - service iptables save
  - setenforce 0
@@ -267,4 +268,14 @@ STATD_OUTGOING_PORT=2020
  - view /etc/idmapd.conf <== management server and hypervisor(?)
    Domain = cloudstack.org
    
+ - # service rpcbind start
+ - # service nfs start
+ - # chkconfig nfs on
+ - # chkconfig rpcbind on
+ - # reboot         
+ 
+ /usr/share/cloudstack-common/scripts/storage/secondary/cloud-install-sys-tmplt -m /export/secondary -u http://d21ifhcun6b1t2.cloudfront.net/templates/4.2/systemvmtemplate-2013-07-12-master-xen.vhd.bz2 -h xenserver -F
+ 
+ http://xxx.xxx.xxx.xxx:8080/client ( default : admin / password )
+ 
 
