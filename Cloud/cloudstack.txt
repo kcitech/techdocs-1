@@ -141,3 +141,64 @@ account.cleanup.interval 30 => 86400
 expunge.delay	=> 86400
 expunge.interval => 1
 
+--------------------------------------------------
+cloudstack 4.2.1 reinstall
+--------------------------------------------------
+
+view /root/bin/reinstall_cloudstack.sh
+
+#!/bin/bash
+
+killall java
+
+yum remove  -y cloudstack-management
+
+yum install -y cloudstack-management
+
+cloudstack-setup-databases cloud:PASSWORD@localhost --deploy-as=root:PASSWORD
+
+exportfs -a
+
+service mysqld restart
+service rpcbind restart
+service nfs restart
+
+chkconfig nfs on
+chkconfig rpcbind on
+chkconfig mysqld on
+
+/usr/share/cloudstack-common/scripts/storage/secondary/cloud-install-sys-tmplt -m /export/secondary -u http://d21ifhcun6b1t2.cloudfront.net/templates/4.2/systemvmtemplate-2013-07-12-master-xen.vhd.bz2 -h xenserver -F
+
+cloudstack-setup-management
+
+--------------------------------------------------
+cloudstack 4.2.1 install
+--------------------------------------------------
+
+install centos 6.4 x64
+ - view /etc/sysconfig/network
+   HOSTNAME=my.cloudstack.org
+  
+ - view /etc/hosts
+   xxx.xxx.xxx  my.cloudstack.org
+
+ - #hostname my.cloudstack.org
+ 
+ - yum install ntp
+   server 0.pool.ntp.org
+   server 1.pool.ntp.org
+   server 2.pool.ntp.org
+   server 3.pool.ntp.org
+
+
+view /etc/yum.repos.d/cloudstack.repo
+
+[cloudstack]
+name=cloudstack
+baseurl=http://cloudstack.apt-get.eu/rhel/4.2/
+enabled=1
+gpgcheck=0
+
+yum install -y cloudstack-management
+
+
