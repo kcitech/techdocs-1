@@ -293,5 +293,8 @@ trouble shooting
   => primary storage /export/primary 를 다른 이름으로 변경하여 등록하면 됨. ex) /export/primary2
      xenserver에서 primary storage가 등록이 되어 있어서 추가 등록이 안되는 것임. 
      
-     
-     
+------------------------------
+reference 
+------------------------------
+
+http://cloudstack.apache.org/docs/en-US/Apache_CloudStack/4.2.0/html/Installation_Guide/management-server-install-flow.html#management-server-installation-overview     
