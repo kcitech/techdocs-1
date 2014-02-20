@@ -298,3 +298,9 @@ reference
 ------------------------------
 
 http://cloudstack.apache.org/docs/en-US/Apache_CloudStack/4.2.0/html/Installation_Guide/management-server-install-flow.html#management-server-installation-overview     
+
+http://snoopybox.co.kr/1694
+
+http://blog.naver.com/PostView.nhn?blogId=wisereign&logNo=30175697018
+
+
