@@ -53,6 +53,10 @@ BRIDGE=br0
    ...
    virbr0
 
+# virt-manager 실행 오류시 
+# yum install xorg-x11-xauth
+# yum install dejavu-lgc-sans-fonts
+
 <guestos생성>
 	// command 예제 1
 	#virt-install \
