@@ -26,6 +26,11 @@ IPADDR=192.168.0.100
 NETMASK=255.255.255.0
 ONBOOT=yes
 
+#view /etc/sysconfig/network
+...
+GATEWAY=192.168.0.1
+...
+
 #view /etc/sysconfig/network-scripts/ifcfg-eth0
 
 DEVICE=eth0
