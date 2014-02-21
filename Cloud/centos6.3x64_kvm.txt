@@ -22,3 +22,6 @@ problem1)
 virt-manager 실행시 UI에서 글자깨짐 ( virt-manager font problem)
 
 yum install dejavu-lgc-sans-fonts
+
+WebVirtMgr 설치
+https://github.com/retspen/webvirtmgr/wiki/Install-WebVirtMgr
