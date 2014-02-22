@@ -1,0 +1,5 @@
+windows server 2008 r2 sp1 에 sql2008 설치시 
+dotnet 3.5 sp1 설치시 역할관리 도구로 설치하라고 할때.
+
+http://blog.naver.com/PostView.nhn?blogId=lovegirlbaby&logNo=70087138367
+
