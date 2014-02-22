@@ -1,3 +1,44 @@
+-------------------------------------------------------------------------------
+2014.02.22
+-------------------------------------------------------------------------------
+haproxy 설치 방법
+
+#yum install haproxy
+
+#cd /etc/haproxy/
+#scp root@x.x.x.x:/etc/haproxy/haproxy.cfg haproxy.cfg.594   <== 샘플복사 
+
+#cp haproxy.cfg haproxy.cfg.orig
+#cp haproxy.cfg.594 haproxy.cfg
+
+#view haproxy.cfg 수정
+...
+listen stats
+    bind xx.xx.xx.xx:5130         <== primary ip 로 변경
+... 
+해당 cname은 설정
+
+#view /etc/rsyslog.conf 수정
+...
+$ModLoad imudp
+$UDPServerAddress 127.0.0.1
+$UDPServerRun 514
+...
+local2.*                                                /var/log/haproxy.log
+...
+
+#/etc/init.d/rsyslog restart
+
+통계확인
+http://primaryIP:5130 ( admin / password )
+
+로그확인
+tail -f /var/log/haproxy.log 혹은 tail -f /var/log/messages
+
+-------------------------------------------------------------------------------
+2014.02.22
+-------------------------------------------------------------------------------
+
 http://www.joinc.co.kr/modules/moniwiki/wiki.php/Site/cloud/ClusterLBWithOpenSource
 
 on centos 6.3 x64
