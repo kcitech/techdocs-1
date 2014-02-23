@@ -82,5 +82,25 @@ vnc connection issue
 iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 6080 -j ACCEPT
 iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 5900 -j ACCEPT
 
+----------------------------------------------------------------------------
+Converting between image formats
+----------------------------------------------------------------------------
+=> http://docs.openstack.org/image-guide/content/ch_converting.html
 
+Image format	      Argument to qemu-img
+raw	  raw
+qcow2	qcow2
+VDI   (VirtualBox)	vdi
+VMDK  (VMWare)	    vmdk
+VHD   (Hyper-V)	    vpc
 
+This example will convert a raw image file named centos63.dsk to a qcow2 image file.
+$ qemu-img convert -f raw -O qcow2 centos64.dsk centos64.qcow2
+
+To convert from vmdk to raw, you would do:
+$ qemu-img convert -f vmdk -O raw centos64.vmdk centos64.img
+
+----------------------------------------------------------------------------
+Startup Guide for KVM on CentOS 6
+----------------------------------------------------------------------------
+==> http://itscblog.tamu.edu/startup-guide-for-kvm-on-centos-6/
