@@ -2,3 +2,20 @@ expunge.delay		86400	=> 30
 expunge.interval	86400	=> 30
 
 service cloud-management restart
+
+------------------------------------------------------------------------------
+cloudstack management ip pull 찼을때, 수동으로 ip 추가하기
+------------------------------------------------------------------------------
+
+mysql -uroot -p cloud
+
+insert into op_dc_ip_address_alloc(ip_address,data_center_id,pod_id,nic_id,reservation_id,taken) values('x.x.x.215',1,1,null,null,null);
+insert into op_dc_ip_address_alloc(ip_address,data_center_id,pod_id,nic_id,reservation_id,taken) values('x.x.x.216',1,1,null,null,null);
+insert into op_dc_ip_address_alloc(ip_address,data_center_id,pod_id,nic_id,reservation_id,taken) values('x.x.x.217',1,1,null,null,null);
+
+or
+
+UPDATE op_dc_ip_address_alloc SET nic_id=NULL, reservation_id=NULL, taken=NULL;
+
+reference
+=> http://www.marshut.com/nzpr/change-ip-range-of-pod-in-cloudstack.html
