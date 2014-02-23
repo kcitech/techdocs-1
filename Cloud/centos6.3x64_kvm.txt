@@ -25,3 +25,55 @@ yum install dejavu-lgc-sans-fonts
 
 WebVirtMgr 설치
 https://github.com/retspen/webvirtmgr/wiki/Install-WebVirtMgr
+https://www.webvirtmgr.net/docs/
+
+# yum -y install kvm libvirt
+
+# view /etc/sysconfig/libvirtd
+...
+LIBVIRTD_ARGS="--listen"
+...
+
+# view /etc/libvirt/libvirtd.conf
+...
+listen_tls = 0
+listen_tcp = 1
+...
+
+# service libvirtd start
+
+# saslpasswd2 -a libvirt fred
+Password: xxxxxx
+Again (for verification): xxxxxx
+
+# sasldblistusers2 -f /etc/libvirt/passwd.db
+fred@webvirtmgr.net: userPassword
+
+# saslpasswd2 -a libvirt -d fred
+
+# iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport 16509 -j ACCEPT
+
+Test connection
+Before you add the ip address of your server in the control center perform the following test
+
+$ virsh -c qemu+tcp://IP_address/system nodeinfo
+Please enter your authentication name: fred
+Please enter your password: xxxxxx
+CPU model:           x86_64
+CPU(s):              2
+CPU frequency:       2611 MHz
+CPU socket(s):       1
+Core(s) per socket:  2
+Thread(s) per core:  1
+NUMA cell(s):        1
+Memory size:         2019260 kB
+
+
+vnc
+=> https://github.com/retspen/webvirtmgr/issues/44
+# websockify 6080 127.0.0.1:5900 -D
+iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 6080 -j ACCEPT
+iptables -A INPUT -p tcp -m state --state NEW -m tcp --dport 5900 -j ACCEPT
+
+
+
