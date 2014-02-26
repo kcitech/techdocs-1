@@ -27,3 +27,4 @@ net.ipv4.ip_forward = 1
 
 #sysctl -p /etc/sysctl.conf
 
+=> http://blog.jameskyle.org/2012/07/configuring-openswan-ipsec-server/
