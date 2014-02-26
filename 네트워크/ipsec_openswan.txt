@@ -2,3 +2,10 @@ Linux IPSec site to site VPN(Virtual Private Network) configuration using opensw
 
 =>
 http://www.slashroot.in/linux-ipsec-site-site-vpnvirtual-private-network-configuration-using-openswan
+
+
+IPSec : Internet Protocol Security
+
+VPN : Virtual Private Networks 
+
+
