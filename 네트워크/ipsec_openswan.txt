@@ -17,3 +17,13 @@ This kind of a setup is called as gateway to gateway or sometimes site to site V
 gateway to gateway
 site to site vpn
 
+
+#echo 1 > /proc/sys/net/ipv4/ip_forward
+
+#view /etc/sysctl.conf
+...
+net.ipv4.ip_forward = 1
+...
+
+#sysctl -p /etc/sysctl.conf
+
