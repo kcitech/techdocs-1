@@ -8,4 +8,12 @@ IPSec : Internet Protocol Security
 
 VPN : Virtual Private Networks 
 
+We will be using OpenSwan for making a secure VPN tunnel. 
+
+For making this work we will be having two VPN servers. 
+These two VPN server's will be running ISPec application openswan. 
+This kind of a setup is called as gateway to gateway or sometimes site to site VPN.
+
+gateway to gateway
+site to site vpn
 
