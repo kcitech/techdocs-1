@@ -1,0 +1,7 @@
+
+#apt-get install iptables-persistent
+
+#iptables -A INPUT -s x.x.x.x -p tcp --dport 22 -j DROP
+
+#/etc/init.d/iptables-persistent save
+#/etc/init.d/iptables-persistent reload
