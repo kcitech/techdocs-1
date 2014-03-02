@@ -1,0 +1,56 @@
+
+How to configure remote logging on RHEL6/CentOS6
+
+http://linuxsysconfig.com/2013/04/how-to-configure-remote-logging-on-rhel6-centos6/
+
+
+----------------------------------------------------
+client
+----------------------------------------------------
+
+/etc/rsyslog.conf
+
+$WorkDirectory /var/lib/rsyslog # where to place spool files
+$ActionQueueFileName fwdRule1 # unique name prefix for spool files
+$ActionQueueMaxDiskSpace 1g   # 1gb space limit (use as much as possible)
+$ActionQueueSaveOnShutdown on # save messages to disk on shutdown
+$ActionQueueType LinkedList   # run asynchronously
+$ActionResumeRetryCount -1    # infinite retries if host is down
+# remote host is: name/ip:port, e.g. 192.168.0.1:514, port optional
+*.* @@SERVER_IP:514
+
+#/sbin/service rsyslog restart
+
+----------------------------------------------------
+server
+----------------------------------------------------
+
+view /etc/rsyslog.conf
+...
+$ModLoad imtcp
+$InputTCPServerRun 514
+:FROMHOST-IP, isequal, "CLIENT_IP" /var/log/CLIENT_IP.log
+...
+
+#service iptables save
+
+#view /etc/sysconfig/iptables
+...
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 514 -j ACCEPT
+...
+
+#service iptables save
+#service iptables restart
+
+#/sbin/service rsyslog restart
+
+확인 on client
+
+tail -f /var/log/CLIENT_IP.log
+
+
+
+
+
+
+
