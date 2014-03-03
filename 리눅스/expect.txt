@@ -1,0 +1,48 @@
+http://www.admin-magazine.com/Articles/Automating-with-Expect-Scripts
+
+#!/usr/bin/expect -f
+
+set PASSWD XXXXX
+
+set SERVER1 y.y.y.y
+set SERVER2 d.d.d.d
+
+set BLOCKIP q.q.q.0/24
+
+#------------------
+#SERVER1
+#------------------
+spawn ssh root@$SERVER1
+
+expect "password: "
+send   "$PASSWD\r"
+
+expect "# "
+send "iptables -A INPUT -s $BLOCKIP -p tcp -j DROP \r"
+
+expect "# "
+send "/etc/init.d/iptables save \r"
+
+expect "# "
+send "/etc/init.d/iptables restart \r"
+
+send "exit\r"
+
+#------------------
+#SERVER2
+#------------------
+spawn ssh root@$SERVER2
+
+expect "password: "
+send   "$PASSWD\r"
+
+expect "# "
+send "iptables -A INPUT -s $BLOCKIP -p tcp -j DROP \r"
+
+expect "# "
+send "/etc/init.d/iptables save \r"
+
+expect "# "
+send "/etc/init.d/iptables restart \r"
+
+send "exit\r"
