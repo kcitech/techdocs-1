@@ -156,3 +156,23 @@ make modules_install
 make install
 
 http://hermes2.egloos.com/1152863
+
+------------------------------------
+reset passwd
+------------------------------------
+
+http://askubuntu.com/questions/24006/how-do-i-reset-a-lost-administrative-password
+
+press 'SHIFT KEY"
+
+select "... (recovery mode)" 
+
+select "root" or "netroot"
+
+mount -rw -o remount /
+
+passwd root
+
+
+
+
