@@ -46,3 +46,6 @@ nginx-1.4.6 / naxsi-0.53-2
 #cd /etc/nginx/sites-enabled/
 #view default
 
+#useradd nginx -s /bin/false -d /var/lib/nginx -c "Nginx user"
+
+
