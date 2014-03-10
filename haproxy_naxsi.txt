@@ -46,6 +46,22 @@ nginx-1.4.6 / naxsi-0.53-2
 #cd /etc/nginx/sites-enabled/
 #view default
 
+#view /etc/nginx/test.rules
+
+LearningMode; #Enables learning mode
+SecRulesEnabled;
+#SecRulesDisabled;
+DeniedUrl "/RequestDenied";
+
+include "/tmp/naxsi_rules.tmp";
+
+## check rules
+CheckRule "$SQL >= 8" BLOCK;
+CheckRule "$RFI >= 8" BLOCK;
+CheckRule "$TRAVERSAL >= 4" BLOCK;
+CheckRule "$EVADE >= 4" BLOCK;
+CheckRule "$XSS >= 8" BLOCK;
+
 #useradd nginx -s /bin/false -d /var/lib/nginx -c "Nginx user"
 
 
