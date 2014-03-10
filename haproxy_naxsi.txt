@@ -2,7 +2,9 @@ http://blog.exceliance.fr/2012/10/16/high-performance-waf-platform-with-naxsi-an
 
 naxsi, a Web Application Firewall module for nginx.
 
+----------------------------------------------------------------------------
 haproxy-1.5-dev21
+----------------------------------------------------------------------------
 
 #cd /usr/local/src/
 #wget http://haproxy.1wt.eu/download/1.5/src/devel/haproxy-1.5-dev21.tar.gz
@@ -14,3 +16,33 @@ haproxy-1.5-dev21
 #cp haproxy /usr/sbin/
 #ls -l /etc/haproxy/
 #haproxy -f /etc/haproxy.cfg  -D
+
+----------------------------------------------------------------------------
+nginx-1.4.6 / naxsi-0.53-2
+----------------------------------------------------------------------------
+
+#yum groupinstall "development tools"
+#yum install pcre pcre-devel zlib zlib-devel
+#cd /usr/local/src/
+#wget https://github.com/nbs-system/naxsi/archive/0.53-2.tar.gz
+#wget http://nginx.org/download/nginx-1.4.6.tar.gz
+
+#tar xvfz nginx-1.4.6.tar.gz
+#mv 0.53-2.tar.gz naxsi-core-0.53-2.tar.gz
+#tar xvfz naxsi-core-0.53-2.tar.gz
+#ln -s nginx-1.4.6 nginx
+#ln -s naxsi-0.53-2 naxsi
+#cd nginx
+#./configure --conf-path=/etc/nginx/nginx.conf --add-module=../naxsi/naxsi_src/ --error-log-path=/var/log/nginx/err --prefix=/opt/nginx --without-mail_pop3_module --without-mail_imap_module --without-mail_smtp_module
+#make && make install
+#cd /etc/nginx/
+#cp /usr/local/src/naxsi/naxsi_config/naxsi_core.rules .
+#touch /tmp/naxsi_rules.tmp
+#mkdir /etc/nginx/sites-enabled
+#view /etc/nginx/nginx.conf
+#cd /etc/nginx/
+#cp nginx.conf nginx.conf.orig
+#view nginx.conf
+#cd /etc/nginx/sites-enabled/
+#view default
+
