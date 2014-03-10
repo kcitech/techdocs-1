@@ -13,3 +13,4 @@ haproxy-1.5-dev21
 #which haproxy
 #cp haproxy /usr/sbin/
 #ls -l /etc/haproxy/
+#haproxy -f /etc/haproxy.cfg  -D
