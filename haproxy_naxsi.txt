@@ -64,4 +64,10 @@ CheckRule "$XSS >= 8" BLOCK;
 
 #useradd nginx -s /bin/false -d /var/lib/nginx -c "Nginx user"
 
+#/opt/nginx/sbin/nginx
+#/opt/nginx/sbin/nginx –s stop
+#/opt/nginx/sbin/nginx –s reloadtail -f /var/log/nginx/*logview /etc/nginx/nginx.conf
+#View /etc/nginx/sites-enabled/default
+
+
 
