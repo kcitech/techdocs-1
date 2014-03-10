@@ -2,4 +2,14 @@ http://blog.exceliance.fr/2012/10/16/high-performance-waf-platform-with-naxsi-an
 
 naxsi, a Web Application Firewall module for nginx.
 
+haproxy-1.5-dev21
 
+#cd /usr/local/src/
+#wget http://haproxy.1wt.eu/download/1.5/src/devel/haproxy-1.5-dev21.tar.gz
+#tar xvfz haproxy-1.5-dev21.tar.gz
+#cd haproxy-1.5-dev21
+#make TARGET=linux26 CPU=x86_64
+#make install target=linux26
+#which haproxy
+#cp haproxy /usr/sbin/
+#ls -l /etc/haproxy/
