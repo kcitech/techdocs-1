@@ -1,5 +1,10 @@
 yum install -y libvirt python-virtinst qemu-kvm bridge-utils virt-manager xorg-x11-xauth dejavu-sans-fonts kvm-img qemu-kvm-tools
 
+
+/sbin/shutdown -r now
+
+after rebooting, change network as below like.
+
 view /etc/sysconfig/network-scripts/ifcfg-br0
 
 DEVICE=br0
