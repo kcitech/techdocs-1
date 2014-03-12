@@ -1,0 +1,41 @@
+
+yum install libvirt python-virtinst qemu-kvm bridge-utils virt-manager xorg-x11-xauth dejavu-sans-fonts kvm-img qemu-kvm-tools
+
+view /etc/sysconfig/network-scripts/ifcfg-br0
+
+DEVICE=br0
+TYPE=Bridge
+BOOTPROTO=static
+IPADDR=xxx.xxx.xxx.xxx
+NETMASK=255.255.255.192
+GATEWAY=xxx.xxx.xxx.129
+ONBOOT=yes
+
+view /etc/sysconfig/network-scripts/ifcfg-eth0
+
+DEVICE=eth0
+TYPE=Ethernet
+ONBOOT=yes
+NM_CONTROLLED=yes
+BOOTPROTO=static
+BRIDGE=br0
+
+view /etc/sysconfig/network-scripts/ifcfg-br1
+
+DEVICE=br1
+TYPE=Bridge
+BOOTPROTO=static
+IPADDR=192.168.100.3
+NETMASK=255.255.255.0
+ONBOOT=yes
+
+view /etc/sysconfig/network-scripts/ifcfg-eth1
+
+DEVICE=eth1
+TYPE=Ethernet
+ONBOOT=yes
+NM_CONTROLLED=yes
+BOOTPROTO=static
+BRIDGE=br1
+
+/sbin/shutdown -r now 
