@@ -1,5 +1,4 @@
-
-yum install libvirt python-virtinst qemu-kvm bridge-utils virt-manager xorg-x11-xauth dejavu-sans-fonts kvm-img qemu-kvm-tools
+yum install -y libvirt python-virtinst qemu-kvm bridge-utils virt-manager xorg-x11-xauth dejavu-sans-fonts kvm-img qemu-kvm-tools
 
 view /etc/sysconfig/network-scripts/ifcfg-br0
 
