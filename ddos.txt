@@ -1,0 +1,27 @@
+linux blackhole
+
+http://www.cyberciti.biz/tips/how-do-i-drop-or-block-attackers-ip-with-null-routes.html
+
+ip route add blackhole x.x.x.x
+
+or 
+
+route add x.x.x.x gw 127.0.0.1 lo
+
+or 
+
+# route add -host IP-ADDRESS reject
+
+drop 
+# route add -net 192.67.16.0/24 gw 127.0.0.1 lo
+
+# ip route add blackhole x.x.x.2/29
+# route -n
+
+확인
+
+ip route get 61.102.59.143
+
+del route
+
+# route delete x.x.x.x
