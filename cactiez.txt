@@ -25,6 +25,9 @@ http://docs.cacti.net/templates
 
 console : import 
 
+setting > general > Enabled checked
+poller type : spine -> cmd.php 
+
 
 
 reference >
