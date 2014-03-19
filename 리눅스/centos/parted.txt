@@ -1,5 +1,4 @@
 
-
 2T이상일때는 fdisk로는 안되고,
 parted라는 명령어를 사용해야 합니다.
 
@@ -28,3 +27,110 @@ End? 2288754 <- 2288754메가 까지
 1.http://www.superuser.co.kr/home/lecture/?leccode=10966
 (5번 예제를 보시면 이해가 쉬우실겁니다.)
 2.http://www.gnu.org/software/parted
+
+------------------------------------------------------------------------
+리눅스에서 GNU Parted로 4K 섹터 디스크 파티션 정렬하기
+reference : 
+http://star4u.org/blog/?p=480
+http://www.cemkayar.com/?p=214
+------------------------------------------------------------------------
+
+<요약:시작>
+#parted /dev/sdb
+(parted) mkpart primary 1 25%     <== 2048 sector부터 시작하도록 파티션 생성함. 
+(parted) mkpart primary 25% 50%
+(parted) mkpart primary 50% 75%
+(parted) mkpart primary 75% 100%
+
+(parted) print
+
+(parted) unit s   <== sector 단위로보기 
+(parted) print 
+<요약:끝>
+
+February 28, 2012IT4096, 4k, 4kb, hdd, linux, parted, sector, 리눅스, 섹터
+기존 디스크는 512바이트의 섹터를 가지는게 보통이었고 이건 오랫동안 상식으로 통했다.
+하지만 최근 기술의 발달로 4096바이트의 섹터를 가지고 있는 디스크가 나오게 되었다.
+최근에 나오는 고용량 하드디스크는 4096바이트의 섹터일 확률이 크다.
+
+4K 섹터 디스크 관련해서는 아래의 URL을 참조하면 된다.
+https://www.ibm.com/developerworks/kr/library/l-4kb-sector-disks/
+
+http://www.seagate.com/docs/pdf/ko-KR/whitepaper/tp613_transition_to_4k_sectors.pdf
+
+여기서는 Gnu Parted를 이용해 리눅스에서 4K 섹터의 디스크를 사용하는 방법을 알아본다.
+
+parted를 실행하고 print 해보면 현재의 디스크 정보가 출력된다.
+
+$ sudo parted /dev/sdb
+GNU Parted 2.3
+Using /dev/sdb
+Welcome to GNU Parted! Type ‘help’ to view a list of commands.
+(parted) print
+Model: ATA ST3000DM001-9YN1 (scsi)
+Disk /dev/sdb: 3001GB
+Sector size (logical/physical): 512B/4096B
+Partition Table: gpt
+
+Number  Start  End  Size  File system  Name  Flags
+
+현재 아무런 파티션이 없는 상태이다.
+Sector size를 보면 논리적 512바이트, 물리적 4096바이트인걸 알 수 있다.
+
+처음(0)부터 끝(100%)까지 파티션을 생성해본다.
+(parted) mkpart primary 0 100%
+Warning: The resulting partition is not properly aligned for best performance.
+Ignore/Cancel?
+
+위와 같은 경고 메시지가 나온다.
+Ignore를 선택해서 강제로 파티션을 생성해 보았다.
+
+(parted) print
+Model: ATA ST3000DM001-9YN1 (scsi)
+Disk /dev/sdb: 3001GB
+Sector size (logical/physical): 512B/4096B
+Partition Table: gpt
+
+Number  Start   End     Size    File system  Name     Flags
+1      17.4kB  3001GB  3001GB               primary
+
+align-check로 정렬이 되었는지 보자.
+(parted) align-check optimal 1
+1 not aligned
+
+1번 파티션이 정렬되지 않았다고 나온다.
+맨 처음 URL을 읽어봤다면 MS Windows와의 호환성을 위해서 보통 2048섹터부터 시작하게 파티션 생성을 한다는 문구를 보았을 것이다.
+그럼 어떻게 2048섹터부터 파티션을 생성할 수 있는지 알아보자.
+
+(parted) mkpart primary 1 100%
+(parted) print
+Model: ATA ST3000DM001-9YN1 (scsi)
+Disk /dev/sdb: 3001GB
+Sector size (logical/physical): 512B/4096B
+Partition Table: gpt
+
+Number  Start   End     Size    File system  Name     Flags
+1      1049kB  3001GB  3001GB               primary
+
+parted를 실행하면 기본 unit 단위는 compact이다.
+섹터 단위로 변경하고 정보를 보자.
+
+(parted) unit s
+(parted) print
+Model: ATA ST3000DM001-9YN1 (scsi)
+Disk /dev/sdb: 5860533168s
+Sector size (logical/physical): 512B/4096B
+Partition Table: gpt
+
+Number  Start  End          Size         File system  Name     Flags
+1      2048s  5860532223s  5860530176s               primary
+
+2048섹터부터 시작하도록 파티션이 생성되었다.
+실제로 정렬이 되었는지 align-check로 알아보자.
+
+(parted) align-check optimal 1
+1 aligned
+
+1번 파티션이 정렬 되었다.
+
+여기까지 읽어봤다면 알 수 있겠지만 unit을 섹터로 변경하고 2048섹터부터 시작하도록 파티션 생성을 해도 된다.
