@@ -1,0 +1,52 @@
+
+download 
+http://cactiez.cactiusers.org/docs/installation.html
+
+passwd는 아래에 자동으로 생성된것으로 사용하면 됨.
+cat cat /root/mysqlpass.txt
+
+http://ip 방문시 sql 아래와 같이 sql 접속 오류가 나면 
+/var/www/html/lib/adodb/drivers/adodb-mysqli.inc.php on line 83 Can not connect
+
+mysql 접속해서 cactiuser 암호를 변경한후, 2개의 config.php파일을 수정해 주면 됨. 
+
+mysql -uroot -p mysql
+
+SET PASSWORD FOR 'cactiuser'@'localhost' = PASSWORD('YOURCHANGEDPASSWORD');
+
+flush privileges;
+
+view /var/www/html/include/config.php
+view /var/www/html/plugins/syslog/config.php
+
+reference >
+
+
+I had the same problem running in a VM as well, but I was just able to work around it. The auto generated password in my "/root/mysqlpass.txt" file looked suspect because it started with a "/". I changed it in the "/root/mysqlpass.txt" file and the following places:
+
+
+/var/www/html/include/config.php
+/var/www/html/plugins/syslog/config.php
+
+Then, I changed the cactiuser password within my SQL to reflect these changes and rebooted the server. It worked for me, so hopefully you are having the same trouble. For completeness, because I'm no mysql guru, here's how I did the password change in mysql itself-->
+
+
+1. Logged in as a root (the root password for mysql is in the "/root/mysqlpass.txt" file)-->
+
+mysql -u root -p
+
+2. Once you are logged into mysql, issue the following-->
+
+use mysql;
+
+3. it will indicate the db has changed. Then type in the following-->
+
+SET PASSWORD FOR 'cactiuser'@'localhost' = PASSWORD('YOURCHANGEDPASSWORD');
+
+4. It should indicate the query was OK, etc. Exit out and try logging in with the same password you just changed for cactiuser-->
+
+mysql -u cactiuser -p
+
+
+As long as you logged on, it should be good to go. Just do a reboot of the VM and it should come up. Good Luck!
+
