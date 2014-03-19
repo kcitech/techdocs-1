@@ -1,6 +1,7 @@
-
 download 
 http://cactiez.cactiusers.org/docs/installation.html
+
+설치후 yum -y update 필요함 <== data query  not found 해결됨. 
 
 passwd는 아래에 자동으로 생성된것으로 사용하면 됨.
 cat cat /root/mysqlpass.txt
@@ -18,6 +19,13 @@ flush privileges;
 
 view /var/www/html/include/config.php
 view /var/www/html/plugins/syslog/config.php
+
+host 템플릿 다운받아서 import 시켜야 함.
+http://docs.cacti.net/templates
+
+console : import 
+
+
 
 reference >
 
