@@ -1,0 +1,34 @@
+
+Linux Tips: How to Quickly Bind a Range of IPs on RedHat Based Systems
+
+reference
+
+http://www.ducea.com/2006/07/15/linux-tips-how-to-quickly-bind-a-range-of-ips-on-redhat-based-systems/
+
+
+
+Linux Tips: How to Quickly Bind a Range of IPs on RedHat Based Systems
+JUL 15TH, 2006 | COMMENTS
+In this short post I will show you how you can quickly add a range of IPs on any RedHat based system (Rhel, Centos, Fedora, etc). When you have to add many IPs to a system this can be quite handy and save a lot of time. Normally when you add a new IP to a network interface in a RedHat based system you create a file ifcfg-eth0:x in /etc/sysconfig/network-scripts/. For example:
+
+/etc/sysconfig/network-scripts/ifcfg-eth0:0
+DEVICE=eth0:0
+ONBOOT=yes
+BOOTPROTO=static
+IPADDR=192.168.0.100
+NETMASK=255.255.255.0
+NETWORK=192.168.0.0
+BROADCAST=192.168.0.255
+TYPE=Ethernet
+Similar to the above example you can create several aliases. But what if you have to add a lot of IPs that are in a range like this? Let’s say that I want to add 100 IPs this way… this is possible, but not very effective, right? RedHat based systems offer a method to bind a range of IPs in a quick way allowing us to eliminate the need to create a lot of files and saving us time doing this. Create a file /etc/sysconfig/network-scripts/ifcfg-eth0-range0 if this doesn’t exist, or just add to it if you already have it, the following lines:
+
+/etc/sysconfig/network-scripts/ifcfg-eth0-range0
+IPADDR_START=192.168.0.100
+IPADDR_END=192.168.0.200
+CLONENUM_START=0
+where: IPADDR_START is the first IP and IPADDR_END is the last IP in the range. CLONENUM_START is the number that will be assigned to the first IP alias interface (eth0:0 in this example).
+
+If you need to add more ranges of IPs then just use a different file for ex. ifcfg-eth0-range1, for each one of the ranges. You need to be careful and use the proper CLONENUM_START to not overwrite other aliases. Once you have configured the range/s of IPs you just need to restart the network service in order to activate it:
+
+service network restart
+Note: don’t use this method on a CPanel based system. Even though this will work fine, it is better to use CPanel/WHM in this case so CPanel can manage all the IPs properly. Here is a short post on how you can do the same thing ‘CPanel way’.
