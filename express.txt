@@ -1,4 +1,3 @@
-
 Thank you for your order. We will begin to setup your server shortly.
 
 Once it is set up I will send you your login credentials.
@@ -6,4 +5,18 @@ Once it is set up I will send you your login credentials.
 Please stand by.
 
 Thanks,
+
+Thank you again for your order.
+
+Your OS has been installed and updated and your server is ready.
+
+Your server's primary IP is x.x.x.x
+
+Your login username is: q.q.q.q
+
+Your login password is: y.y.y.y
+
+Please let us know if you have any questions or have any problems accessing this server.
+
+Please open a new ticket for any new questions or concerns.
 
