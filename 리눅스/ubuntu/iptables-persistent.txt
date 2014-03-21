@@ -1,7 +1,17 @@
-
 #apt-get install iptables-persistent
 
 #iptables -A INPUT -s x.x.x.x -p tcp --dport 22 -j DROP
 
 #/etc/init.d/iptables-persistent save
 #/etc/init.d/iptables-persistent reload
+
+#view /etc/iptables/rules.v4
+
+*filter
+:INPUT ACCEPT [2680:472844]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [2713:433447]
+-A INPUT -s x.x.x.x    -p tcp -m tcp --dport 22 -j ACCEPT
+-A INPUT -s y.y.y.y/24 -p tcp -m tcp --dport 22 -j DROP
+-A INPUT -s 0.0.0.0/0  -p tcp -m tcp --dport 22 -j DROP
+COMMIT
