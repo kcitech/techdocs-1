@@ -27,3 +27,12 @@ Your ticket xxxx for Server ID yyyy regarding "Windows 2008 Server Standard (64 
 a staff member at Mar 21 20:17:41 PDT 2014.
 
 Please note that email responses do not update help desk tickets.
+
+Thank you for your order. We will begin to setup your server shortly.
+
+Once it is set up I will send you your login credentials.
+
+Please stand by.
+
+Thanks,
+
