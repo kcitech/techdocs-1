@@ -26,5 +26,4 @@ Note how these animals sometimes walk with their tails up in the air.예문 발�
 Your ticket xxxx for Server ID yyyy regarding "Windows 2008 Server Standard (64 bit) Install" has been updated by 
 a staff member at Mar 21 20:17:41 PDT 2014.
 
-
-
+Please note that email responses do not update help desk tickets.
