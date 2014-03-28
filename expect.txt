@@ -1,0 +1,27 @@
+#!/usr/bin/expect -f
+
+set DIR /home/TEST
+
+#------------------------
+#${SERVER1} / TEST1
+#------------------------
+set SERVER1 x.x.x.x
+
+spawn rsync -ave ssh --delete root@${SERVER1}:/etc/haproxy/haproxy.cfg ${DIR}/${SERVER1}/haproxy/
+expect {
+ -re "password: " {
+      send "XXXXXX\r"
+ }
+}
+expect eof
+
+spawn rsync -ave ssh --delete root@${SERVER1}:/etc/nginx/conf.d/ ${DIR}/${SERVER1}/nginx
+expect {
+ -re "password: " {
+      send "XXXXXX\r"
+ }
+}
+expect eof
+
+
+* cron 실행시 interact 대신에 expect eof 사용해야 함. 
