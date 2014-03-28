@@ -67,4 +67,38 @@ server {
         }
 }
 
+# view ssl_sample.conf
+
+server {
+
+        listen   x.x.x.x:443;
+        server_name www.testtest.testtest;
+
+        access_log      /home/log/nginx/x.x.x.x_ssl_access.log  main;
+        error_log       /home/log/nginx/x.x.x.x_ssl_error.log warn;
+
+        ssl                  on;
+        ssl_certificate      /etc/nginx/math/www.yyyy.yyyy.crt;
+        ssl_certificate_key  /etc/nginx/math/ssl.key;
+
+        ssl_protocols       SSLv3 TLSv1 TLSv1.1 TLSv1.2;
+        ssl_ciphers RC4:HIGH:!aNULL:!MD5;
+        ssl_prefer_server_ciphers on;
+        keepalive_timeout    60;
+        ssl_session_cache    shared:SSL:10m;
+        ssl_session_timeout  10m;
+
+        client_max_body_size    6M;
+        client_body_buffer_size 1024k;
+
+        location / {
+                proxy_pass https://zz.zz.zz.zz/;
+
+                proxy_redirect off;
+                proxy_buffering off;
+                proxy_set_header        Host            $host;
+                proxy_set_header        X-Real-IP       $remote_addr;
+                proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+}
 
