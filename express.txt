@@ -36,3 +36,9 @@ Please stand by.
 
 Thanks,
 
+---------------------------
+
+I have gone ahead and blocked all UDP traffic for the specified IP. 
+You should now see your graphs and the changes take effect shortly.
+
+
