@@ -1,0 +1,8 @@
+tcpkill
+
+http://www.cyberciti.biz/howto/question/linux/kill-tcp-connection-using-linux-netstat.php
+
+dsniff
+
+ubuntu
+http://packages.ubuntu.com/lucid/dsniff
