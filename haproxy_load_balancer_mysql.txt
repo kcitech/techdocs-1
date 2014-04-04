@@ -1,0 +1,1 @@
+https://www.digitalocean.com/community/articles/how-to-use-haproxy-to-set-up-mysql-load-balancing--3
