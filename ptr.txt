@@ -1,0 +1,7 @@
+PTR (Pointer Record)
+Pointer Record. Also called a reverse DNS record. 
+A PTR record associates an IP address with a canonical name (domain.com). 
+PTR records should point to a name that can be resolved back to the IP address. 
+The name of the pointer record is not the IP address itself, but is the IP address’ four IP octets in reverse order followed by IN-ADDR.ARPA. for Example:
+192.168.1.224 becomes 224.1.168.192.IN-ADDR.ARPA
+
