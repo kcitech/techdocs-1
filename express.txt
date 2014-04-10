@@ -87,3 +87,16 @@ Have a great day.
 
 Best regards,
 
+----------------------
+
+Hi Max,
+
+Thank you for contacting AWS Technical Support.
+
+I have created the reverse DNS record for DOMAIN with an IP Address of x.x.x.x. 
+
+If you checked the reverse dns record for this you should now see this entry in effect.
+
+If there is anything else I can do for you please ask and I'll do my best to assist.
+
+Best regards,
