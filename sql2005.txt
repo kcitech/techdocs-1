@@ -1,0 +1,12 @@
+sa 암호 변경
+
+cmd 창에서
+
+sqlcmd
+
+Alter login sa with password='password'
+go
+exit
+
+http://dosz.com/133
+
