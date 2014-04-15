@@ -1,0 +1,57 @@
+amos sol 어학기 
+패턴 여러차례 시도후 잠기고, 구글계정 입력 창 나올때, 패턴깨기 
+
+amos sol AS전화 하니 1만원 달라네. 택배비 고객부담 5천원 달라고,, 
+
+너무 아까워서 찾아 보니 방법이 있구만..
+
+참조
+http://www.addictivetips.com/android/how-to-bypass-disable-pattern-unlock-on-android-via-adb-commands/
+http://www.addictivetips.com/mobile/what-is-adb-and-how-to-install-it-android/
+http://null-byte.wonderhowto.com/how-to/locked-out-your-phone-heres-you-bypass-android-pattern-lock-screen-0138807/
+
+1. android sdk 다운로드
+   => http://developer.android.com/sdk/index.html?hl=sk
+   
+ 압축풀기 : D:\download\utils\android_hack\adt-bundle-windows-x86-20140321
+  
+  tools 과 platform tools 은 깔아줌. 
+  amos sol android 4.0 이니 4.0버전을 모두 선택해서 깔아줌. 
+  
+  
+2. pc path에 다음 추가 
+   D:\download\utils\android_hack\adt-bundle-windows-x86-20140321\adt-bundle-windows-x86-20140321\sdk\platform-tools;D:\download\utils\android_hack\adt-bundle-windows-x86-20140321\adt-bundle-windows-x86-20140321\sdk\tools
+  
+3. pc와 sol(어학기) usb케이블 연결함
+   => 제어판\하드웨어 및 소리\장치 및 프린터에 android가 보여야 함. 
+   
+4. 명령프롬프트 창열고 아래 명령 입력 
+   adb devices 
+   List of devices attached
+   200XXXXX        device                <== 이 결과값이 보여야 연결이 된것임.
+   
+adb shell
+root@android:/ # cd /data/data/com.android.providers.settings/databases
+cd /data/data/com.android.providers.settings/databases
+root@android:/data/data/com.android.providers.settings/databases # sqlite3 settings.db
+3 settings.db                                                                 <
+SQLite version 3.7.4
+Enter ".help" for instructions
+Enter SQL statements terminated with a ";"
+sqlite> .tables
+.tables
+android_metadata   bookmarks          system
+bluetooth_devices  secure
+sqlite> select * from secure where name like '%lock%';
+
+update secure set value=0 where name='lock_pattern_autolock';
+update secure set value=0 where name='lockscreen.lockedoutpermanently';
+
+확인 
+select * from name='lock_pattern_autolock';
+select * from name='lockscreen.lockedoutpermanently';
+
+.quit
+   
+리부팅 하면 패턴이 없어짐. 
+
