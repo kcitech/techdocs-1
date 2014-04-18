@@ -1,0 +1,12 @@
+#!/bin/bash
+
+URL="http://x.x.x.x:8061/graph_image.php?action=view&local_graph_id=32&rra_id=1"
+
+wget --post-data 'action=login&login_username=USERID&login_password=PASSWORD' --keep-session-cookies --save-cookies cookies.txt --http-user=USERID --http-password=PASSWORD $URL
+
+wget --load-cookies cookies.txt --http-user=USERID --http-password=PASSWORD $URL -O /home/web/public_html/traffic/test.png
+
+확인
+
+http://x.x.x.x:8061/traffic/test.png
+
