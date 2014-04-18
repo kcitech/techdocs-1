@@ -1,12 +1,30 @@
+
 #!/bin/bash
 
-URL="http://x.x.x.x:8061/graph_image.php?action=view&local_graph_id=32&rra_id=1"
+for LINK in `cat list.txt`
 
-wget --post-data 'action=login&login_username=USERID&login_password=PASSWORD' --keep-session-cookies --save-cookies cookies.txt --http-user=USERID --http-password=PASSWORD $URL
+do
 
-wget --load-cookies cookies.txt --http-user=USERID --http-password=PASSWORD $URL -O /home/web/public_html/traffic/test.png
+SRV=`echo $LINK | awk -F '#' '{print $1}'`
 
+URL=`echo $LINK | awk -F '#' '{print $2}'`
+
+
+wget --post-data 'action=login&login_username=USER&login_password=PASS' --keep-session-cookies --save-cookies cookies.txt --http-user=USER --http-password=PASS $URL
+
+wget --load-cookies cookies.txt --http-user=USER --http-password=PASS $URL -O /home/web/public_html/traffic/$SRV.png
+
+done
+
+
+-----------------------
+list.txt
+
+srv01#http://x.x.x.x/graph_image.php?action=view&local_graph_id=32&rra_id=1
+srv02#http://x.x.x.x/graph_image.php?action=view&local_graph_id=107&rra_id=1
+
+-----------------------
 확인
 
-http://x.x.x.x:8061/traffic/test.png
+http://x.x.x.x/traffic/test.png
 
