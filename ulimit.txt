@@ -68,3 +68,9 @@ cpu time               (seconds, -t) unlimited
 max user processes              (-u) 65535
 virtual memory          (kbytes, -v) unlimited
 file locks                      (-x) unlimited
+
+-------------------------------------------------
+
+
+ulimit -n 65536
+
