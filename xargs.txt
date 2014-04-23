@@ -1,0 +1,18 @@
+root@/tmp # rm spam-*
+
+/bin/rm: Argument list too long.
+------------------------
+
+Solution :::-
+This error in Linux when you have too many files in a directory and you are unable to delete them with a simple rm -rf *? 
+You have run into this problem a number of times.Please used the below command to clear the many files from server.
+------------------------
+# find . -name ‘spam-*’ | xargs rm
+------------------------
+In the above instance the command will forcefully delete all files in the current directory that begin with spam-. 
+
+You can replace the spam-* with anything you like. You can also replace it with just a * if you want to remove all files in the folder.
+------------------------
+# find . -name ‘*’ | xargs rm
+------------------------
+
