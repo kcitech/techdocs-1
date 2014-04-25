@@ -1,0 +1,10 @@
+
+alter table tb_cust modify custcd int not null auto_increment primary key;
+
+alter table cname add originips varchar(255);
+
+alter table cname rename ports webports;
+
+alter table cname change ports webports varchar(255);
+
+alter table cname drop pipsno;
