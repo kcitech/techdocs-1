@@ -1,0 +1,4 @@
+일회성 세션 키 기반 HTTP DDoS 공격 방어기법
+
+http://www.ndsl.kr/brief.do
+
