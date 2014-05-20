@@ -2,3 +2,5 @@
 
 http://www.ndsl.kr/brief.do
 
+http://nms.lcs.mit.edu/~kandula/projects/killbots/kandula_login.pdf
+
