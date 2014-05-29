@@ -47,6 +47,8 @@ Number  Start  End          Size         Type     File system  Flags
 
 (parted) q
 
+mkfs.ext4 /dev/sdb1
+
 ------------------------------------------------------------------------
 
 2T이상일때는 fdisk로는 안되고,
