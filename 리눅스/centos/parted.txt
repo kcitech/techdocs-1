@@ -2,6 +2,18 @@ example>
 #parted /dev/sdb
 
 (parted) print
+Error: /dev/sdb: unrecognised disk label
+
+(parted) mklabel gpt
+(parted) print
+Model: ATA ST2000DM00xxxxx (scsi)
+Disk /dev/sdb: 2000GB
+Sector size (logical/physical): 512B/4096B
+Partition Table: gpt
+
+Number  Start  End  Size  File system  Name  Flags
+
+(parted) print
 Model: ATA ST2000XXXXX-XXXX (scsi)
 Disk /dev/sdb: 2000GB
 Sector size (logical/physical): 512B/4096B
