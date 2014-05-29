@@ -17,7 +17,7 @@ Number  Start  End  Size  File system  Name  Flags
 Model: ATA ST2000XXXXX-XXXX (scsi)
 Disk /dev/sdb: 2000GB
 Sector size (logical/physical): 512B/4096B
-Partition Table: msdos
+Partition Table: gpt
 
 Number  Start   End     Size    Type     File system  Flags
  1      32.3kB  2000GB  2000GB  primary               boot, lvm
@@ -30,7 +30,7 @@ Number  Start   End     Size    Type     File system  Flags
 Model: ATA ST2000DM001-9YN1 (scsi)
 Disk /dev/sdb: 2000GB
 Sector size (logical/physical): 512B/4096B
-Partition Table: msdos
+Partition Table: gpt
 
 Number  Start   End     Size    Type     File system  Flags
  1      1049kB  2000GB  2000GB  primary
@@ -40,7 +40,7 @@ Number  Start   End     Size    Type     File system  Flags
 Model: ATA ST2000XXXXX-XXXX (scsi)
 Disk /dev/sdb: 3907029168s
 Sector size (logical/physical): 512B/4096B
-Partition Table: msdos
+Partition Table: gpt
 
 Number  Start  End          Size         Type     File system  Flags
  1      2048s  3907028991s  3907026944s  primary
