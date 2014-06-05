@@ -63,6 +63,7 @@ git clients
 -----------------------
 cd /home
 git clone root@IP:/home/dfms.git ==> /home/dfms 생성
+cd /home/dfms
 git pull
 
 -----------------------
