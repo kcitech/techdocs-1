@@ -50,6 +50,7 @@ git clone --bare dfms dfms.git
 
 cd /tmp
 mkdir test
+cd test
 git init
 touch README.md
 git add .
