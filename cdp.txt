@@ -27,3 +27,4 @@ gpgcheck=0
 
 참조) http://wiki.r1soft.com/display/ServerBackup/Install+Backup+Agent+on+CentOS%2C+RHE%2C+and+Fedora+manually
 
+lsmod | grep -i hcp ==> 드라이브가 올라오지 않을경우 reboot 
