@@ -1,0 +1,29 @@
+
+install cdp agent on linux (centos 6.5 x64)
+
+#view /etc/yum.repos.d/r1soft.repo
+
+[r1soft]
+name=R1Soft Repository Server
+baseurl=http://repo.r1soft.com/yum/stable/$basearch/
+enabled=1
+gpgcheck=0
+
+#yum install serverbackup-agent
+#serverbackup-setup --test-connection
+#serverbackup-setup --get-module ==> 오류남.
+#yum install kernel-headers.x86_64
+#serverbackup-setup --get-module ==> 오류남.
+#rpm -qa|grep kernel ==> 버전확인 
+
+#serverbackup-setup --no-binary --kernel-dir /usr/src/kernels/2.6.32-431.17.1.el6.x86_64 --tarball-only /tmp/kernel-headers-for-r1soft.tar.gz
+
+서버 kernels 버전에 맞게 
+
+1) https://krnlbld.r1soft.com/ 방문하여 /tmp/kernel-headers-for-r1soft.tar.gz 업로드
+2) After the build, you will download a kernel module.
+3) Copy this module to your Linux Server and place it in the folder /lib/modules/r1soft.
+4) Restart the Agent (/etc/init.d/cdp-agent restart).
+
+참조) http://wiki.r1soft.com/display/ServerBackup/Install+Backup+Agent+on+CentOS%2C+RHE%2C+and+Fedora+manually
+
