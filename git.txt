@@ -9,6 +9,9 @@ git - 간편안내서
 
 => http://git-scm.com/book/ko/Git-%EC%84%9C%EB%B2%84
 
+유용한 최신글
+=> http://bcho.tistory.com/773
+
 touch README.md
 git init
 git add README.md
