@@ -1,0 +1,9 @@
+cd /usr/local/src/
+
+git clone https://github.com/traviscross/mtr.git
+
+cd mtr
+
+./bootstrap.sh && ./configure --without-gtk && make && make install
+
+mtr 8.8.8.8
