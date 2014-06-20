@@ -1,0 +1,9 @@
+/etc/rc.d/rc.local 에 설정 되어 있는 옵션값
+
+/bin/bpctl_start
+
+bpctl_util p1p1 set_bypass off
+
+bpctl_util all set_bypass_pwoff on
+bpctl_util all set_bypass_pwup on
+
