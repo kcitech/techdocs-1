@@ -1,0 +1,10 @@
+
+1. time
+
+#rm /etc/localtime
+#ln -s /usr/share/zoneinfo/Asia/Seoul /etc/localtime
+
+#view /etc/crontab
+00 0 * * * root /usr/sbin rdate -s zero.bora.net && hwclock -w
+
+
