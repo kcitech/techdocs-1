@@ -7,4 +7,16 @@
 #view /etc/crontab
 00 0 * * * root /usr/sbin rdate -s zero.bora.net && hwclock -w
 
+2. ulimit
+
+vi /etc/security/limits.conf  
+
+*          soft     nproc          65535
+*          hard     nproc          65535
+*          soft     nofile         65535
+*          hard     nofile         65535
+
+확인
+ulimit -a 
+
 
