@@ -51,9 +51,19 @@ iscsi block device 삭제시
    
    create 클릭
    
+   volume > iSCSI Targets > Target Configuration
+   
+   Target IQN : Add
+   해당 iSCSI Target 선택후 chagne 버튼 클릭 
+   
+   volume > iSCSI Targets > LUN Mapping 
    
    
-   
+   * Select iSCSI Target change => LUN Mapping 
+     1개의 iSCSI Target에 LUN 매핑을 여러개 할수 있다. 
+     
+   volume > iSCSI Targets > Network ACL에서 접근제한 설정 
+    
    
    
 
