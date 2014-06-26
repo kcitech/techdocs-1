@@ -32,3 +32,11 @@ iscsi block device 삭제시
 
 5. pwd 변경 : Account > Admin Password
 
+6. console에서 
+  # pvcreate /dev/sda4
+  # pvcreate /dev/sdb1
+  # pvscan
+  # vgcreate vg01 /dev/sda4
+  # vgcreate vg02 /dev/sdb1
+  or vgcreate vg012 /dev/sda4 /dev/sdb1
+  # vgdisplay
