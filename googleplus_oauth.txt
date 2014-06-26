@@ -1,3 +1,5 @@
 https://developers.google.com/api-client-library/php/guide/aaa_oauth2_web
 
 http://www.googleplusdaily.com/2013/03/add-google-sign-in-in-6-easy-steps.html
+
+http://25labs.com/tutorial-implementing-google-api-using-oauth-2-0-in-php/
