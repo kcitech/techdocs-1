@@ -29,3 +29,6 @@ iscsi block device 삭제시
    
 4. https://IP:446 
    default : openfiler / password
+
+5. pwd 변경 : Account > Admin Password
+
