@@ -14,3 +14,18 @@ mount -t nfs 192.168.0.80:/mnt/TestVG/testvol01/vol01 /testvol01/
 iscsi block device 삭제시
 => iscsi 데몬 중지후 삭제 하면 됨. 
 
+설치하기
+
+0. 서버 
+   fujitshu R100S7
+   
+1. 디스크 찾지 못할때는 'use a disk driver' 선택하여 설치함. 
+   해당 메뉴를 들어간후, back 버튼 클릭하면 디스크 인식됨.(버그인듯)
+   
+2. 설치시 파티션 1개 lvm 하나 이상 만들기
+
+3. 네트워크 driver을 못찾는경우가 있었음(R100S8)
+   R100S7는 정상적으로 잡힘.
+   
+4. https://IP:446 
+   default : openfiler / password
