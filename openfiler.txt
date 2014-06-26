@@ -41,6 +41,10 @@ iscsi block device 삭제시
   or vgcreate vg012 /dev/sda4 /dev/sdb1
   # vgdisplay
   
+6.5 Services에서 사용할 서비스 enable, start
+   nfs server
+   iSCSI Targer
+  
 7. iscsi targets 설정
    volume > vg02 change > 오른쪽 메뉴에서  Add Volume
    
@@ -75,6 +79,12 @@ iscsi block device 삭제시
   
   윈도우 디스크 관리자에서 연결된것을 확인 후 포맷, 사용 
   
+9. samba의 경우 
+   cifs start
+   account > DOMAIN/Workgroup에 WORKGROUP 입력
+   
+   \\IP\vg01.vol01.folder01 로 접속 
+   
 
 
 
