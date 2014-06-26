@@ -64,9 +64,17 @@ iscsi block device 삭제시
      
    volume > iSCSI Targets > Network ACL에서 접근제한 설정 
     
-   
-   
+8. window 7에서 iscsi 초기자 연결하기
 
+  iscsi 초기자 실행 > 검색에서 해당 서버 및 포트 추가
+  
+  포털 검색 : IP   포트 3260
+  
+  iscsi 초기자 실행 > 대상 (새로고침) 
+  해당 iqn 선택한후 연결 
+  
+  윈도우 디스크 관리자에서 연결된것을 확인 후 포맷, 사용 
+  
 
 
 
