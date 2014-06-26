@@ -40,3 +40,23 @@ iscsi block device 삭제시
   # vgcreate vg02 /dev/sdb1
   or vgcreate vg012 /dev/sda4 /dev/sdb1
   # vgdisplay
+  
+7. iscsi targets 설정
+   volume > vg02 change > 오른쪽 메뉴에서  Add Volume
+   
+   Volume Name : test_iscsi
+   Volume Description : test_iscsi
+   Required Space(MB) : 102400
+   Filesystem / Volume type: block(iSCSI,FC,etc) 
+   
+   create 클릭
+   
+   
+   
+   
+   
+   
+
+
+
+
