@@ -10,3 +10,7 @@ share상태
 TestVG - testvol01 - vol01
 
 mount -t nfs 192.168.0.80:/mnt/TestVG/testvol01/vol01 /testvol01/
+
+iscsi block device 삭제시
+=> iscsi 데몬 중지후 삭제 하면 됨. 
+
