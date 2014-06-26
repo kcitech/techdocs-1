@@ -5,3 +5,8 @@ http://www.youtube.com/watch?v=wkmY-HZNWrk
 iscsi
 
 http://gyh214.tistory.com/210
+
+share상태
+TestVG - testvol01 - vol01
+
+mount -t nfs 192.168.0.80:/mnt/TestVG/testvol01/vol01 /testvol01/
