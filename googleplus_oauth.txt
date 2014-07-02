@@ -5,3 +5,7 @@ http://www.googleplusdaily.com/2013/03/add-google-sign-in-in-6-easy-steps.html
 http://25labs.com/tutorial-implementing-google-api-using-oauth-2-0-in-php/
 
 https://developers.google.com/+/web/signin/
+
+http://books.google.co.kr/books?id=qcsoLHusAFsC&pg=PA22&lpg=PA22&dq=google+oauth+CSRF+php+example&source=bl&ots=knzJd8Om6P&sig=DWiEEU7HWp_tze60CkIS8gstVeU&hl=ko&sa=X&ei=q8azU5ueJYmCkQXt04DwBg&ved=0CFgQ6AEwBQ#v=onepage&q=google%20oauth%20CSRF%20php%20example&f=false
+
+
