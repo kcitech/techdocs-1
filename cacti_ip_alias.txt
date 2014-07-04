@@ -1,0 +1,15 @@
+
+  472  yum install net-snmp -y
+  473  vi /etc/snmp/snmpd.conf
+  474  /etc/init.d/snmpd restart
+  475  iptables -nL
+  476  iptables -N traffic_in
+  477  iptables -N traffic_out
+  478  iptables -I INPUT 1 -j traffic_in
+  479  iptables -I OUTPUT 1 -j traffic_out
+  480  /usr/local/sbin/snmp_ips/iptables_traffic_iplist.sh -g
+  481  /usr/local/sbin/snmp_ips/iptables_traffic_rules_gen.sh -g
+  482  /usr/local/sbin/snmp_ips/iptables_traffic_rules_gen.sh -i
+  484  vi /etc/snmp/snmpd.conf
+  485  iptables -nL | more
+  486  /etc/init.d/snmpd restart
