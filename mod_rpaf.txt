@@ -1,0 +1,5 @@
+ 1055  wget ftp://ftp.pbone.net/mirror/repo.webtatic.com/yum/centos/5/x86_64/mod_rpaf-0.6-3.x86_64.rpm
+ 1056  ls -l
+ 1057  rpm -Uvh mod_rpaf-0.6-3.x86_64.rpm
+
+
