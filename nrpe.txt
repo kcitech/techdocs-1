@@ -1,0 +1,5 @@
+wget http://mirror.nus.edu.sg/fedora/epel/6/x86_64/epel-release-6-8.noarch.rpm
+rpm -ivh epel-release-6-8.noarch.rpm
+
+yum install nagios-plugins nagios-nrpe nagios-plugins-nrpe
+
