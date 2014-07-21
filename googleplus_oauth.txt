@@ -10,4 +10,5 @@ http://books.google.co.kr/books?id=qcsoLHusAFsC&pg=PA22&lpg=PA22&dq=google+oauth
 
 https://developers.google.com/+/web/signin/server-side-flow
 
+https://developers.google.com/+/quickstart/php?hl=ko
 
