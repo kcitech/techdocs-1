@@ -3,3 +3,7 @@ rpm -ivh epel-release-6-8.noarch.rpm
 
 yum install nagios-plugins nagios-nrpe nagios-plugins-nrpe
 
+scp root@NRPE_SERVER:/etc/nagios/nrpe.cfg /etc/nagios/
+scp root@NRPE_SERVER:/usr/lib64/nagios/plugins/check_ping /usr/lib64/nagios/plugins/
+scp root@NRPE_SERVER:/usr/lib64/nagios/plugins/check_tcp /usr/lib64/nagios/plugins/
+
