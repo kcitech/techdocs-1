@@ -74,6 +74,9 @@ new>
 
 http://bbs.konotes.org/thread-4808-1-1.html
 
+http://www.gaggl.com/2012/06/installing-poptop-pppd-vpn-serveron-centos-6/
+
+
 1)
 /root/.ppprc Permission 오류시 당.황.하.지 말고.
 /etc/init.d/pptpd start|stop 으로 구동대신 아래 커맨드 구동 하면 끝~
@@ -98,6 +101,19 @@ iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o em1 -j MASQUERADE
 iptables -A FORWARD -i ppp+ -o em1 -j ACCEPT
 iptables -A FORWARD -i em1 -o ppp+ -j ACCEPT
 
+4)
+
+[root@localhost ~]# yum list ppp pptpd
+Loaded plugins: fastestmirror, security
+Loading mirror speeds from cached hostfile
+ * base: ftp.daum.net
+ * extras: ftp.daum.net
+ * updates: ftp.daum.net
+Installed Packages
+ppp.x86_64                                                       2.4.5-33.0.rhel6                                                      @poptop-stable
+pptpd.x86_64                                                     1.4.0-1.el6                                                           @poptop-stable
+
+
 ---------------------
 아래는 안됨 (참조만)
 ---------------------
@@ -120,6 +136,38 @@ iptables -t nat -I POSTROUTING -o em1 -j MASQUERADE
 
 iptables -A FORWARD -s 192.168.10.0/24 -j ACCEPT
 iptables -A FORWARD -d 192.168.10.0/24 -j ACCEPT
+
+=================================================================
+new install
+=================================================================
+
+1)
+rpm --import http://poptop.sourceforge.net/yum/RPM-GPG-KEY-PPTP
+rpm -Uvh http://poptop.sourceforge.net/yum/stable/rhel6/pptp-release-current.noarch.rpm
+yum install ppp pptpd -y
+
+2)
+IP configuration
+echo "localip 192.168.0.1" >> /etc/pptpd.conf
+echo "remoteip 192.168.0.100-199" >> /etc/pptpd.conf
+
+DNS configuration
+echo "ms-dns 8.8.8.8" >> /etc/ppp/options.pptpd
+echo "ms-dns 4.2.2.1" >> /etc/ppp/options.pptpd
+
+Authentication configuration
+echo "$USERNAME pptpd $PASSWORD *" >> /etc/ppp/chap-secrets
+or
+echo "$USERNAME * $PASSWORD *" >> /etc/ppp/chap-secrets
+
+3)
+#!/bin/bash
+iptables -A INPUT -i em1 -p tcp --dport 1723 -j ACCEPT
+iptables -A INPUT -i em1 -p gre -j ACCEPT
+iptables -t nat -A POSTROUTING -o em1 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o em1 -j MASQUERADE
+iptables -A FORWARD -i ppp+ -o em1 -j ACCEPT
+iptables -A FORWARD -i em1 -o ppp+ -j ACCEPT
 
 
 =================================================================
