@@ -148,8 +148,8 @@ yum install ppp pptpd -y
 
 2)
 IP configuration
-echo "localip 192.168.0.1" >> /etc/pptpd.conf
-echo "remoteip 192.168.0.100-199" >> /etc/pptpd.conf
+echo "localip 192.168.10.1" >> /etc/pptpd.conf
+echo "remoteip 192.168.10.100-199" >> /etc/pptpd.conf
 
 DNS configuration
 echo "ms-dns 8.8.8.8" >> /etc/ppp/options.pptpd
