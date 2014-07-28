@@ -70,6 +70,47 @@ view /etc/network/interfaces 추가
         pre-up iptables-restore < /etc/iptables.rules
 
 
+new>
+
+http://bbs.konotes.org/thread-4808-1-1.html
+
+1)
+/root/.ppprc Permission 오류시 당.황.하.지 말고.
+/etc/init.d/pptpd start|stop 으로 구동대신 아래 커맨드 구동 하면 끝~
+pptpd -c /etc/pptpd.conf -d -o /etc/ppp/options.pptpd -p /var/lock/subsys/pptpd 
+
+vpnuser add 계정 암호
+vpnuser del 계정
+
+2)
+참고로 특수문자는 안 먹히는것 같음. 
+
+3) iptables
+
+#!/bin/sh
+iptables -F
+iptables -X
+iptables -Z
+iptables -F -t nat
+iptables -X -t nat
+iptables -Z -t nat
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD DROP
+
+iptables -A INPUT -i em1 -p gre -j ACCEPT
+iptables -A INPUT -i em1 -p tcp --dport 443 -j ACCEPT
+iptables -A INPUT -i em1 -p tcp --dport 1723 -j ACCEPT
+
+iptables -t nat -I POSTROUTING -o em1 -j MASQUERADE
+
+iptables -A FORWARD -s 192.168.10.0/24 -j ACCEPT
+iptables -A FORWARD -d 192.168.10.0/24 -j ACCEPT
+
+
+
+
+
 
 =================================================================
 reference : http://noise1.tistory.com/5
