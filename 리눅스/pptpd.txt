@@ -138,7 +138,7 @@ iptables -A FORWARD -s 192.168.10.0/24 -j ACCEPT
 iptables -A FORWARD -d 192.168.10.0/24 -j ACCEPT
 
 =================================================================
-new install
+new install on centos 6.5 x64
 =================================================================
 
 1)
@@ -168,6 +168,11 @@ iptables -t nat -A POSTROUTING -o em1 -j MASQUERADE
 iptables -t nat -A POSTROUTING -s 192.168.10.0/24 -o em1 -j MASQUERADE
 iptables -A FORWARD -i ppp+ -o em1 -j ACCEPT
 iptables -A FORWARD -i em1 -o ppp+ -j ACCEPT
+
+4) start
+/etc/init.d/pptpd stop
+
+/usr/sbin/pptpd -c /etc/pptpd.conf -d -o /etc/ppp/options.pptpd -p /var/lock/subsys/pptpd
 
 
 =================================================================
