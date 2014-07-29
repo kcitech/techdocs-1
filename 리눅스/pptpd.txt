@@ -238,6 +238,25 @@ ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0
 Chain OUTPUT (policy ACCEPT)
 target     prot opt source               destination
 
+=================================================================
+naver / daum 접속 안될때 
+=================================================================
+=> http://safesrv.net/setup-pptp-and-freeradius-on-centos-5/
+=> 안녕리눅스 pptpd 
+    http://annyung.oops.org/?m=white&p=pptpd
+
+원인
+Now that should be it for PPTP, 
+if you have problems browsing sites when connected to PPTP, 
+you may need to change the MTU of the ppp interface. 
+To do this open the /etc/ppp/ip-up file and just before the last line, 
+add the following line.
+
+view /etc/ppp/ip-up 
+
+맨아래줄 바로 위에 다음 추가 
+
+/sbin/ifconfig $1 mtu 1400
 
 =================================================================
 reference : http://noise1.tistory.com/5
