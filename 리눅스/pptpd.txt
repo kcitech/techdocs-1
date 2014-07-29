@@ -259,6 +259,34 @@ view /etc/ppp/ip-up
 /sbin/ifconfig $1 mtu 1400
 
 =================================================================
+ftp dos 창에서 접속후 ls 후에 illegal port 오류 날때 
+=================================================================
+참조 : http://www.linuxquestions.org/questions/linux-newbie-8/ftp-server-behind-nat-iptables-list-ftp-directories-problem-925254/
+
+modprobe ip_nat_ftp
+iptables -A INPUT -p tcp --dport 1024:65535 -j ACCEPT
+iptables -A FORWARD -i em1 -p tcp --dport 1024:65535 -j ACCEPT
+
+아래 iptables 을 안해도 되는것으로 보임. 
+
+참조>
+Found a solution:
+
+modprobe ip_nat_ftp
+echo 1 > /proc/sys/net/ipv4/ip_forward
+
+then, configure IpTables:
+iptables -A INPUT -p tcp --dport 1024:65535 -j ACCEPT
+iptables -A FORWARD -i em1 -p tcp --dport 1024:65535 -j ACCEPT
+
+iptables -t nat -A PREROUTING -i em1 -p tcp -d 192.168.30.0/24 --dport 1024:65535 -j DNAT --to-destination 192.168.30.0/24:1024-65535
+iptables -t nat -A PREROUTING -i em1 -p tcp --dport 21 -j DNAT --to-destination 192.168.30.0/24:21
+iptables -t nat -A POSTROUTING -o em1 -j MASQUERADE [duplicate]
+
+
+
+
+=================================================================
 reference : http://noise1.tistory.com/5
 =================================================================
 
