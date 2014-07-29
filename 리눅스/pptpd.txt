@@ -284,6 +284,56 @@ iptables -t nat -A PREROUTING -i em1 -p tcp --dport 21 -j DNAT --to-destination 
 iptables -t nat -A POSTROUTING -o em1 -j MASQUERADE [duplicate]
 
 
+============================
+ftp 파일 전송 성공
+============================
+
+데몬 stop
+/etc/init.d/pptpd stop
+ps auxf|grep pp => kill -9
+netstat -tnlp 1723포트 확인
+/root/bin/nofirewall.sh 
+
+데몬 start
+
+/root/bin/iptables_pptpd2_ok.sh
+/root/bin/start_pptpd.sh
+
+
+[root@localhost bin]# cat iptables_pptpd2_ok.sh
+#!/bin/bash
+
+modprobe ip_nat_ftp
+modprobe ip_conntrack_ftp
+
+iptables -F
+iptables -X
+iptables -Z
+iptables -F -t nat
+iptables -X -t nat
+iptables -Z -t nat
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD DROP
+
+iptables -A INPUT -i em1 -p tcp --dport 1723 -j ACCEPT
+iptables -A INPUT -i em1 -p gre -j ACCEPT
+iptables -t nat -A POSTROUTING -o em1 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 192.168.30.0/24 -o em1 -j MASQUERADE
+iptables -A FORWARD -i ppp+ -o em1 -j ACCEPT
+iptables -A FORWARD -i em1 -o ppp+ -j ACCEPT
+
+iptables -A INPUT -i em1:0 -p tcp --dport 1723 -j ACCEPT
+iptables -A INPUT -i em1:0 -p gre -j ACCEPT
+iptables -t nat -A POSTROUTING -o em1:0 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 192.168.30.0/24 -o em1:0 -j MASQUERADE
+iptables -A FORWARD -i ppp+ -o em1:0 -j ACCEPT
+iptables -A FORWARD -i em1:0 -o ppp+ -j ACCEPT
+
+#ftp
+iptables -A INPUT -p tcp --dport 1024:65535 -j ACCEPT
+iptables -A FORWARD -i em1 -p tcp --dport 1024:65535 -j ACCEPT
+
 
 
 =================================================================
