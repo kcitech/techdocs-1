@@ -176,6 +176,70 @@ iptables -A FORWARD -i em1 -o ppp+ -j ACCEPT
 
 
 =================================================================
+다시 잘됨. 
+=================================================================
+
+/etc/init.d/pptpd stop
+ps auxf|grep pp ==> kill 
+/root/bin/nofirewall.sh
+/root/bin/iptables_pptpd2.sh
+/root/bin/start_pptpd.sh
+
+* nofirewall.sh
+#!/bin/sh
+iptables -F
+iptables -X
+iptables -Z
+iptables -F -t nat
+iptables -X -t nat
+iptables -Z -t nat
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD DROP
+
+
+* /root/bin/iptables_pptpd2.sh
+#!/bin/bash
+
+iptables -F
+iptables -X
+iptables -Z
+iptables -F -t nat
+iptables -X -t nat
+iptables -Z -t nat
+iptables -P INPUT ACCEPT
+iptables -P OUTPUT ACCEPT
+iptables -P FORWARD DROP
+
+iptables -A INPUT -i em1 -p tcp --dport 1723 -j ACCEPT
+iptables -A INPUT -i em1 -p gre -j ACCEPT
+iptables -t nat -A POSTROUTING -o em1 -j MASQUERADE
+iptables -t nat -A POSTROUTING -s 192.168.30.0/24 -o em1 -j MASQUERADE
+iptables -A FORWARD -i ppp+ -o em1 -j ACCEPT
+iptables -A FORWARD -i em1 -o ppp+ -j ACCEPT
+
+* /root/bin/start_pptpd.sh
+
+#!/bin/bash
+
+/usr/sbin/pptpd -c /etc/pptpd.conf -d -o /etc/ppp/options.pptpd -p /var/lock/subsys/pptpd
+
+[root@localhost bin]# iptables -nL
+Chain INPUT (policy ACCEPT)
+target     prot opt source               destination
+ACCEPT     tcp  --  0.0.0.0/0            0.0.0.0/0           tcp dpt:1723
+ACCEPT     47   --  0.0.0.0/0            0.0.0.0/0
+
+Chain FORWARD (policy DROP)
+target     prot opt source               destination
+ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0
+ACCEPT     all  --  0.0.0.0/0            0.0.0.0/0
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
+
+
+=================================================================
 reference : http://noise1.tistory.com/5
 =================================================================
 
