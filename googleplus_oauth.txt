@@ -12,3 +12,4 @@ https://developers.google.com/+/web/signin/server-side-flow
 
 https://developers.google.com/+/quickstart/php?hl=ko
 
+https://developers.google.com/+/web/people/?hl=ko
