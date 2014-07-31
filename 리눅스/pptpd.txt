@@ -335,6 +335,40 @@ iptables -A INPUT -p tcp --dport 1024:65535 -j ACCEPT
 iptables -A FORWARD -i em1 -p tcp --dport 1024:65535 -j ACCEPT
 
 
+==================================================================
+비교
+==================================================================
+
+centos 6.5 x64 service pptpd 
+
+[root@localhost ~]# yum list *pptp*
+Loaded plugins: fastestmirror, security
+Loading mirror speeds from cached hostfile
+ * base: data.nicehosting.co.kr
+ * extras: data.nicehosting.co.kr
+ * updates: data.nicehosting.co.kr
+Installed Packages
+pptp-release.noarch                                                                    4-7.rhel5                                                                          installed
+pptpd.x86_64                                                                           1.4.0-1.el6                                                                        @poptop-stable
+
+centos 6.4 x64 
+
+[root@localhost ~]# yum list "*pptp*"
+Loaded plugins: fastestmirror, security
+Loading mirror speeds from cached hostfile
+ * base: ftp.daum.net
+ * extras: ftp.daum.net
+ * updates: ftp.daum.net
+base                                                                                                              | 3.7 kB     00:00
+extras                                                                                                            | 3.4 kB     00:00
+poptop-stable                                                                                                     | 2.2 kB     00:00
+pptp-stable                                                                                                       | 2.2 kB     00:00
+updates                                                                                                           | 3.4 kB     00:00
+Installed Packages
+pptp-release.noarch                                             4-7.rhel6                                                  installed
+pptpd.x86_64                                                    1.4.0-1.el6                                                @poptop-stable
+
+
 
 =================================================================
 reference : http://noise1.tistory.com/5
